@@ -1,0 +1,341 @@
+"use client";
+
+import React, { useState } from "react";
+import Link from "next/link";
+import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
+import { ShieldCheck, CheckCircle2, AlertTriangle, Loader2, Wallet, ArrowRight, Check, Search } from "lucide-react";
+import { useWallet } from "@/context/wallet";
+
+export default function CreatorClaim() {
+  const { isConnected, connect, walletAddress, signMessage } = useWallet();
+
+  const [step, setStep] = useState(1); // 1: connect wallet, 2: paste market address, 3: reddit oauth login, 4: submit claim, 5: success
+  const [marketAddress, setMarketAddress] = useState("");
+  const [selectedMarket, setSelectedMarket] = useState<any | null>(null);
+  
+  // Simulated OAuth state
+  const [redditUsername, setRedditUsername] = useState("");
+  const [isVerifyingReddit, setIsVerifyingReddit] = useState(false);
+  
+  // Submit state
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [claimResult, setClaimResult] = useState<any | null>(null);
+  const [errorMsg, setErrorMsg] = useState("");
+
+  const handleFetchMarket = async () => {
+    if (!marketAddress) return;
+    setErrorMsg("");
+
+    try {
+      const res = await fetch(`/api/market/${marketAddress}`);
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Market not found");
+      }
+
+      if (data.market.creatorWallet) {
+        throw new Error("Creator rewards have already been claimed for this market.");
+      }
+
+      setSelectedMarket(data.market);
+      setStep(3); // proceed to oauth
+    } catch (e: any) {
+      setErrorMsg(e.message || "Failed to find active market.");
+    }
+  };
+
+  const handleRedditAuth = () => {
+    setIsVerifyingReddit(true);
+    setErrorMsg("");
+
+    // Simulate Reddit OAuth popup and callback
+    setTimeout(() => {
+      if (!selectedMarket) return;
+      // Pre-fill Reddit poster username to make local sandbox verification easy
+      const targetUser = selectedMarket.author.replace(/^u\//, "");
+      setRedditUsername(targetUser);
+      setIsVerifyingReddit(false);
+      setStep(4); // proceed to sign & claim
+    }, 2000);
+  };
+
+  const handleExecuteClaim = async () => {
+    if (!selectedMarket || !redditUsername || !walletAddress) return;
+    setIsSubmitting(true);
+    setErrorMsg("");
+
+    try {
+      // 1. Sign verify message to authorize wallet linkage
+      const message = `Claim rewards for Reddit post ${selectedMarket.sourceHash} as user ${redditUsername} to wallet ${walletAddress}`;
+      const signature = await signMessage(message);
+
+      // 2. Submit to claim API
+      const res = await fetch("/api/creator/claim", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sourceHash: selectedMarket.sourceHash,
+          redditUsername: `u/${redditUsername}`,
+          walletAddress,
+          signature
+        })
+      });
+
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        throw new Error(data.error || "Failed to execute claim in Creator vault");
+      }
+
+      setClaimResult(data.claim);
+      setStep(5); // success page
+    } catch (e: any) {
+      setErrorMsg(e.message || "Claim execution failed.");
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  return (
+    <div className="min-h-screen flex flex-col bg-[#FFFCF8] relative overflow-hidden">
+      {/* Background glowing orb */}
+      <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[#19C37D]/10 via-[#FF6B1A]/5 to-transparent rounded-full blur-[100px] -z-10 pointer-events-none" />
+      
+      <Navbar />
+
+      <main className="mx-auto w-full max-w-3xl px-6 py-16 flex-1 relative z-10">
+        
+        {/* Header Area */}
+        <div className="text-center mb-12">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#E5F9F1] to-[#C1F0DB] mb-6 shadow-sm">
+            <ShieldCheck className="h-8 w-8 text-[#19C37D]" />
+          </div>
+          <h1 className="text-[40px] md:text-[48px] font-[900] text-[#161616] leading-tight tracking-tight mb-4">
+            Creator Claim Vault
+          </h1>
+          <p className="text-[16px] md:text-[18px] text-[#5F5B57] font-medium max-w-xl mx-auto">
+            Securely authenticate your Reddit account to claim accrued trading fees for attention markets launched from your posts.
+          </p>
+        </div>
+
+        <div className="rounded-[32px] border border-[#F2D8C8] bg-white p-6 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)] relative">
+          
+          {/* Stepper indicators */}
+          <div className="flex items-center justify-between mb-10 px-2 sm:px-6 relative">
+            <div className="absolute top-1/2 left-8 right-8 h-[2px] bg-[#F2D8C8] -z-10 -translate-y-1/2" />
+            <div className="absolute top-1/2 left-8 h-[2px] bg-[#19C37D] -z-10 -translate-y-1/2 transition-all duration-500" style={{ width: `${((step - 1) / 3) * (100 - 16)}%` }} />
+            
+            {[1, 2, 3, 4].map((s) => (
+              <div key={s} className="flex flex-col items-center gap-2 bg-white px-2">
+                <div className={`flex h-8 w-8 items-center justify-center rounded-full text-xs font-black transition-colors ${
+                  step > s ? "bg-[#19C37D] text-white" :
+                  step === s ? "bg-[#FF6B1A] text-white shadow-md shadow-[#FF6B1A]/20" :
+                  "bg-[#FFFAF5] border border-[#F2D8C8] text-[#8A817A]"
+                }`}>
+                  {step > s ? <Check className="h-4 w-4" /> : s}
+                </div>
+                <span className={`text-[10px] font-bold uppercase tracking-wider hidden sm:block ${
+                  step >= s ? "text-[#161616]" : "text-[#8A817A]"
+                }`}>
+                  {s === 1 ? "Wallet" : s === 2 ? "Market" : s === 3 ? "Reddit" : "Claim"}
+                </span>
+              </div>
+            ))}
+          </div>
+
+          {/* Step 1: Wallet Connection */}
+          {step === 1 && (
+            <div className="text-center py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="inline-flex h-20 w-20 items-center justify-center rounded-[24px] bg-[#FFF4EA] mb-6">
+                <Wallet className="h-10 w-10 text-[#FF6B1A]" />
+              </div>
+              <h2 className="text-2xl font-black text-[#161616] mb-3">Connect Wallet to Begin</h2>
+              <p className="text-sm font-medium text-[#5F5B57] max-w-sm mx-auto mb-8 leading-relaxed">
+                Accrued vault rewards are sent directly to your BNB Chain wallet. Connect to begin signature verification.
+              </p>
+              {isConnected ? (
+                <button
+                  onClick={() => setStep(2)}
+                  className="inline-flex h-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-10 text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Continue to Step 2
+                </button>
+              ) : (
+                <button
+                  onClick={() => connect("Sandbox")}
+                  className="inline-flex h-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-8 text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Connect Sandbox Wallet
+                </button>
+              )}
+            </div>
+          )}
+
+          {/* Step 2: Select Market */}
+          {step === 2 && (
+            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-center mb-2">
+                <h2 className="text-2xl font-black text-[#161616] mb-3">Enter Market Address</h2>
+                <p className="text-sm font-medium text-[#5F5B57] max-w-sm mx-auto leading-relaxed">
+                  Paste the Token or Bonding Curve contract address of the market created for your post.
+                </p>
+              </div>
+              
+              <div className="flex flex-col sm:flex-row gap-3">
+                <div className="relative flex-1">
+                  <Search className="absolute left-4 top-[18px] h-5 w-5 text-[#8A817A]" />
+                  <input
+                    type="text"
+                    value={marketAddress}
+                    onChange={(e) => setMarketAddress(e.target.value)}
+                    placeholder="0x..."
+                    className="w-full h-14 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-12 pr-4 text-[15px] font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors shadow-sm"
+                  />
+                </div>
+                <button
+                  onClick={handleFetchMarket}
+                  disabled={!marketAddress}
+                  className="h-14 shrink-0 rounded-full bg-gradient-to-r from-[#161616] to-[#2a2a2a] px-8 text-[14px] font-extrabold text-white transition-all disabled:opacity-50 disabled:scale-100 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                >
+                  Verify Market
+                </button>
+              </div>
+
+              {errorMsg && (
+                <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-600">
+                  <AlertTriangle className="h-5 w-5 shrink-0" />
+                  {errorMsg}
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* Step 3: Reddit OAuth Login */}
+          {step === 3 && selectedMarket && (
+            <div className="text-center py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="inline-flex h-20 w-20 items-center justify-center rounded-full bg-[#FFF4EA] border-4 border-white shadow-md mb-6 overflow-hidden p-4">
+                <svg viewBox="0 0 24 24" fill="#FF4500" className="w-full h-full">
+                  <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .88.169 1.188.452 1.229-.894 2.943-1.474 4.846-1.545l.891-4.173 3.013.626a1.25 1.25 0 0 1 1.29-1.106zm-7.618 9.07c-.822 0-1.488.666-1.488 1.488 0 .822.666 1.488 1.488 1.488.822 0 1.488-.666 1.488-1.488 0-.822-.666-1.488-1.488-1.488zm5.244 0c-.822 0-1.488.666-1.488 1.488 0 .822.666 1.488 1.488 1.488.822 0 1.488-.666 1.488-1.488 0-.822-.666-1.488-1.488-1.488zm-5.068 3.84c.83.6 2.03.882 3.454.882 1.424 0 2.624-.282 3.454-.882a.333.333 0 1 1 .389.54c-1.026.744-2.42 1.053-3.843 1.053-1.424 0-2.817-.309-3.843-1.053a.333.333 0 1 1 .389-.54z" />
+                </svg>
+              </div>
+              <h2 className="text-2xl font-black text-[#161616] mb-3">Reddit Authentication</h2>
+              <p className="text-sm font-medium text-[#5F5B57] max-w-md mx-auto mb-8 leading-relaxed">
+                To claim fees, we must verify you are the original Reddit author of this post.
+              </p>
+              
+              <div className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-5 text-left mb-8 relative">
+                <span className="text-[10px] uppercase font-bold text-[#8A817A] mb-1 block">Post Preview</span>
+                <h3 className="font-bold text-[#161616] truncate">"{selectedMarket.title}"</h3>
+              </div>
+              
+              <button
+                onClick={handleRedditAuth}
+                disabled={isVerifyingReddit}
+                className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#FF4500] hover:bg-[#E03D00] text-white px-10 text-[15px] font-extrabold transition-all shadow-[0_4px_14px_rgba(255,69,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {isVerifyingReddit ? (
+                  <>
+                    <Loader2 className="animate-spin h-5 w-5" />
+                    Authenticating via OAuth...
+                  </>
+                ) : (
+                  <>
+                    Sign In with Reddit
+                  </>
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Step 4: Confirm & Claim */}
+          {step === 4 && selectedMarket && (
+            <div className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-center">
+                <h2 className="text-2xl font-black text-[#161616] mb-2">Confirm & Claim</h2>
+                <p className="text-sm font-medium text-[#5F5B57]">Review your payout linkage details below.</p>
+              </div>
+              
+              <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-sm flex flex-col gap-5">
+                <div className="flex items-center justify-between p-4 rounded-[16px] bg-[#FFFAF5] border border-[#F2D8C8]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Reddit Creator</span>
+                  <span className="text-[15px] font-black text-[#161616]">u/{redditUsername}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-4 rounded-[16px] bg-[#FFFAF5] border border-[#F2D8C8]">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">BNB Payout Wallet</span>
+                  <span className="text-sm font-bold text-[#161616]">{walletAddress ? `${walletAddress.substring(0, 10)}...${walletAddress.substring(walletAddress.length - 8)}` : ""}</span>
+                </div>
+                
+                <div className="flex items-center justify-between p-5 rounded-[16px] bg-gradient-to-br from-[#E5F9F1] to-[#C1F0DB] border border-[#19C37D]/20 shadow-sm mt-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#19C37D]">Estimated Claim Amount</span>
+                  <span className="text-[20px] font-black text-[#19C37D]">
+                    {(selectedMarket.marketCap * 0.05).toFixed(4)} BNB
+                  </span>
+                </div>
+              </div>
+
+              {errorMsg && (
+                <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-600">
+                  <AlertTriangle className="h-5 w-5 shrink-0" />
+                  {errorMsg}
+                </div>
+              )}
+
+              <button
+                onClick={handleExecuteClaim}
+                disabled={isSubmitting}
+                className="w-full h-14 rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 hover:scale-[1.02] active:scale-[0.98]"
+              >
+                {isSubmitting ? (
+                  <>
+                    <Loader2 className="animate-spin h-5 w-5" />
+                    Signing & Claiming rewards...
+                  </>
+                ) : (
+                  "Sign Message & Claim Rewards"
+                )}
+              </button>
+            </div>
+          )}
+
+          {/* Step 5: Success Payout */}
+          {step === 5 && claimResult && (
+            <div className="text-center py-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-[#E5F9F1] mb-6 shadow-[0_4px_20px_rgba(25,195,125,0.2)]">
+                <CheckCircle2 className="h-12 w-12 text-[#19C37D]" />
+              </div>
+              <h2 className="text-[28px] font-black text-[#161616] mb-3">Rewards Claimed!</h2>
+              <p className="text-[15px] font-medium text-[#5F5B57] max-w-md mx-auto mb-10 leading-relaxed">
+                Your Reddit account ownership verification succeeded. The rewards have been successfully routed to your wallet.
+              </p>
+
+              <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 text-left mb-10 shadow-sm flex flex-col gap-4 relative">
+                <div className="absolute -left-3 -right-3 top-1/2 h-[2px] border-t-2 border-dashed border-[#F2D8C8]" />
+                
+                <div className="flex justify-between items-center z-10 bg-white pb-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Total Payout</span>
+                  <span className="text-[20px] font-black text-[#19C37D]">{claimResult.amount} BNB</span>
+                </div>
+                <div className="flex justify-between items-center z-10 bg-white pt-2">
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Proof/Sig Hash</span>
+                  <span className="text-xs font-bold text-[#161616] font-mono">{claimResult.proofReference}</span>
+                </div>
+              </div>
+
+              <Link
+                href="/portfolio"
+                className="inline-flex h-14 items-center justify-center gap-2 rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-10 text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
+              >
+                Go to Portfolio
+                <ArrowRight className="h-4 w-4" />
+              </Link>
+            </div>
+          )}
+
+        </div>
+      </main>
+
+      <Footer />
+    </div>
+  );
+}

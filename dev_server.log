@@ -1,0 +1,8 @@
+   ▲ Next.js 15.1.7
+   - Local:        http://localhost:3000
+   - Network:      http://192.168.29.165:3000
+   - Environments: .env
+
+ ✓ Starting...
+[TypeError: Invalid Version: undefined]
+[?25h

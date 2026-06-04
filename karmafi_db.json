@@ -1,0 +1,724 @@
+{
+  "users": [
+    {
+      "id": "admin-1",
+      "walletAddress": "0x7777777777777777777777777777777777777777",
+      "username": "admin",
+      "avatar": null,
+      "reputationScore": 100,
+      "role": "ADMIN",
+      "createdAt": "2026-06-02T21:28:37.546Z"
+    },
+    {
+      "id": "user-abr5l7q76",
+      "walletAddress": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "username": "curator_89223A",
+      "avatar": null,
+      "reputationScore": 50,
+      "role": "USER",
+      "createdAt": "2026-06-02T22:13:48.078Z"
+    }
+  ],
+  "redditPosts": [
+    {
+      "id": "post-1",
+      "redditPostId": "1aw5n2v",
+      "subreddit": "r/technology",
+      "author": "u/silicon_future",
+      "title": "BNB Chain announces Greenfield mainnet expansion for decentralized metadata storage",
+      "permalink": "https://reddit.com/r/technology/comments/1aw5n2v/bnb_greenfield/",
+      "thumbnail": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&auto=format&fit=crop&q=60",
+      "createdUtc": 1780349317,
+      "upvotes": 4210,
+      "comments": 245,
+      "sourceHash": "0x1a85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b"
+    },
+    {
+      "id": "post-2",
+      "redditPostId": "1ax3k8p",
+      "subreddit": "r/gaming",
+      "author": "u/pixel_master",
+      "title": "This indie developer built an entire MMO inside a single Smart Contract",
+      "permalink": "https://reddit.com/r/gaming/comments/1ax3k8p/mmo_smart_contract/",
+      "thumbnail": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=120&auto=format&fit=crop&q=60",
+      "createdUtc": 1780392517,
+      "upvotes": 8940,
+      "comments": 612,
+      "sourceHash": "0x2b85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b"
+    },
+    {
+      "id": "post-3",
+      "redditPostId": "1ay4r8q",
+      "subreddit": "r/wallstreetbets",
+      "author": "u/deep_fucking_karma",
+      "title": "Is social attention the new asset class? The math behind viral trading velocity",
+      "permalink": "https://reddit.com/r/wallstreetbets/comments/1ay4r8q/attention_trading/",
+      "thumbnail": "https://images.unsplash.com/photo-1611974789855-9c2a0a7236a3?w=120&auto=format&fit=crop&q=60",
+      "createdUtc": 1780428517,
+      "upvotes": 12450,
+      "comments": 1104,
+      "sourceHash": "0x3b85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b"
+    }
+  ],
+  "markets": [
+    {
+      "id": "market-1",
+      "sourceHash": "0x1a85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b",
+      "tokenAddress": "0x9E973Cc4b7b25E123f1A2b3c4D5E6F7890123456",
+      "marketAddress": "0x1A2b3c4D5E6F7890123456789012345678901234",
+      "creatorWallet": null,
+      "curatorWallet": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "metadataUri": "ipfs://QmMockGreenfield",
+      "status": "ACTIVE",
+      "viralityScore": 78,
+      "marketCap": 15.42,
+      "volume24h": 3.25,
+      "holdersCount": 42,
+      "createdAt": "2026-06-01T21:28:37.543Z",
+      "name": "Greenfield Expansion Token",
+      "symbol": "GREENFIELD",
+      "redditPostId": "1aw5n2v",
+      "subreddit": "r/technology",
+      "author": "u/silicon_future",
+      "title": "BNB Chain announces Greenfield mainnet expansion for decentralized metadata storage",
+      "permalink": "https://reddit.com/r/technology/comments/1aw5n2v/bnb_greenfield/",
+      "thumbnail": "https://images.unsplash.com/photo-1639762681485-074b7f938ba0?w=120&auto=format&fit=crop&q=60",
+      "upvotes": 4210,
+      "comments": 245
+    },
+    {
+      "id": "market-2",
+      "sourceHash": "0x2b85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b",
+      "tokenAddress": "0xA1b2C3d4E5f67890123456789012345678901234",
+      "marketAddress": "0x2A3b4c5D6E7F8901234567890123456789012345",
+      "creatorWallet": "0x1111111111111111111111111111111111111111",
+      "curatorWallet": "0x9E973Cc4b7b25E123f1A2b3c4D5E6F7890123456",
+      "metadataUri": "ipfs://QmMockGaming",
+      "status": "ACTIVE",
+      "viralityScore": 89,
+      "marketCap": 45.8091,
+      "volume24h": 12.9909,
+      "holdersCount": 119,
+      "createdAt": "2026-06-02T09:28:37.543Z",
+      "name": "Indie MMO Token",
+      "symbol": "INDIE",
+      "redditPostId": "1ax3k8p",
+      "subreddit": "r/gaming",
+      "author": "u/pixel_master",
+      "title": "This indie developer built an entire MMO inside a single Smart Contract",
+      "permalink": "https://reddit.com/r/gaming/comments/1ax3k8p/mmo_smart_contract/",
+      "thumbnail": "https://images.unsplash.com/photo-1538481199705-c710c4e965fc?w=120&auto=format&fit=crop&q=60",
+      "upvotes": 8940,
+      "comments": 612
+    },
+    {
+      "id": "market-vdqgblfba",
+      "sourceHash": "0x83080a35a2ec6d43125124d747f83ce41ca574bd2dcf05d9706a5233c7425fdf",
+      "tokenAddress": "0x83080a35a2ec6d43125124d747f83ce41ca574bd",
+      "marketAddress": "0x24d747f83ce41ca574bd2dcf05d9706a5233c742",
+      "creatorWallet": null,
+      "curatorWallet": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "metadataUri": "ipfs://QmMockMetadataHash",
+      "status": "ACTIVE",
+      "viralityScore": 59,
+      "marketCap": 0.1,
+      "volume24h": 0,
+      "holdersCount": 1,
+      "createdAt": "2026-06-02T23:59:54.361Z",
+      "name": "Fascinating Viral Karma Market",
+      "symbol": "FASCK",
+      "redditPostId": "1tmrqqv",
+      "subreddit": "r/gofundme",
+      "author": "u/tech_explorer",
+      "title": "Fascinating breakthrough in distributed coordination technology",
+      "permalink": "https://www.reddit.com/r/gofundme/comments/1tmrqqv/please_help_me_as_i_battle_grade_3_breast_cancer",
+      "thumbnail": "https://images.unsplash.com/photo-1518770660439-4636190af475?w=120&auto=format&fit=crop&q=60",
+      "upvotes": 2480,
+      "comments": 616
+    }
+  ],
+  "trades": [
+    {
+      "id": "trade-1",
+      "marketId": "market-1",
+      "traderWallet": "0x5555555555555555555555555555555555555555",
+      "type": "BUY",
+      "bnbAmount": "1.5",
+      "tokenAmount": "1000",
+      "price": "0.0015",
+      "txHash": "0x1111111111111111111111111111111111111111111111111111111111111111",
+      "createdAt": "2026-06-02T17:28:37.543Z"
+    },
+    {
+      "id": "trade-2",
+      "marketId": "market-2",
+      "traderWallet": "0x6666666666666666666666666666666666666666",
+      "type": "BUY",
+      "bnbAmount": "3.2",
+      "tokenAmount": "1000",
+      "price": "0.0032",
+      "txHash": "0x2222222222222222222222222222222222222222222222222222222222222222",
+      "createdAt": "2026-06-02T19:28:37.543Z"
+    },
+    {
+      "id": "trade-wjhqs425n",
+      "marketId": "market-2",
+      "traderWallet": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "type": "BUY",
+      "bnbAmount": "0.1",
+      "tokenAmount": "2.18",
+      "price": "0.0458",
+      "txHash": "0x90acc81fd5dfd000000000000000000000000000000000000000000000000000",
+      "createdAt": "2026-06-03T00:58:08.156Z"
+    },
+    {
+      "id": "trade-5zlcsa6cp",
+      "marketId": "market-2",
+      "traderWallet": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "type": "SELL",
+      "bnbAmount": "0.0909",
+      "tokenAmount": "2",
+      "price": "0.045899999999999996",
+      "txHash": "0xe5776fe3c052b000000000000000000000000000000000000000000000000000",
+      "createdAt": "2026-06-03T00:58:25.455Z"
+    }
+  ],
+  "candles": {
+    "market-1": [
+      {
+        "timestamp": "2026-06-02T01:28:37.543Z",
+        "open": 0.0015,
+        "high": 0.001504,
+        "low": 0.00146,
+        "close": 0.001481,
+        "volume": 1.29
+      },
+      {
+        "timestamp": "2026-06-02T02:28:37.543Z",
+        "open": 0.001481,
+        "high": 0.001491,
+        "low": 0.00139,
+        "close": 0.001455,
+        "volume": 1.07
+      },
+      {
+        "timestamp": "2026-06-02T03:28:37.543Z",
+        "open": 0.001455,
+        "high": 0.0015,
+        "low": 0.001407,
+        "close": 0.001493,
+        "volume": 3.16
+      },
+      {
+        "timestamp": "2026-06-02T04:28:37.543Z",
+        "open": 0.001493,
+        "high": 0.001548,
+        "low": 0.001441,
+        "close": 0.001522,
+        "volume": 2.88
+      },
+      {
+        "timestamp": "2026-06-02T05:28:37.543Z",
+        "open": 0.001522,
+        "high": 0.00163,
+        "low": 0.00152,
+        "close": 0.001554,
+        "volume": 2.54
+      },
+      {
+        "timestamp": "2026-06-02T06:28:37.543Z",
+        "open": 0.001554,
+        "high": 0.001606,
+        "low": 0.001507,
+        "close": 0.001533,
+        "volume": 4.75
+      },
+      {
+        "timestamp": "2026-06-02T07:28:37.543Z",
+        "open": 0.001533,
+        "high": 0.001578,
+        "low": 0.001473,
+        "close": 0.001522,
+        "volume": 2.88
+      },
+      {
+        "timestamp": "2026-06-02T08:28:37.543Z",
+        "open": 0.001522,
+        "high": 0.001614,
+        "low": 0.001455,
+        "close": 0.001583,
+        "volume": 3.07
+      },
+      {
+        "timestamp": "2026-06-02T09:28:37.543Z",
+        "open": 0.001583,
+        "high": 0.001672,
+        "low": 0.001548,
+        "close": 0.001649,
+        "volume": 0.99
+      },
+      {
+        "timestamp": "2026-06-02T10:28:37.543Z",
+        "open": 0.001649,
+        "high": 0.001761,
+        "low": 0.001596,
+        "close": 0.001701,
+        "volume": 1.29
+      },
+      {
+        "timestamp": "2026-06-02T11:28:37.543Z",
+        "open": 0.001701,
+        "high": 0.001808,
+        "low": 0.001674,
+        "close": 0.001754,
+        "volume": 2.22
+      },
+      {
+        "timestamp": "2026-06-02T12:28:37.543Z",
+        "open": 0.001754,
+        "high": 0.001802,
+        "low": 0.001628,
+        "close": 0.001702,
+        "volume": 4.09
+      },
+      {
+        "timestamp": "2026-06-02T13:28:37.543Z",
+        "open": 0.001702,
+        "high": 0.001821,
+        "low": 0.001651,
+        "close": 0.001789,
+        "volume": 0.81
+      },
+      {
+        "timestamp": "2026-06-02T14:28:37.543Z",
+        "open": 0.001789,
+        "high": 0.001856,
+        "low": 0.001762,
+        "close": 0.001825,
+        "volume": 2.38
+      },
+      {
+        "timestamp": "2026-06-02T15:28:37.543Z",
+        "open": 0.001825,
+        "high": 0.001889,
+        "low": 0.001686,
+        "close": 0.001766,
+        "volume": 3.89
+      },
+      {
+        "timestamp": "2026-06-02T16:28:37.543Z",
+        "open": 0.001766,
+        "high": 0.001847,
+        "low": 0.0017,
+        "close": 0.001836,
+        "volume": 2.7
+      },
+      {
+        "timestamp": "2026-06-02T17:28:37.543Z",
+        "open": 0.001836,
+        "high": 0.001859,
+        "low": 0.001785,
+        "close": 0.001807,
+        "volume": 3.85
+      },
+      {
+        "timestamp": "2026-06-02T18:28:37.543Z",
+        "open": 0.001807,
+        "high": 0.001816,
+        "low": 0.001708,
+        "close": 0.001763,
+        "volume": 0.44
+      },
+      {
+        "timestamp": "2026-06-02T19:28:37.543Z",
+        "open": 0.001763,
+        "high": 0.001873,
+        "low": 0.001703,
+        "close": 0.001803,
+        "volume": 1.59
+      },
+      {
+        "timestamp": "2026-06-02T20:28:37.543Z",
+        "open": 0.001803,
+        "high": 0.001884,
+        "low": 0.001734,
+        "close": 0.001756,
+        "volume": 4.39
+      },
+      {
+        "timestamp": "2026-06-02T21:28:37.543Z",
+        "open": 0.001756,
+        "high": 0.001832,
+        "low": 0.001712,
+        "close": 0.001809,
+        "volume": 1.86
+      }
+    ],
+    "market-2": [
+      {
+        "timestamp": "2026-06-02T01:28:37.543Z",
+        "open": 0.0032,
+        "high": 0.003302,
+        "low": 0.003071,
+        "close": 0.003214,
+        "volume": 3.81
+      },
+      {
+        "timestamp": "2026-06-02T02:28:37.543Z",
+        "open": 0.003214,
+        "high": 0.003434,
+        "low": 0.003107,
+        "close": 0.003321,
+        "volume": 1.41
+      },
+      {
+        "timestamp": "2026-06-02T03:28:37.543Z",
+        "open": 0.003321,
+        "high": 0.003485,
+        "low": 0.003281,
+        "close": 0.00345,
+        "volume": 4.59
+      },
+      {
+        "timestamp": "2026-06-02T04:28:37.543Z",
+        "open": 0.00345,
+        "high": 0.003624,
+        "low": 0.003357,
+        "close": 0.003547,
+        "volume": 0.86
+      },
+      {
+        "timestamp": "2026-06-02T05:28:37.543Z",
+        "open": 0.003547,
+        "high": 0.003755,
+        "low": 0.003406,
+        "close": 0.003729,
+        "volume": 4.58
+      },
+      {
+        "timestamp": "2026-06-02T06:28:37.543Z",
+        "open": 0.003729,
+        "high": 0.003779,
+        "low": 0.003527,
+        "close": 0.003693,
+        "volume": 3.43
+      },
+      {
+        "timestamp": "2026-06-02T07:28:37.543Z",
+        "open": 0.003693,
+        "high": 0.003939,
+        "low": 0.003621,
+        "close": 0.00388,
+        "volume": 3.01
+      },
+      {
+        "timestamp": "2026-06-02T08:28:37.543Z",
+        "open": 0.00388,
+        "high": 0.004189,
+        "low": 0.003714,
+        "close": 0.004001,
+        "volume": 4.13
+      },
+      {
+        "timestamp": "2026-06-02T09:28:37.543Z",
+        "open": 0.004001,
+        "high": 0.004012,
+        "low": 0.003733,
+        "close": 0.003913,
+        "volume": 0.39
+      },
+      {
+        "timestamp": "2026-06-02T10:28:37.543Z",
+        "open": 0.003913,
+        "high": 0.004058,
+        "low": 0.003777,
+        "close": 0.003794,
+        "volume": 2.81
+      },
+      {
+        "timestamp": "2026-06-02T11:28:37.543Z",
+        "open": 0.003794,
+        "high": 0.00398,
+        "low": 0.00351,
+        "close": 0.003698,
+        "volume": 3.97
+      },
+      {
+        "timestamp": "2026-06-02T12:28:37.543Z",
+        "open": 0.003698,
+        "high": 0.00392,
+        "low": 0.003578,
+        "close": 0.003897,
+        "volume": 2.01
+      },
+      {
+        "timestamp": "2026-06-02T13:28:37.543Z",
+        "open": 0.003897,
+        "high": 0.004025,
+        "low": 0.003645,
+        "close": 0.003766,
+        "volume": 3.37
+      },
+      {
+        "timestamp": "2026-06-02T14:28:37.543Z",
+        "open": 0.003766,
+        "high": 0.003962,
+        "low": 0.003593,
+        "close": 0.003921,
+        "volume": 4.07
+      },
+      {
+        "timestamp": "2026-06-02T15:28:37.543Z",
+        "open": 0.003921,
+        "high": 0.004094,
+        "low": 0.003827,
+        "close": 0.004062,
+        "volume": 1.39
+      },
+      {
+        "timestamp": "2026-06-02T16:28:37.543Z",
+        "open": 0.004062,
+        "high": 0.004127,
+        "low": 0.003817,
+        "close": 0.003944,
+        "volume": 0.18
+      },
+      {
+        "timestamp": "2026-06-02T17:28:37.543Z",
+        "open": 0.003944,
+        "high": 0.003994,
+        "low": 0.003852,
+        "close": 0.003982,
+        "volume": 3.32
+      },
+      {
+        "timestamp": "2026-06-02T18:28:37.543Z",
+        "open": 0.003982,
+        "high": 0.003997,
+        "low": 0.00391,
+        "close": 0.003925,
+        "volume": 2.39
+      },
+      {
+        "timestamp": "2026-06-02T19:28:37.543Z",
+        "open": 0.003925,
+        "high": 0.004132,
+        "low": 0.003761,
+        "close": 0.004056,
+        "volume": 3.32
+      },
+      {
+        "timestamp": "2026-06-02T20:28:37.543Z",
+        "open": 0.004056,
+        "high": 0.004302,
+        "low": 0.003989,
+        "close": 0.004106,
+        "volume": 2.28
+      },
+      {
+        "timestamp": "2026-06-02T21:28:37.543Z",
+        "open": 0.004106,
+        "high": 0.045899999999999996,
+        "low": 0.004,
+        "close": 0.045899999999999996,
+        "volume": 0.9008999999999999
+      }
+    ],
+    "market-vdqgblfba": [
+      {
+        "timestamp": "2026-06-02T03:59:54.361Z",
+        "open": 0.001,
+        "high": 0.001085,
+        "low": 0.000977,
+        "close": 0.001045,
+        "volume": 5.08
+      },
+      {
+        "timestamp": "2026-06-02T04:59:54.361Z",
+        "open": 0.001045,
+        "high": 0.001111,
+        "low": 0.000999,
+        "close": 0.001062,
+        "volume": 3.17
+      },
+      {
+        "timestamp": "2026-06-02T05:59:54.361Z",
+        "open": 0.001062,
+        "high": 0.001085,
+        "low": 0.001005,
+        "close": 0.001053,
+        "volume": 2.63
+      },
+      {
+        "timestamp": "2026-06-02T06:59:54.361Z",
+        "open": 0.001053,
+        "high": 0.001056,
+        "low": 0.001034,
+        "close": 0.001041,
+        "volume": 2.78
+      },
+      {
+        "timestamp": "2026-06-02T07:59:54.361Z",
+        "open": 0.001041,
+        "high": 0.001079,
+        "low": 0.001029,
+        "close": 0.001055,
+        "volume": 2.97
+      },
+      {
+        "timestamp": "2026-06-02T08:59:54.361Z",
+        "open": 0.001055,
+        "high": 0.001125,
+        "low": 0.001038,
+        "close": 0.001088,
+        "volume": 4.67
+      },
+      {
+        "timestamp": "2026-06-02T09:59:54.361Z",
+        "open": 0.001088,
+        "high": 0.001102,
+        "low": 0.001029,
+        "close": 0.001049,
+        "volume": 1.11
+      },
+      {
+        "timestamp": "2026-06-02T10:59:54.361Z",
+        "open": 0.001049,
+        "high": 0.001115,
+        "low": 0.001045,
+        "close": 0.001103,
+        "volume": 3.41
+      },
+      {
+        "timestamp": "2026-06-02T11:59:54.361Z",
+        "open": 0.001103,
+        "high": 0.001179,
+        "low": 0.001083,
+        "close": 0.001125,
+        "volume": 2.73
+      },
+      {
+        "timestamp": "2026-06-02T12:59:54.361Z",
+        "open": 0.001125,
+        "high": 0.001199,
+        "low": 0.00107,
+        "close": 0.001185,
+        "volume": 3.99
+      },
+      {
+        "timestamp": "2026-06-02T13:59:54.361Z",
+        "open": 0.001185,
+        "high": 0.001212,
+        "low": 0.001122,
+        "close": 0.001142,
+        "volume": 3.49
+      },
+      {
+        "timestamp": "2026-06-02T14:59:54.361Z",
+        "open": 0.001142,
+        "high": 0.001179,
+        "low": 0.001121,
+        "close": 0.001162,
+        "volume": 3.32
+      },
+      {
+        "timestamp": "2026-06-02T15:59:54.361Z",
+        "open": 0.001162,
+        "high": 0.0012,
+        "low": 0.001081,
+        "close": 0.001115,
+        "volume": 3.87
+      },
+      {
+        "timestamp": "2026-06-02T16:59:54.361Z",
+        "open": 0.001115,
+        "high": 0.001214,
+        "low": 0.001082,
+        "close": 0.001164,
+        "volume": 1.29
+      },
+      {
+        "timestamp": "2026-06-02T17:59:54.361Z",
+        "open": 0.001164,
+        "high": 0.001209,
+        "low": 0.001113,
+        "close": 0.00118,
+        "volume": 0.2
+      },
+      {
+        "timestamp": "2026-06-02T18:59:54.361Z",
+        "open": 0.00118,
+        "high": 0.001182,
+        "low": 0.001139,
+        "close": 0.001163,
+        "volume": 2.22
+      },
+      {
+        "timestamp": "2026-06-02T19:59:54.361Z",
+        "open": 0.001163,
+        "high": 0.001211,
+        "low": 0.001146,
+        "close": 0.001179,
+        "volume": 3.38
+      },
+      {
+        "timestamp": "2026-06-02T20:59:54.361Z",
+        "open": 0.001179,
+        "high": 0.001185,
+        "low": 0.001093,
+        "close": 0.001136,
+        "volume": 3.41
+      },
+      {
+        "timestamp": "2026-06-02T21:59:54.361Z",
+        "open": 0.001136,
+        "high": 0.001137,
+        "low": 0.001117,
+        "close": 0.001123,
+        "volume": 4.83
+      },
+      {
+        "timestamp": "2026-06-02T22:59:54.361Z",
+        "open": 0.001123,
+        "high": 0.001167,
+        "low": 0.001073,
+        "close": 0.001096,
+        "volume": 0.87
+      },
+      {
+        "timestamp": "2026-06-02T23:59:54.361Z",
+        "open": 0.001096,
+        "high": 0.001132,
+        "low": 0.001061,
+        "close": 0.001083,
+        "volume": 1.19
+      }
+    ]
+  },
+  "claims": [
+    {
+      "id": "claim-1",
+      "sourceHash": "0x2b85b9b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b0e77d853b8b",
+      "redditUsername": "u/pixel_master",
+      "walletAddress": "0x1111111111111111111111111111111111111111",
+      "status": "APPROVED",
+      "proofReference": "reddit_sig_verification_12345",
+      "claimedAt": "2026-06-01T21:28:37.543Z",
+      "createdAt": "2026-05-31T21:28:37.543Z",
+      "amount": "1.25"
+    }
+  ],
+  "reports": [
+    {
+      "id": "report-bm0dkzorz",
+      "marketId": "market-2",
+      "reporterWallet": "0x89223A449b25E123f1A2b3c4D5E6F7890123456",
+      "reason": "scam",
+      "details": "",
+      "status": "OPEN",
+      "adminNotes": null,
+      "createdAt": "2026-06-03T00:12:07.803Z"
+    }
+  ],
+  "watchlist": []
+}

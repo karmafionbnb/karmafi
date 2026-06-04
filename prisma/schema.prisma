@@ -1,0 +1,164 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id              String      @id @default(uuid())
+  walletAddress   String      @unique
+  username        String?     @unique
+  avatar          String?
+  createdAt       DateTime    @default(now())
+  lastLoginAt     DateTime    @default(now())
+  reputationScore Int         @default(50)
+  role            String      @default("USER") // USER, ADMIN
+  watchlists      Watchlist[]
+}
+
+model RedditPost {
+  id            String   @id @default(uuid())
+  redditPostId  String   @unique
+  subreddit     String
+  authorHash    String
+  title         String
+  permalink     String
+  thumbnail     String?
+  createdUtc    Int
+  fetchedAt     DateTime @default(now())
+  upvotes       Int
+  comments      Int
+  nsfw          Boolean  @default(false)
+  sourceHash    String   @unique
+}
+
+model PostSnapshot {
+  id                 String   @id @default(uuid())
+  redditPostId       String
+  titleHash          String
+  metadataJson       String
+  storageUri         String?
+  snapshotAt         DateTime @default(now())
+  upvotesAtSnapshot  Int
+  commentsAtSnapshot Int
+}
+
+model Market {
+  id                 String             @id @default(uuid())
+  sourceHash         String             @unique
+  tokenAddress       String             @unique
+  marketAddress      String             @unique
+  creatorWallet      String?
+  curatorWallet      String
+  metadataUri        String
+  status             String             @default("ACTIVE") // ACTIVE, HIDDEN, FLAGGED
+  viralityScore      Int                @default(0)
+  marketCap          Float              @default(0)
+  volume24h          Float              @default(0)
+  holdersCount       Int                @default(0)
+  createdAt          DateTime           @default(now())
+  tokens             Token[]
+  trades             Trade[]
+  candles            PriceCandle[]
+  curatorRewards     CuratorReward[]
+  moderationReports  ModerationReport[]
+  watchlists         Watchlist[]
+}
+
+model Token {
+  id          String   @id @default(uuid())
+  marketId    String
+  name        String
+  symbol      String
+  address     String   @unique
+  chainId     Int
+  metadataUri String
+  totalSupply String
+  market      Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model Trade {
+  id           String   @id @default(uuid())
+  marketId     String
+  traderWallet String
+  type         String   // BUY, SELL
+  bnbAmount    String
+  tokenAmount  String
+  price        String
+  txHash       String
+  createdAt    DateTime @default(now())
+  market       Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model PriceCandle {
+  id        String   @id @default(uuid())
+  marketId  String
+  timeframe String   // 1m, 5m, 15m, 1h, 1d
+  open      Float
+  high      Float
+  low       Float
+  close     Float
+  volume    Float
+  timestamp DateTime
+  market    Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model CreatorClaim {
+  id                 String    @id @default(uuid())
+  sourceHash         String    @unique
+  redditUsernameHash String
+  walletAddress      String
+  status             String    @default("PENDING") // PENDING, APPROVED, REJECTED
+  proofReference     String?
+  claimedAt          DateTime?
+  createdAt          DateTime  @default(now())
+}
+
+model CuratorReward {
+  id            String   @id @default(uuid())
+  marketId      String
+  curatorWallet String
+  amount        String
+  status        String   @default("UNPAID") // UNPAID, PAID
+  txHash        String?
+  market        Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model ModerationReport {
+  id             String   @id @default(uuid())
+  marketId       String
+  reporterWallet String
+  reason         String
+  details        String?
+  status         String   @default("OPEN") // OPEN, RESOLVED, DISMISSED
+  adminNotes     String?
+  createdAt      DateTime @default(now())
+  market         Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+}
+
+model Watchlist {
+  id        String   @id @default(uuid())
+  userId    String
+  marketId  String
+  createdAt DateTime @default(now())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  market    Market   @relation(fields: [marketId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, marketId])
+}
+
+model ChainEvent {
+  id              String   @id @default(uuid())
+  eventName       String
+  contractAddress String
+  txHash          String
+  blockNumber     Int
+  payload         String
+  processedAt     DateTime @default(now())
+}
