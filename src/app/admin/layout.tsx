@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, Suspense } from "react";
 import Link from "next/link";
 import { usePathname, useSearchParams } from "next/navigation";
 import { useWallet } from "@/context/wallet";
@@ -17,7 +17,7 @@ const ADMIN_ALLOWLIST = [
   "0xAdminWallet123..."
 ];
 
-export default function AdminLayout({ children }: { children: React.ReactNode }) {
+function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const { walletAddress, isConnected, connect, isSandboxMode } = useWallet();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const searchParams = useSearchParams();
@@ -163,11 +163,19 @@ export default function AdminLayout({ children }: { children: React.ReactNode })
 
       {/* Mobile Overlay */}
       {mobileMenuOpen && (
-        <div 
+        <div
           className="fixed inset-0 bg-[#161616]/50 z-20 md:hidden"
           onClick={() => setMobileMenuOpen(false)}
         />
       )}
     </div>
+  );
+}
+
+export default function AdminLayout({ children }: { children: React.ReactNode }) {
+  return (
+    <Suspense fallback={<div className="min-h-screen bg-[#FDFBF7]" />}>
+      <AdminLayoutInner>{children}</AdminLayoutInner>
+    </Suspense>
   );
 }
