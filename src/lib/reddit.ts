@@ -116,9 +116,13 @@ async function fetchPostListing(
   const token = await getAppToken();
   const path = `/r/${subreddit}/comments/${postId}.json?raw_json=1&limit=1`;
 
-  // Try authenticated OAuth first (most reliable from cloud IPs), then fall
-  // back through public Reddit hosts. Whichever responds first wins.
+  // Order of preference:
+  //   1. REDDIT_PROXY_URL (e.g. a Cloudflare Worker on a non-blocked IP)
+  //   2. authenticated OAuth (if app credentials are configured)
+  //   3. public Reddit hosts (work from residential IPs, blocked on most clouds)
   const attempts: Array<{ url: string; auth: boolean }> = [];
+  const proxy = process.env.REDDIT_PROXY_URL?.replace(/\/$/, "");
+  if (proxy) attempts.push({ url: `${proxy}${path}`, auth: false });
   if (token) attempts.push({ url: `https://oauth.reddit.com${path}`, auth: true });
   attempts.push({ url: `https://www.reddit.com${path}`, auth: false });
   attempts.push({ url: `https://old.reddit.com${path}`, auth: false });
