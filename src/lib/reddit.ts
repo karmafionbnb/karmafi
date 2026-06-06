@@ -114,37 +114,59 @@ async function fetchPostListing(
   postId: string
 ): Promise<RedditPostData> {
   const token = await getAppToken();
-  const base = token ? "https://oauth.reddit.com" : "https://www.reddit.com";
-  const url = `${base}/r/${subreddit}/comments/${postId}.json?raw_json=1&limit=1`;
+  const path = `/r/${subreddit}/comments/${postId}.json?raw_json=1&limit=1`;
 
-  const res = await fetch(url, {
-    headers: {
-      "User-Agent": USER_AGENT,
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-    },
-    cache: "no-store",
-  });
+  // Try authenticated OAuth first (most reliable from cloud IPs), then fall
+  // back through public Reddit hosts. Whichever responds first wins.
+  const attempts: Array<{ url: string; auth: boolean }> = [];
+  if (token) attempts.push({ url: `https://oauth.reddit.com${path}`, auth: true });
+  attempts.push({ url: `https://www.reddit.com${path}`, auth: false });
+  attempts.push({ url: `https://old.reddit.com${path}`, auth: false });
+  attempts.push({ url: `https://api.reddit.com/comments/${postId}.json?raw_json=1&limit=1`, auth: false });
 
-  if (res.status === 403 || res.status === 429) {
+  let lastStatus = 0;
+  let blocked = false;
+  for (const attempt of attempts) {
+    let res: Response;
+    try {
+      res = await fetch(attempt.url, {
+        headers: {
+          "User-Agent": USER_AGENT,
+          Accept: "application/json",
+          ...(attempt.auth && token ? { Authorization: `Bearer ${token}` } : {}),
+        },
+        cache: "no-store",
+      });
+    } catch {
+      continue; // network error on this host, try next
+    }
+
+    lastStatus = res.status;
+    if (res.status === 403 || res.status === 429) {
+      blocked = true;
+      continue; // host blocked us; try the next one
+    }
+    if (res.status === 404) {
+      throw new Error("Reddit post not found. It may have been removed or made private.");
+    }
+    if (!res.ok) continue;
+
+    let data: Array<{ data?: { children?: Array<{ data?: RedditPostData }> } }>;
+    try {
+      data = await res.json();
+    } catch {
+      continue; // non-JSON (e.g. an HTML block page); try next
+    }
+    const post = data?.[0]?.data?.children?.[0]?.data;
+    if (post && post.title) return post;
+  }
+
+  if (blocked) {
     throw new Error(
-      "Reddit blocked the request (rate limit). Add REDDIT_CLIENT_ID/SECRET for authenticated access."
+      "Reddit is rate-limiting requests from the server. Add REDDIT_CLIENT_ID/REDDIT_CLIENT_SECRET in your environment for reliable authenticated access."
     );
   }
-  if (res.status === 404) {
-    throw new Error("Reddit post not found. It may have been removed or made private.");
-  }
-  if (!res.ok) {
-    throw new Error(`Failed to fetch Reddit post (${res.status}).`);
-  }
-
-  const data = (await res.json()) as Array<{
-    data?: { children?: Array<{ data?: RedditPostData }> };
-  }>;
-  const post = data?.[0]?.data?.children?.[0]?.data;
-  if (!post || !post.title) {
-    throw new Error("Could not read this Reddit post's data.");
-  }
-  return post;
+  throw new Error(`Failed to fetch Reddit post (last status ${lastStatus || "network error"}).`);
 }
 
 export async function fetchRedditMetadata(url: string): Promise<RedditMetadata> {
