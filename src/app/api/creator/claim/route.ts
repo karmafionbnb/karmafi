@@ -1,9 +1,11 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
-    const claims = Database.getClaims();
+    const claims = await Database.getClaims();
     return NextResponse.json({ success: true, claims });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed to fetch claims" }, { status: 500 });
@@ -18,7 +20,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
-    const market = Database.getMarketBySourceHash(sourceHash);
+    const market = await Database.getMarketBySourceHash(sourceHash);
     if (!market) {
       return NextResponse.json({ error: "No market exists for this Reddit post" }, { status: 404 });
     }
@@ -48,8 +50,8 @@ export async function POST(req: NextRequest) {
       amount: (market.marketCap * 0.05).toFixed(4) // 5% of market cap as initial mock creator reward payout
     };
 
-    Database.createClaim(claim);
-    Database.updateClaimStatus(sourceHash, "APPROVED", walletAddress);
+    await Database.createClaim(claim);
+    await Database.updateClaimStatus(sourceHash, "APPROVED", walletAddress);
 
     return NextResponse.json({
       success: true,

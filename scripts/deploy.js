@@ -1,47 +1,81 @@
 const hre = require("hardhat");
+const fs = require("fs");
+const path = require("path");
 
+// Deploys the KarmaFi contract suite to the configured network.
+// Fee-recipient wallets are read from env so mainnet routes real fees to real
+// addresses; each falls back to the deployer if unset (fine for testnet).
 async function main() {
   const [deployer] = await hre.ethers.getSigners();
-  console.log("Deploying contracts with the account:", deployer.address);
+  const net = hre.network.name;
+  const balance = await hre.ethers.provider.getBalance(deployer.address);
+  console.log(`Network: ${net}`);
+  console.log("Deployer:", deployer.address);
+  console.log("Balance:", hre.ethers.formatEther(balance), "BNB");
 
-  // 1. Deploy CreatorClaimVault
+  const treasury = process.env.TREASURY_WALLET || deployer.address;
+  const liquidity = process.env.LIQUIDITY_WALLET || deployer.address;
+  const safety = process.env.SAFETY_WALLET || deployer.address;
+
+  // 1. CreatorClaimVault
   const CreatorClaimVault = await hre.ethers.getContractFactory("CreatorClaimVault");
   const vault = await CreatorClaimVault.deploy(deployer.address);
   await vault.waitForDeployment();
   const vaultAddress = await vault.getAddress();
-  console.log("CreatorClaimVault deployed to:", vaultAddress);
+  console.log("CreatorClaimVault:", vaultAddress);
 
-  // 2. Deploy FeeDistributor
-  // Mock platforms addresses set to deployer address for test setup
+  // 2. FeeDistributor
   const FeeDistributor = await hre.ethers.getContractFactory("FeeDistributor");
   const distributor = await FeeDistributor.deploy(
     vaultAddress,
-    deployer.address, // Treasury wallet
-    deployer.address, // Liquidity reserve
-    deployer.address, // Safety fund
-    deployer.address  // Owner
+    treasury,
+    liquidity,
+    safety,
+    deployer.address // owner
   );
   await distributor.waitForDeployment();
   const distributorAddress = await distributor.getAddress();
-  console.log("FeeDistributor deployed to:", distributorAddress);
+  console.log("FeeDistributor:", distributorAddress);
 
-  // 3. Configure distributor on CreatorClaimVault
-  await vault.setFeeDistributor(distributorAddress);
-  console.log("Linked FeeDistributor to CreatorClaimVault");
+  // 3. Link distributor to the vault
+  const linkTx = await vault.setFeeDistributor(distributorAddress);
+  await linkTx.wait();
+  console.log("Linked FeeDistributor -> CreatorClaimVault");
 
-  // 4. Deploy KarmaFiFactory
+  // 4. KarmaFiFactory
   const KarmaFiFactory = await hre.ethers.getContractFactory("KarmaFiFactory");
   const factory = await KarmaFiFactory.deploy(distributorAddress, deployer.address);
   await factory.waitForDeployment();
   const factoryAddress = await factory.getAddress();
-  console.log("KarmaFiFactory deployed to:", factoryAddress);
+  console.log("KarmaFiFactory:", factoryAddress);
 
-  console.log("Deployment complete! Registry configuration summary:");
-  console.log({
-    CreatorClaimVault: vaultAddress,
-    FeeDistributor: distributorAddress,
-    KarmaFiFactory: factoryAddress
-  });
+  const deployment = {
+    network: net,
+    chainId: Number((await hre.ethers.provider.getNetwork()).chainId),
+    deployer: deployer.address,
+    treasury,
+    liquidity,
+    safety,
+    contracts: {
+      CreatorClaimVault: vaultAddress,
+      FeeDistributor: distributorAddress,
+      KarmaFiFactory: factoryAddress,
+    },
+    deployedAt: new Date().toISOString(),
+  };
+
+  // Persist so the frontend / API can read the live addresses.
+  const outDir = path.join(__dirname, "..", "src", "lib", "web3");
+  fs.mkdirSync(outDir, { recursive: true });
+  fs.writeFileSync(
+    path.join(outDir, `deployment.${net}.json`),
+    JSON.stringify(deployment, null, 2)
+  );
+
+  console.log("\nDeployment complete. Saved to src/lib/web3/deployment." + net + ".json");
+  console.log(deployment.contracts);
+  console.log("\nNext: add these to your env as NEXT_PUBLIC_FACTORY_ADDRESS etc., and verify with:");
+  console.log(`  npx hardhat verify --network ${net} ${factoryAddress} ${distributorAddress} ${deployer.address}`);
 }
 
 main()

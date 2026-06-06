@@ -7,6 +7,8 @@ interface RouteParams {
   }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest, { params }: RouteParams) {
   try {
     const { address } = await params;
@@ -14,13 +16,13 @@ export async function GET(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Missing address" }, { status: 400 });
     }
 
-    const market = Database.getMarketByAddress(address);
+    const market = await Database.getMarketByAddress(address);
     if (!market) {
       return NextResponse.json({ error: "Market not found" }, { status: 404 });
     }
 
-    const trades = Database.getTrades(market.id);
-    const candles = Database.getCandles(market.id);
+    const trades = await Database.getTrades(market.id);
+    const candles = await Database.getCandles(market.id);
 
     return NextResponse.json({
       success: true,

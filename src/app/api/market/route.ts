@@ -1,13 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function GET(req: NextRequest) {
   try {
     const searchParams = req.nextUrl.searchParams;
     const sort = searchParams.get("sort") || "hot";
     const search = searchParams.get("search") || "";
 
-    let markets = Database.getMarkets();
+    let markets = await Database.getMarkets();
 
     // 1. Search filter
     if (search) {

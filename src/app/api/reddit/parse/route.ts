@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { parseRedditUrl, fetchRedditMetadataMock, getAiTokenSuggestions, generateSourceHash } from "@/lib/reddit";
 import { Database } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { url } = await req.json();
@@ -14,7 +16,7 @@ export async function POST(req: NextRequest) {
     const sourceHash = generateSourceHash(metadata.permalink);
 
     // 2. Check duplicate launch
-    const existingMarket = Database.getMarketBySourceHash(sourceHash);
+    const existingMarket = await Database.getMarketBySourceHash(sourceHash);
     const isLaunched = existingMarket !== null;
 
     // 3. AI Token recommendations

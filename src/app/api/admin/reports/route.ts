@@ -1,10 +1,12 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 // Fetch all reports
 export async function GET() {
   try {
-    const reports = Database.getReports();
+    const reports = await Database.getReports();
     return NextResponse.json({ success: true, reports });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed to fetch reports" }, { status: 500 });
@@ -22,7 +24,7 @@ export async function POST(req: NextRequest) {
       if (!id) {
         return NextResponse.json({ error: "Missing report ID" }, { status: 400 });
       }
-      Database.resolveReport(id, action, adminNotes || "Actioned by admin");
+      await Database.resolveReport(id, action, adminNotes || "Actioned by admin");
       return NextResponse.json({ success: true });
     }
 
@@ -42,14 +44,15 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString()
     };
 
-    Database.createReport(report);
+    await Database.createReport(report);
 
     // Increase risk warning on market (decrease virality score)
-    const market = Database.getMarketByAddress(marketId);
+    const market = await Database.getMarketByAddress(marketId);
     if (market) {
-      const activeReports = Database.getReports().filter(r => r.marketId === market.id && r.status === "OPEN").length;
+      const allReports = await Database.getReports();
+      const activeReports = allReports.filter(r => r.marketId === market.id && r.status === "OPEN").length;
       // Recalculate virality score to apply penalty
-      Database.updateMarket(market.marketAddress, {
+      await Database.updateMarket(market.marketAddress, {
         viralityScore: Math.max(market.viralityScore - activeReports * 10, 0)
       });
     }

@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 import { calculateViralityScore } from "@/lib/virality";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const {
@@ -25,7 +27,7 @@ export async function POST(req: NextRequest) {
     }
 
     // Double check duplicate
-    const existing = Database.getMarketBySourceHash(sourceHash);
+    const existing = await Database.getMarketBySourceHash(sourceHash);
     if (existing) {
       return NextResponse.json({ error: "Market already exists for this post", marketAddress: existing.marketAddress }, { status: 400 });
     }
@@ -72,7 +74,7 @@ export async function POST(req: NextRequest) {
       comments: parseInt(comments || 0)
     };
 
-    Database.createMarket(marketData);
+    await Database.createMarket(marketData);
 
     return NextResponse.json({
       success: true,

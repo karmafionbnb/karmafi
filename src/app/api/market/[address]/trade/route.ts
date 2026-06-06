@@ -8,6 +8,8 @@ interface RouteParams {
   }>;
 }
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const { address } = await params;
@@ -17,7 +19,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
-    const market = Database.getMarketByAddress(address);
+    const market = await Database.getMarketByAddress(address);
     if (!market) {
       return NextResponse.json({ error: "Market not found" }, { status: 404 });
     }
@@ -36,7 +38,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       createdAt: new Date().toISOString()
     };
 
-    Database.addTrade(tradeData);
+    await Database.addTrade(tradeData);
 
     // 2. Recalculate stats
     // Simple mock calculation for token supply and market cap
@@ -68,7 +70,7 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       reportCount: 0 // Mock report count for recalculation
     });
 
-    Database.updateMarket(market.marketAddress, {
+    await Database.updateMarket(market.marketAddress, {
       marketCap: parseFloat(newMarketCap.toFixed(4)),
       volume24h: parseFloat(newVolume.toFixed(4)),
       holdersCount: newHolders,

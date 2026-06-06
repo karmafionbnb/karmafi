@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 
+export const dynamic = "force-dynamic";
+
 export async function POST(req: NextRequest) {
   try {
     const { marketAddress, status } = await req.json();
@@ -13,7 +15,7 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Invalid status value" }, { status: 400 });
     }
 
-    Database.updateMarket(marketAddress, { status });
+    await Database.updateMarket(marketAddress, { status });
     return NextResponse.json({ success: true, updatedStatus: status });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed to update market status" }, { status: 500 });
