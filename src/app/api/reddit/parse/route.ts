@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import { parseRedditUrl, fetchRedditMetadataMock, getAiTokenSuggestions, generateSourceHash } from "@/lib/reddit";
+import { fetchRedditMetadata, getAiTokenSuggestions, generateSourceHash } from "@/lib/reddit";
 import { Database } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
@@ -11,9 +11,9 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Missing url parameter" }, { status: 400 });
     }
 
-    // 1. Parse URL & Fetch metadata
-    const metadata = fetchRedditMetadataMock(url);
-    const sourceHash = generateSourceHash(metadata.permalink);
+    // 1. Parse URL & fetch live Reddit metadata
+    const metadata = await fetchRedditMetadata(url);
+    const sourceHash = metadata.sourceHash || generateSourceHash(metadata.permalink);
 
     // 2. Check duplicate launch
     const existingMarket = await Database.getMarketBySourceHash(sourceHash);
