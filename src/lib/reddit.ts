@@ -117,16 +117,33 @@ async function fetchPostListing(
   const path = `/r/${subreddit}/comments/${postId}.json?raw_json=1&limit=1`;
 
   // Order of preference:
-  //   1. REDDIT_PROXY_URL (e.g. a Cloudflare Worker on a non-blocked IP)
+  //   1. REDDIT_PROXY_URL (e.g. a Cloudflare Worker on a non-blocked IP).
+  //      Supports a {url} placeholder (for proxies like ?url=<encoded>) or a
+  //      plain base the reddit path is appended to.
   //   2. authenticated OAuth (if app credentials are configured)
   //   3. public Reddit hosts (work from residential IPs, blocked on most clouds)
+  //   4. a public CORS proxy fallback so it works with zero configuration
+  const redditUrl = `https://www.reddit.com${path}`;
   const attempts: Array<{ url: string; auth: boolean }> = [];
   const proxy = process.env.REDDIT_PROXY_URL?.replace(/\/$/, "");
-  if (proxy) attempts.push({ url: `${proxy}${path}`, auth: false });
+  if (proxy) {
+    attempts.push({
+      url: proxy.includes("{url}")
+        ? proxy.replace("{url}", encodeURIComponent(redditUrl))
+        : `${proxy}${path}`,
+      auth: false,
+    });
+  }
   if (token) attempts.push({ url: `https://oauth.reddit.com${path}`, auth: true });
-  attempts.push({ url: `https://www.reddit.com${path}`, auth: false });
+  attempts.push({ url: redditUrl, auth: false });
   attempts.push({ url: `https://old.reddit.com${path}`, auth: false });
   attempts.push({ url: `https://api.reddit.com/comments/${postId}.json?raw_json=1&limit=1`, auth: false });
+  // Zero-config public proxy fallback (less reliable than a dedicated worker;
+  // set REDDIT_PROXY_URL to your own for production reliability).
+  attempts.push({
+    url: `https://api.allorigins.win/raw?url=${encodeURIComponent(redditUrl)}`,
+    auth: false,
+  });
 
   let lastStatus = 0;
   let blocked = false;
