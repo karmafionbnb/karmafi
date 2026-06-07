@@ -127,7 +127,7 @@ export default function SmartContractsPage() {
                 </table>
               </div>
               <p className="text-[14px] text-[#8A817A] italic mt-4">
-                Note: Exact fee parameters may change during Sandbox Alpha.
+                Note: Exact fee parameters may change during Alpha.
               </p>
             </PageSection>
 
@@ -136,7 +136,7 @@ export default function SmartContractsPage() {
                 <li>Contracts are experimental until audited.</li>
                 <li>Do not interact with unofficial contract addresses.</li>
                 <li>Verify contract addresses from this page only.</li>
-                <li>Use testnet while in Sandbox Alpha.</li>
+                <li>Use testnet while in Alpha.</li>
                 <li>Mainnet contracts will be published after audit/review.</li>
               </ul>
 
@@ -144,7 +144,7 @@ export default function SmartContractsPage() {
                 title={<><AlertTriangle className="h-5 w-5" /> Experimental Risk Warning</>}
                 type="warning"
               >
-                KarmaFi smart contracts are experimental and may be unaudited during Sandbox Alpha. Users should only interact with official links and understand the risks of bugs or vulnerabilities.
+                KarmaFi smart contracts are experimental and may be unaudited during Alpha. Users should only interact with official links and understand the risks of bugs or vulnerabilities.
               </CalloutCard>
             </PageSection>
 

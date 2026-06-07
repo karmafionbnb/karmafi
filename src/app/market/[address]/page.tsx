@@ -253,16 +253,18 @@ export default function MarketDetail({ params }: MarketPageProps) {
         recordBnb = Number(formatEther(total));
       } else {
         // Input is a token amount to sell.
-        const tokenWei = parseEther(inputAmount);
+        let tokenWei = parseEther(inputAmount);
         const bal = (await publicClient.readContract({
           address: tokenAddr,
           abi: ATTENTION_TOKEN_ABI,
           functionName: "balanceOf",
           args: [walletAddress as `0x${string}`],
         })) as bigint;
-        if (tokenWei > bal) {
-          throw new Error(`Insufficient balance — you hold ${Number(formatEther(bal)).toFixed(2)} ${market.symbol}.`);
+        if (bal <= 0n) {
+          throw new Error(`You don't hold any ${market.symbol} to sell.`);
         }
+        // Clamp to the real balance so MAX (and over-entry) can't exceed holdings.
+        if (tokenWei > bal) tokenWei = bal;
         const refund = (await publicClient.readContract({
           address: marketAddr,
           abi: BONDING_CURVE_ABI,
@@ -546,8 +548,22 @@ export default function MarketDetail({ params }: MarketPageProps) {
                   <div className="flex justify-between text-[11px] font-bold text-[#8A817A] uppercase tracking-wider mb-2">
                     <label>{tradeType === "BUY" ? "Pay Amount" : "Sell Tokens"}</label>
                     {isConnected && (
-                      <span className="text-[#5F5B57]">
-                        Bal: {tradeType === "BUY" ? `${bnbBalance.toFixed(2)} BNB` : `${userTokenBalance.toFixed(2)} ${market.symbol}`}
+                      <span className="text-[#5F5B57] flex items-center gap-2 normal-case">
+                        Bal: {tradeType === "BUY" ? `${bnbBalance.toFixed(4)} BNB` : `${userTokenBalance.toFixed(2)} ${market.symbol}`}
+                        <button
+                          type="button"
+                          onClick={() => {
+                            if (tradeType === "BUY") {
+                              const max = Math.max(bnbBalance - 0.001, 0); // leave a little for gas
+                              setInputAmount(max > 0 ? String(max) : "0");
+                            } else {
+                              setInputAmount(userTokenBalance > 0 ? String(userTokenBalance) : "0");
+                            }
+                          }}
+                          className="rounded-md bg-[#FFF1ED] border border-[#F2D8C8] px-2 py-0.5 text-[10px] font-extrabold text-[#FF6B1A] hover:bg-[#FF6B1A] hover:text-white transition-colors"
+                        >
+                          MAX
+                        </button>
                       </span>
                     )}
                   </div>

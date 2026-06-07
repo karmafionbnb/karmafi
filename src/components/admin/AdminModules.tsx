@@ -473,7 +473,7 @@ export function AdminSettingsTab() {
         <div className="space-y-4">
           <div className="flex items-center justify-between p-4 bg-[#FFFAF5] rounded-xl border border-[#E8D4C8]">
             <div>
-              <p className="text-[14px] font-bold text-[#161616]">Sandbox Alpha Mode</p>
+              <p className="text-[14px] font-bold text-[#161616]">Alpha Mode</p>
               <p className="text-[12px] text-[#5F5B57]">Enables mock transactions without real BNB</p>
             </div>
             <div className={`w-12 h-6 rounded-full p-1 transition-colors ${settings.sandboxAlphaStatus ? "bg-[#22C55E]" : "bg-[#E8D4C8]"}`}>

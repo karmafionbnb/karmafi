@@ -79,7 +79,7 @@ export default function Footer() {
                 <li><button onClick={() => window.dispatchEvent(new Event('karmafi-open-risk-modal'))} className="text-[14.5px] font-medium text-[#5F5B57] hover:text-[#FF6B1A] transition-colors cursor-pointer">Risk Notice</button></li>
               </ul>
               <span className="mt-6 block rounded-md bg-[#FFF1ED] border border-[#FFAB66]/30 px-2.5 py-1 text-[11px] font-extrabold tracking-wide text-[#FF6B1A] w-fit shadow-sm">
-                SANDBOX ALPHA V1
+                ALPHA V1
               </span>
             </div>
           </div>

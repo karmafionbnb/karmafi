@@ -58,7 +58,7 @@ export default function DisclaimerPage() {
             </PageSection>
 
             <PageSection id="experimental" title="5. Experimental Protocol">
-              <p>KarmaFi is an experimental software protocol that may currently be in Sandbox Alpha or Beta. Features may change, fail, pause, or be removed without notice.</p>
+              <p>KarmaFi is an experimental software protocol that may currently be in Alpha or Beta. Features may change, fail, pause, or be removed without notice.</p>
             </PageSection>
 
             <PageSection id="third-party" title="6. Third-Party Services">

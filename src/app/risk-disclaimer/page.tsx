@@ -57,7 +57,7 @@ export default function RiskDisclaimerPage() {
             </PageSection>
 
             <PageSection id="smart-contract" title="4. Smart Contract Risk">
-              <p>Smart contracts may contain bugs, vulnerabilities, or unexpected behavior, especially during the Sandbox Alpha and Beta phases. Interacting with these contracts carries a risk of total loss of funds.</p>
+              <p>Smart contracts may contain bugs, vulnerabilities, or unexpected behavior, especially during the Alpha and Beta phases. Interacting with these contracts carries a risk of total loss of funds.</p>
             </PageSection>
 
             <PageSection id="liquidity" title="5. Liquidity Risk">

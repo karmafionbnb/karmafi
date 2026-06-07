@@ -55,7 +55,7 @@ export default function WhitepaperPage() {
               <span className="rounded-lg bg-white border border-[#E8D4C8] px-3.5 py-1.5 text-[13.5px] font-bold text-[#161616] shadow-sm">Attention Markets</span>
               <span className="rounded-lg bg-white border border-[#E8D4C8] px-3.5 py-1.5 text-[13.5px] font-bold text-[#161616] shadow-sm">Creator Claim Vault</span>
               <span className="rounded-lg bg-white border border-[#E8D4C8] px-3.5 py-1.5 text-[13.5px] font-bold text-[#161616] shadow-sm">Curator Rewards</span>
-              <span className="rounded-lg bg-[#FFF1ED] border border-[#FFAB66]/30 px-3.5 py-1.5 text-[13.5px] font-extrabold text-[#FF6B1A] shadow-sm">Sandbox Alpha V1</span>
+              <span className="rounded-lg bg-[#FFF1ED] border border-[#FFAB66]/30 px-3.5 py-1.5 text-[13.5px] font-extrabold text-[#FF6B1A] shadow-sm">Alpha V1</span>
             </div>
 
             <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full">
@@ -348,7 +348,7 @@ export default function WhitepaperPage() {
                   </table>
                 </div>
                 <p className="text-[14px] text-[#8A817A] italic">
-                  Note: Exact fee parameters may evolve during Sandbox Alpha.
+                  Note: Exact fee parameters may evolve during Alpha.
                 </p>
               </div>
 
@@ -408,7 +408,7 @@ export default function WhitepaperPage() {
                   
                   <div className="bg-white border border-[#E8D4C8] rounded-2xl p-6 shadow-sm">
                     <h4 className="text-[13px] font-black uppercase tracking-widest text-[#FF6B1A] mb-2 m-0">Phase 1</h4>
-                    <h3 className="text-[20px] font-black text-[#161616] mb-4 m-0">Sandbox Alpha</h3>
+                    <h3 className="text-[20px] font-black text-[#161616] mb-4 m-0">Alpha</h3>
                     <ul className="text-[14.5px] text-[#5F5B57] font-medium space-y-1.5 list-disc pl-4 m-0">
                       <li>Landing page</li>
                       <li>Explore markets</li>
