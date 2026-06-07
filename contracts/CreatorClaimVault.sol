@@ -26,7 +26,8 @@ contract CreatorClaimVault is Ownable {
     }
 
     function depositCreatorRewards(bytes32 sourceHash) external payable onlyFeeDistributor {
-        require(!claimed[sourceHash], "CreatorClaimVault: Already claimed");
+        // Must never revert: this is called on every trade's fee split. Rewards
+        // keep accruing even after a prior claim so trading never deadlocks.
         pendingRewards[sourceHash] += msg.value;
         emit RewardsDeposited(sourceHash, msg.value);
     }
@@ -36,7 +37,8 @@ contract CreatorClaimVault is Ownable {
         address payable recipient,
         string calldata redditUsername
     ) external onlyOwner {
-        require(!claimed[sourceHash], "CreatorClaimVault: Already claimed");
+        // Allow repeat claims of newly-accrued rewards; `claimed` tracks whether
+        // a recipient has ever been verified for this post.
         uint256 amount = pendingRewards[sourceHash];
         require(amount > 0, "CreatorClaimVault: No rewards pending");
 
