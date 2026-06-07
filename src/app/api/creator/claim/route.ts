@@ -40,7 +40,8 @@ export async function POST(req: NextRequest) {
 
     // Verify the request is signed by the payout wallet (proves the submitter
     // controls it — payouts can't be redirected to someone else's address).
-    const expectedMessage = `Claim rewards for Reddit post ${sourceHash} as user ${redditUsername} to wallet ${walletAddress}`;
+    // The client signs with the bare username (no "u/" prefix).
+    const expectedMessage = `Claim rewards for Reddit post ${sourceHash} as user ${redditUsername.replace(/^u\//, "")} to wallet ${walletAddress}`;
     const sigOk = await verifyWalletSignature(expectedMessage, signature, walletAddress);
     if (!sigOk) {
       return NextResponse.json({ error: "Invalid wallet signature." }, { status: 401 });
