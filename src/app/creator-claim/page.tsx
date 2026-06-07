@@ -441,21 +441,21 @@ export default function CreatorClaim() {
               <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-[#E5F9F1] mb-6 shadow-[0_4px_20px_rgba(25,195,125,0.2)]">
                 <CheckCircle2 className="h-12 w-12 text-[#19C37D]" />
               </div>
-              <h2 className="text-[28px] font-black text-[#161616] mb-3">Rewards Claimed!</h2>
+              <h2 className="text-[28px] font-black text-[#161616] mb-3">Claim Submitted</h2>
               <p className="text-[15px] font-medium text-[#5F5B57] max-w-md mx-auto mb-10 leading-relaxed">
-                Your Reddit account ownership verification succeeded. The rewards have been successfully routed to your wallet.
+                Your Reddit ownership was verified and your claim is recorded. A moderator will review it and release your accrued trading-fee rewards on-chain to your wallet.
               </p>
 
               <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 text-left mb-10 shadow-sm flex flex-col gap-4 relative">
                 <div className="absolute -left-3 -right-3 top-1/2 h-[2px] border-t-2 border-dashed border-[#F2D8C8]" />
-                
+
                 <div className="flex justify-between items-center z-10 bg-white pb-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Total Payout</span>
-                  <span className="text-[20px] font-black text-[#19C37D]">{claimResult.amount} BNB</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Status</span>
+                  <span className="text-[15px] font-black text-[#FF6B1A]">Pending review</span>
                 </div>
                 <div className="flex justify-between items-center z-10 bg-white pt-2">
-                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Proof/Sig Hash</span>
-                  <span className="text-xs font-bold text-[#161616] font-mono">{claimResult.proofReference}</span>
+                  <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Signature</span>
+                  <span className="text-xs font-bold text-[#161616] font-mono">{String(claimResult.proofReference).slice(0, 18)}…</span>
                 </div>
               </div>
 

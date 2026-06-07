@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
+import { isAdminRequest } from "@/lib/web3/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -14,8 +15,12 @@ export async function GET() {
 
 export async function POST(req: NextRequest) {
   try {
-    const { marketAddress, status } = await req.json();
+    const body = await req.json();
+    const { marketAddress, status } = body;
 
+    if (!(await isAdminRequest(body))) {
+      return NextResponse.json({ error: "Admin authorization required." }, { status: 401 });
+    }
     if (!marketAddress || !status) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }

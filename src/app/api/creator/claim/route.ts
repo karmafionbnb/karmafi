@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
-import { getServerWeb3 } from "@/lib/web3/server";
-import { CREATOR_VAULT_ABI } from "@/lib/web3/contracts";
-import { formatEther } from "viem";
+import { verifyWalletSignature } from "@/lib/web3/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -40,64 +38,36 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "The authenticated Reddit user does not match the original poster of the thread" }, { status: 403 });
     }
 
-    // Pay out accrued creator rewards on-chain from the CreatorClaimVault.
-    // The vault's claim is owner-only, so the platform's owner key (server)
-    // releases the funds to the verified creator's wallet.
-    let payoutAmount = "0";
-    let payoutTx: string | null = null;
-    let payoutNote: string | undefined;
-    try {
-      const { publicClient, walletClient, account, contracts } = getServerWeb3();
-      if (contracts?.creatorClaimVault && walletClient && account) {
-        const vault = contracts.creatorClaimVault;
-        const pending = (await publicClient.readContract({
-          address: vault,
-          abi: CREATOR_VAULT_ABI,
-          functionName: "pendingRewards",
-          args: [sourceHash as `0x${string}`],
-        })) as bigint;
-
-        if (pending > 0n) {
-          payoutTx = await walletClient.writeContract({
-            address: vault,
-            abi: CREATOR_VAULT_ABI,
-            functionName: "claimCreatorRewards",
-            args: [sourceHash as `0x${string}`, walletAddress as `0x${string}`, `u/${cleanRedditUsername}`],
-          });
-          await publicClient.waitForTransactionReceipt({ hash: payoutTx as `0x${string}` });
-          payoutAmount = formatEther(pending);
-        } else {
-          payoutNote = "Verified. No trading-fee rewards have accrued yet — they'll be claimable here as your market trades.";
-        }
-      } else {
-        payoutNote = "Verified and recorded. On-chain vault payout isn't configured on the server yet.";
-      }
-    } catch (e: any) {
-      // Don't fail the whole claim if the on-chain transfer hiccups; record the
-      // verified link and surface the issue.
-      payoutNote = `Verified, but the on-chain payout failed: ${e?.shortMessage || e?.message || "unknown error"}. It can be retried.`;
+    // Verify the request is signed by the payout wallet (proves the submitter
+    // controls it — payouts can't be redirected to someone else's address).
+    const expectedMessage = `Claim rewards for Reddit post ${sourceHash} as user ${redditUsername} to wallet ${walletAddress}`;
+    const sigOk = await verifyWalletSignature(expectedMessage, signature, walletAddress);
+    if (!sigOk) {
+      return NextResponse.json({ error: "Invalid wallet signature." }, { status: 401 });
     }
 
+    // SECURITY: Reddit ownership is verified in the browser (the server can't
+    // reach Reddit), which a direct API call could bypass. So claims are NOT
+    // auto-paid. They're recorded as PENDING and a platform admin releases the
+    // on-chain vault funds after review (see /api/admin/creator-claim).
     const claim = {
       id: "claim-" + Math.random().toString(36).substr(2, 9),
       sourceHash,
       redditUsername: `u/${cleanRedditUsername}`,
       walletAddress,
-      status: "APPROVED" as const,
-      proofReference: payoutTx || signature,
-      claimedAt: new Date().toISOString(),
+      status: "PENDING" as const,
+      proofReference: signature,
+      claimedAt: null,
       createdAt: new Date().toISOString(),
-      amount: payoutAmount,
+      amount: "0",
     };
 
     await Database.createClaim(claim);
-    await Database.updateClaimStatus(sourceHash, "APPROVED", walletAddress);
 
     return NextResponse.json({
       success: true,
       claim,
-      payoutTx,
-      note: payoutNote,
+      note: "Your claim was submitted and verified. A moderator will review and release your accrued rewards on-chain.",
     });
   } catch (e: any) {
     return NextResponse.json({ error: e.message || "Failed to process creator claim" }, { status: 500 });

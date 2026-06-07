@@ -84,7 +84,7 @@ export function AdminReportsTab() {
         onClose={() => setModalOpen(false)} 
         onConfirm={(reason) => { console.log(reason); setModalOpen(false); }}
         title="Hide Market"
-        targetName="Will GPT-5 release in 2026?"
+        targetName="Selected attention market"
         actionKeyword="HIDE"
         consequences="This market will be immediately hidden from the KarmaFi frontend and search results. Trading will still be technically possible via direct contract calls unless paused."
       />

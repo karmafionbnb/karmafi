@@ -132,7 +132,7 @@ export default function ProductPreview() {
                     <Flame className="h-3 w-3" /> Viral Score 76
                   </div>
                 </div>
-                <h3 className="text-lg font-bold text-[#161616] mb-2 leading-tight pr-4">OpenAI Q-Star model details leaked by former researcher</h3>
+                <h3 className="text-lg font-bold text-[#161616] mb-2 leading-tight pr-4">This Reddit thread is going viral across finance subs right now</h3>
                 <div className="mt-4 flex flex-wrap gap-6 border-t border-[#F2D8C8] pt-4">
                   <div>
                     <div className="text-xs font-medium text-[#8A817A] mb-0.5">Price</div>

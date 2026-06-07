@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
+import { isAdminRequest } from "@/lib/web3/auth";
 
 export const dynamic = "force-dynamic";
 
@@ -19,8 +20,11 @@ export async function POST(req: NextRequest) {
     const body = await req.json();
     const { action, id, reason, details, reporterWallet, marketId, adminNotes } = body;
 
-    // Resolve or dismiss an existing report
+    // Resolve or dismiss an existing report (admin only)
     if (action === "RESOLVE" || action === "DISMISS") {
+      if (!(await isAdminRequest(body))) {
+        return NextResponse.json({ error: "Admin authorization required." }, { status: 401 });
+      }
       if (!id) {
         return NextResponse.json({ error: "Missing report ID" }, { status: 400 });
       }
