@@ -158,6 +158,27 @@ export const ATTENTION_TOKEN_ABI = [
   },
 ] as const;
 
+export const CREATOR_VAULT_ABI = [
+  {
+    type: "function",
+    name: "pendingRewards",
+    stateMutability: "view",
+    inputs: [{ name: "", type: "bytes32" }],
+    outputs: [{ name: "", type: "uint256" }],
+  },
+  {
+    type: "function",
+    name: "claimCreatorRewards",
+    stateMutability: "nonpayable",
+    inputs: [
+      { name: "sourceHash", type: "bytes32" },
+      { name: "recipient", type: "address" },
+      { name: "redditUsername", type: "string" },
+    ],
+    outputs: [],
+  },
+] as const;
+
 export const FEE_BASIS_POINTS = 100n; // 1%
 
 // Bonding-curve math, mirrored exactly from BondingCurveMarket.sol so the UI

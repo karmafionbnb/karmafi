@@ -13,7 +13,7 @@ export const dynamic = "force-dynamic";
 export async function POST(req: NextRequest, { params }: RouteParams) {
   try {
     const { address } = await params;
-    const { traderWallet, type, bnbAmount, tokenAmount, price } = await req.json();
+    const { traderWallet, type, bnbAmount, tokenAmount, price, txHash: realTxHash } = await req.json();
 
     if (!address || !traderWallet || !type || !bnbAmount || !tokenAmount || !price) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
@@ -24,8 +24,8 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
       return NextResponse.json({ error: "Market not found" }, { status: 404 });
     }
 
-    // 1. Save Trade to DB
-    const txHash = "0x" + Math.random().toString(16).substring(2, 66).padEnd(64, "0");
+    // 1. Save the real on-chain trade.
+    const txHash = realTxHash || ("0x" + "0".repeat(64));
     const tradeData = {
       id: "trade-" + Math.random().toString(36).substr(2, 9),
       marketId: market.id,
@@ -40,24 +40,19 @@ export async function POST(req: NextRequest, { params }: RouteParams) {
 
     await Database.addTrade(tradeData);
 
-    // 2. Recalculate stats
-    // Simple mock calculation for token supply and market cap
+    // 2. Recalculate stats from real recorded trades.
     let newMarketCap = market.marketCap;
     if (type === "BUY") {
       newMarketCap += parseFloat(bnbAmount);
     } else {
-      newMarketCap = Math.max(market.marketCap - parseFloat(bnbAmount), 0.1);
+      newMarketCap = Math.max(market.marketCap - parseFloat(bnbAmount), 0);
     }
 
     const newVolume = market.volume24h + parseFloat(bnbAmount);
-    
-    // Randomly update holders count slightly for simulation
-    let newHolders = market.holdersCount;
-    if (type === "BUY" && Math.random() > 0.5) {
-      newHolders += 1;
-    } else if (type === "SELL" && Math.random() > 0.7 && newHolders > 1) {
-      newHolders -= 1;
-    }
+
+    // Holders = distinct wallets that have traded this market (real proxy).
+    const allTrades = await Database.getTrades(market.id);
+    const newHolders = new Set(allTrades.map((t) => t.traderWallet.toLowerCase())).size;
 
     // Recalculate virality score
     const newVirality = calculateViralityScore({
