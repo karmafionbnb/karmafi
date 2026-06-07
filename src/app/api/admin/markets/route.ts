@@ -3,6 +3,15 @@ import { Database } from "@/lib/db";
 
 export const dynamic = "force-dynamic";
 
+export async function GET() {
+  try {
+    const markets = await Database.getAllMarketsIncludingHidden();
+    return NextResponse.json({ success: true, markets });
+  } catch (e: any) {
+    return NextResponse.json({ error: e.message || "Failed to fetch markets" }, { status: 500 });
+  }
+}
+
 export async function POST(req: NextRequest) {
   try {
     const { marketAddress, status } = await req.json();
