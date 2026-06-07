@@ -2,6 +2,7 @@
 
 import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAccount, useConnect, useDisconnect, useBalance, useSignMessage } from "wagmi";
+import { formatEther } from "viem";
 
 export interface WalletContextType {
   walletAddress: string | null;
@@ -38,7 +39,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const walletAddress = address ? address.toString() : null;
   const isConnected = wagmiIsConnected;
-  const bnbBalance = balanceData ? parseFloat(balanceData.formatted) : 0;
+  // wagmi v3's useBalance returns { value: bigint, decimals } — no `.formatted`.
+  const bnbBalance = balanceData?.value != null ? Number(formatEther(balanceData.value)) : 0;
 
   // Sync watchlist and balances from localStorage on mount
   useEffect(() => {
