@@ -17,13 +17,12 @@ interface MarketPageProps {
   }>;
 }
 
-// Token prices are tiny fractions of BNB early on; show Gwei for readability
-// (1 Gwei = 1e-9 BNB) and switch to BNB once the price grows.
+// Token prices are tiny fractions of BNB early on. Always show BNB, as a plain
+// decimal (never scientific notation), with enough digits to be meaningful.
 function formatPrice(bnb: number): string {
   if (!bnb || bnb <= 0) return "0 BNB";
   if (bnb >= 0.0001) return `${bnb.toFixed(6)} BNB`;
-  const gwei = bnb * 1e9;
-  return `${gwei.toLocaleString(undefined, { maximumFractionDigits: 2 })} Gwei`;
+  return `${bnb.toLocaleString("en-US", { maximumFractionDigits: 12 })} BNB`;
 }
 
 export default function MarketDetail({ params }: MarketPageProps) {
