@@ -19,11 +19,11 @@ export const CONTRACTS: Record<number, ChainContracts> = {
     feeDistributor: "0xc73565a7e42d8590a90e377A2233615Db14555Fa",
     creatorClaimVault: "0x2A02ad60B749f2979a22Ef992cDd0783866FCF73",
   },
-  // BNB Smart Chain Mainnet (set after mainnet deploy)
+  // BNB Smart Chain Mainnet (live deployment)
   56: {
-    factory: (process.env.NEXT_PUBLIC_FACTORY_ADDRESS_BSC as Address) || ZERO,
-    feeDistributor: (process.env.NEXT_PUBLIC_FEE_DISTRIBUTOR_BSC as Address) || ZERO,
-    creatorClaimVault: (process.env.NEXT_PUBLIC_CREATOR_VAULT_BSC as Address) || ZERO,
+    factory: "0xC9Dd6dB82D37F7F16A79e420a819778b0a515EE0",
+    feeDistributor: "0xc73565a7e42d8590a90e377A2233615Db14555Fa",
+    creatorClaimVault: "0x2A02ad60B749f2979a22Ef992cDd0783866FCF73",
   },
 };
 
