@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -22,6 +22,44 @@ export default function CreatorClaim() {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [claimResult, setClaimResult] = useState<any | null>(null);
   const [errorMsg, setErrorMsg] = useState("");
+
+  // Market picker
+  const [marketList, setMarketList] = useState<any[]>([]);
+  const [loadingList, setLoadingList] = useState(false);
+  const [marketSearch, setMarketSearch] = useState("");
+
+  useEffect(() => {
+    if (step !== 2 || marketList.length > 0) return;
+    setLoadingList(true);
+    fetch("/api/market?sort=new")
+      .then((r) => r.json())
+      .then((d) => { if (d.success) setMarketList(d.markets); })
+      .catch(() => {})
+      .finally(() => setLoadingList(false));
+  }, [step, marketList.length]);
+
+  const filteredMarkets = marketList.filter((m) => {
+    if (!marketSearch) return true;
+    const q = marketSearch.toLowerCase();
+    return (
+      (m.title || "").toLowerCase().includes(q) ||
+      (m.symbol || "").toLowerCase().includes(q) ||
+      (m.subreddit || "").toLowerCase().includes(q) ||
+      (m.author || "").toLowerCase().includes(q) ||
+      (m.marketAddress || "").toLowerCase().includes(q)
+    );
+  });
+
+  const selectMarketFromList = (m: any) => {
+    setErrorMsg("");
+    if (m.creatorWallet) {
+      setErrorMsg("Creator rewards have already been claimed for this market.");
+      return;
+    }
+    setSelectedMarket(m);
+    setMarketAddress(m.marketAddress);
+    setStep(3);
+  };
 
   const handleFetchMarket = async () => {
     if (!marketAddress) return;
@@ -173,33 +211,94 @@ export default function CreatorClaim() {
 
           {/* Step 2: Select Market */}
           {step === 2 && (
-            <div className="flex flex-col gap-6 animate-in fade-in slide-in-from-bottom-4 duration-500">
-              <div className="text-center mb-2">
-                <h2 className="text-2xl font-black text-[#161616] mb-3">Enter Market Address</h2>
-                <p className="text-sm font-medium text-[#5F5B57] max-w-sm mx-auto leading-relaxed">
-                  Paste the Token or Bonding Curve contract address of the market created for your post.
+            <div className="flex flex-col gap-5 animate-in fade-in slide-in-from-bottom-4 duration-500">
+              <div className="text-center mb-1">
+                <h2 className="text-2xl font-black text-[#161616] mb-3">Select Your Market</h2>
+                <p className="text-sm font-medium text-[#5F5B57] max-w-md mx-auto leading-relaxed">
+                  Pick the attention market created from your Reddit post — no need to find a contract address.
                 </p>
               </div>
-              
-              <div className="flex flex-col sm:flex-row gap-3">
-                <div className="relative flex-1">
-                  <Search className="absolute left-4 top-[18px] h-5 w-5 text-[#8A817A]" />
+
+              {/* Search the market list */}
+              <div className="relative">
+                <Search className="absolute left-4 top-[18px] h-5 w-5 text-[#8A817A]" />
+                <input
+                  type="text"
+                  value={marketSearch}
+                  onChange={(e) => setMarketSearch(e.target.value)}
+                  placeholder="Search by post title, symbol, subreddit, or author..."
+                  className="w-full h-14 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-12 pr-4 text-[15px] font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors shadow-sm"
+                />
+              </div>
+
+              {/* Clickable market list */}
+              <div className="flex flex-col gap-2 max-h-[340px] overflow-y-auto pr-1">
+                {loadingList && (
+                  <div className="flex items-center justify-center py-10 text-[#FF6B1A]">
+                    <Loader2 className="h-6 w-6 animate-spin" />
+                  </div>
+                )}
+                {!loadingList && filteredMarkets.length === 0 && (
+                  <p className="text-center text-sm font-medium text-[#8A817A] py-8">
+                    {marketList.length === 0 ? "No markets exist yet." : "No markets match your search."}
+                  </p>
+                )}
+                {!loadingList && filteredMarkets.map((m) => {
+                  const claimed = !!m.creatorWallet;
+                  return (
+                    <button
+                      key={m.marketAddress}
+                      onClick={() => selectMarketFromList(m)}
+                      disabled={claimed}
+                      className={`flex items-center justify-between gap-3 rounded-2xl border p-4 text-left transition-colors ${
+                        claimed
+                          ? "border-[#F2D8C8] bg-[#FAFAF7] opacity-60 cursor-not-allowed"
+                          : "border-[#F2D8C8] bg-white hover:border-[#FF6B1A] hover:bg-[#FFFAF5]"
+                      }`}
+                    >
+                      <div className="min-w-0">
+                        <div className="text-[10px] font-bold uppercase tracking-wider text-[#FF6B1A] mb-0.5">
+                          {m.subreddit} · ${m.symbol}
+                        </div>
+                        <div className="text-sm font-bold text-[#161616] truncate">{m.title}</div>
+                        <div className="text-[11px] font-medium text-[#8A817A] mt-0.5">
+                          by {m.author} · <span className="font-mono">{(m.marketAddress || "").slice(0, 8)}…{(m.marketAddress || "").slice(-6)}</span>
+                        </div>
+                      </div>
+                      {claimed ? (
+                        <span className="shrink-0 rounded-full bg-[#FFFAF5] border border-[#F2D8C8] px-3 py-1 text-[10px] font-extrabold text-[#8A817A] uppercase">
+                          Claimed
+                        </span>
+                      ) : (
+                        <ArrowRight className="h-5 w-5 shrink-0 text-[#FF6B1A]" />
+                      )}
+                    </button>
+                  );
+                })}
+              </div>
+
+              {/* Manual address fallback */}
+              <details className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-4">
+                <summary className="cursor-pointer text-sm font-bold text-[#5F5B57]">
+                  Or paste a contract address manually
+                </summary>
+                <div className="flex flex-col sm:flex-row gap-3 mt-4">
                   <input
                     type="text"
                     value={marketAddress}
                     onChange={(e) => setMarketAddress(e.target.value)}
                     placeholder="0x..."
-                    className="w-full h-14 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-12 pr-4 text-[15px] font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors shadow-sm"
+                    className="flex-1 h-12 rounded-full border border-[#F2D8C8] bg-white px-4 text-[14px] font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:outline-none transition-colors"
                   />
+                  <button
+                    onClick={handleFetchMarket}
+                    disabled={!marketAddress}
+                    className="h-12 shrink-0 rounded-full bg-gradient-to-r from-[#161616] to-[#2a2a2a] px-6 text-[13px] font-extrabold text-white transition-all disabled:opacity-50 hover:scale-[1.02] active:scale-[0.98]"
+                  >
+                    Verify Market
+                  </button>
                 </div>
-                <button
-                  onClick={handleFetchMarket}
-                  disabled={!marketAddress}
-                  className="h-14 shrink-0 rounded-full bg-gradient-to-r from-[#161616] to-[#2a2a2a] px-8 text-[14px] font-extrabold text-white transition-all disabled:opacity-50 disabled:scale-100 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
-                >
-                  Verify Market
-                </button>
-              </div>
+              </details>
 
               {errorMsg && (
                 <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-600">
