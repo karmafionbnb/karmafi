@@ -669,11 +669,11 @@ export default function MarketDetail({ params }: MarketPageProps) {
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Liquidity (on-chain)</span>
-                <span className="text-[#161616] font-black">{(onReserve > 0 ? onReserve : (market.marketCap as number)).toFixed(4)} BNB</span>
+                <span className="text-[#161616] font-black">{priceLabel(onReserve > 0 ? onReserve : (market.marketCap as number))}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>24h Trading Volume</span>
-                <span className="text-[#161616] font-black">{market.volume24h.toFixed(2)} BNB</span>
+                <span className="text-[#161616] font-black">{priceLabel(market.volume24h as number)}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Holders</span>
