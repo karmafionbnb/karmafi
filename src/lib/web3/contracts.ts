@@ -159,3 +159,44 @@ export const ATTENTION_TOKEN_ABI = [
 ] as const;
 
 export const FEE_BASIS_POINTS = 100n; // 1%
+
+// Bonding-curve math, mirrored exactly from BondingCurveMarket.sol so the UI
+// can quote/estimate locally without an RPC round-trip per keystroke.
+const CURVE_INITIAL = 1_000_000_000n; // 1 gwei
+const CURVE_MULT = 1_000_000_000n; // 1 gwei per token
+const CURVE_SCALE = 1_000_000_000_000_000_000n; // 1e18
+
+export function buyCost(supply: bigint, tokenAmount: bigint): bigint {
+  const avg = CURVE_INITIAL + (CURVE_MULT * (supply + tokenAmount / 2n)) / CURVE_SCALE;
+  return (tokenAmount * avg) / CURVE_SCALE;
+}
+
+export function sellRefund(supply: bigint, tokenAmount: bigint): bigint {
+  if (tokenAmount > supply) return 0n;
+  const avg = CURVE_INITIAL + (CURVE_MULT * (supply - tokenAmount / 2n)) / CURVE_SCALE;
+  return (tokenAmount * avg) / CURVE_SCALE;
+}
+
+// Marginal price of one token at the given supply (in wei of BNB).
+export function pricePerToken(supply: bigint): bigint {
+  return buyCost(supply, CURVE_SCALE);
+}
+
+// Max tokens (wei) whose cost + 1% fee fits within budgetWei. Binary search.
+export function tokensForBudget(supply: bigint, budgetWei: bigint): bigint {
+  if (budgetWei <= 0n) return 0n;
+  let lo = 0n;
+  let hi = (budgetWei * CURVE_SCALE) / CURVE_INITIAL + CURVE_SCALE;
+  let best = 0n;
+  for (let i = 0; i < 140 && lo <= hi; i++) {
+    const mid = (lo + hi + 1n) / 2n;
+    const cost = buyCost(supply, mid);
+    if (cost + cost / 100n <= budgetWei) {
+      best = mid;
+      lo = mid + 1n;
+    } else {
+      hi = mid - 1n;
+    }
+  }
+  return best;
+}

@@ -9,7 +9,7 @@ import { useWallet } from "@/context/wallet";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts } from "@/lib/web3/contracts";
+import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget } from "@/lib/web3/contracts";
 
 interface MarketPageProps {
   params: Promise<{
@@ -46,6 +46,12 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const [reportDetails, setReportDetails] = useState("");
   const [reportSubmitted, setReportSubmitted] = useState(false);
 
+  // Live on-chain state
+  const [onSupply, setOnSupply] = useState<bigint>(0n);
+  const [onPrice, setOnPrice] = useState(0); // BNB per token (marginal)
+  const [onUserBal, setOnUserBal] = useState(0); // user's token balance
+  const [onReserve, setOnReserve] = useState(0); // BNB locked in the curve
+
   const fetchDetails = React.useCallback(async () => {
     try {
       const res = await fetch(`/api/market/${address}`);
@@ -73,6 +79,44 @@ export default function MarketDetail({ params }: MarketPageProps) {
     fetchDetails();
   }, [fetchDetails]);
 
+  // Read live state straight from the bonding curve + token contracts.
+  const loadChainState = React.useCallback(async () => {
+    if (!market || !publicClient) return;
+    const tokenAddr = market.tokenAddress as `0x${string}` | undefined;
+    const marketAddr = market.marketAddress as `0x${string}` | undefined;
+    if (!tokenAddr || !marketAddr || !tokenAddr.startsWith("0x")) return;
+    try {
+      const supply = (await publicClient.readContract({
+        address: tokenAddr,
+        abi: ATTENTION_TOKEN_ABI,
+        functionName: "totalSupply",
+      })) as bigint;
+      setOnSupply(supply);
+      setOnPrice(Number(formatEther(pricePerToken(supply))));
+
+      const reserve = await publicClient.getBalance({ address: marketAddr });
+      setOnReserve(Number(formatEther(reserve)));
+
+      if (walletAddress) {
+        const bal = (await publicClient.readContract({
+          address: tokenAddr,
+          abi: ATTENTION_TOKEN_ABI,
+          functionName: "balanceOf",
+          args: [walletAddress as `0x${string}`],
+        })) as bigint;
+        setOnUserBal(Number(formatEther(bal)));
+      } else {
+        setOnUserBal(0);
+      }
+    } catch (e) {
+      console.error("Failed to read on-chain market state", e);
+    }
+  }, [market, publicClient, walletAddress]);
+
+  useEffect(() => {
+    loadChainState();
+  }, [loadChainState]);
+
   // Recalculate output quotes
   useEffect(() => {
     if (!market) return;
@@ -82,18 +126,21 @@ export default function MarketDetail({ params }: MarketPageProps) {
       return;
     }
 
-    const currentPrice = market.marketCap > 0 ? (market.marketCap / 1000) : 0.001;
-
-    if (tradeType === "BUY") {
-      // Estimate tokens bought: bnb / price
-      const tokens = amount / currentPrice;
-      setEstOut(tokens.toFixed(2));
-    } else {
-      // Estimate BNB refunded: tokens * price (with 1% fee deduction)
-      const refund = amount * currentPrice * 0.99;
-      setEstOut(refund.toFixed(4));
+    try {
+      if (tradeType === "BUY") {
+        // Tokens this BNB budget buys, from the real curve.
+        const tokens = tokensForBudget(onSupply, parseEther(inputAmount));
+        setEstOut(Number(formatEther(tokens)).toFixed(2));
+      } else {
+        // BNB refunded for selling this many tokens, minus 1% fee.
+        const refund = sellRefund(onSupply, parseEther(inputAmount));
+        const net = refund - refund / 100n;
+        setEstOut(Number(formatEther(net)).toFixed(6));
+      }
+    } catch {
+      setEstOut("0.00");
     }
-  }, [inputAmount, tradeType, market]);
+  }, [inputAmount, tradeType, onSupply]);
 
   const handleTradeSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -136,31 +183,10 @@ export default function MarketDetail({ params }: MarketPageProps) {
         // tokens whose cost+1%fee fits the budget, then send the full budget
         // (the contract mints the tokens and refunds any excess).
         const budgetWei = parseEther(inputAmount);
-        const INITIAL = 1_000_000_000n; // 1 gwei (matches contract)
-        const MULT = 1_000_000_000n; // 1 gwei per token
-        const SCALE = 1_000_000_000_000_000_000n; // 1e18
-        const buyQuote = (s: bigint, n: bigint) => {
-          const avg = INITIAL + (MULT * (s + n / 2n)) / SCALE;
-          return (n * avg) / SCALE;
-        };
-
-        let lo = 0n;
-        let hi = (budgetWei * SCALE) / INITIAL + SCALE; // generous upper bound
-        let best = 0n;
-        for (let i = 0; i < 130 && lo <= hi; i++) {
-          const mid = (lo + hi + 1n) / 2n;
-          const cost = buyQuote(supply, mid);
-          const total = cost + cost / 100n;
-          if (total <= budgetWei) {
-            best = mid;
-            lo = mid + 1n;
-          } else {
-            hi = mid - 1n;
-          }
-        }
+        const best = tokensForBudget(supply, budgetWei);
         if (best <= 0n) throw new Error("Amount too small to buy any tokens at the current price.");
 
-        const cost = buyQuote(supply, best);
+        const cost = buyCost(supply, best);
         const total = cost + cost / 100n;
         txHash = await writeContractAsync({
           address: marketAddr,
@@ -226,6 +252,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
       );
       setInputAmount(tradeType === "BUY" ? "0.1" : "10.0");
       await fetchDetails();
+      await loadChainState();
     } catch (e: unknown) {
       const err = e as { shortMessage?: string; message?: string };
       const msg = err?.shortMessage || err?.message || "Failed to execute transaction.";
@@ -294,8 +321,8 @@ export default function MarketDetail({ params }: MarketPageProps) {
     );
   }
 
-  const currentTokenPrice = market.marketCap > 0 ? (market.marketCap / 1000) : 0.001;
-  const userTokenBalance = tokenBalances[market?.tokenAddress] || 0;
+  const currentTokenPrice = onPrice > 0 ? onPrice : (market.marketCap > 0 ? (market.marketCap / 1000) : 0.001);
+  const userTokenBalance = onUserBal;
   const isCreatorClaimed = !!market?.creatorWallet;
 
   return (
@@ -354,7 +381,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 <div>
                   <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Price Chart</h3>
                   <div className="flex items-end gap-3 mt-1">
-                    <p className="text-[28px] font-black text-[#161616] leading-none">{currentTokenPrice.toFixed(6)} BNB</p>
+                    <p className="text-[28px] font-black text-[#161616] leading-none">{currentTokenPrice > 0 && currentTokenPrice < 0.0001 ? currentTokenPrice.toExponential(2) : currentTokenPrice.toFixed(6)} BNB</p>
                     <span className="text-xs font-black text-[#161616] mb-1">${market.symbol}</span>
                   </div>
                 </div>
@@ -587,8 +614,8 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 <span className="text-[#161616] font-black">${market.symbol}</span>
               </div>
               <div className="flex justify-between items-center py-1">
-                <span>Market Cap</span>
-                <span className="text-[#161616] font-black">{market.marketCap.toFixed(2)} BNB</span>
+                <span>Liquidity (on-chain)</span>
+                <span className="text-[#161616] font-black">{(onReserve > 0 ? onReserve : (market.marketCap as number)).toFixed(4)} BNB</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>24h Trading Volume</span>
