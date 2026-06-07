@@ -1,31 +1,35 @@
 import { NextRequest, NextResponse } from "next/server";
 import { Database } from "@/lib/db";
 import { calculateViralityScore } from "@/lib/virality";
-import { fetchRedditMetadata } from "@/lib/reddit";
+import { generateSourceHash } from "@/lib/reddit";
 
 export const dynamic = "force-dynamic";
 
 export async function POST(req: NextRequest) {
   try {
-    const { permalink, name, symbol, curatorWallet, metadataUri } = await req.json();
+    const {
+      redditPostId,
+      subreddit,
+      author,
+      title,
+      permalink,
+      thumbnail,
+      upvotes,
+      comments,
+      name,
+      symbol,
+      curatorWallet,
+      metadataUri,
+    } = await req.json();
 
-    if (!permalink || !name || !symbol || !curatorWallet) {
+    if (!permalink || !title || !name || !symbol || !curatorWallet) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
     }
 
-    // Re-verify the post against Reddit server-side. Never trust client-supplied
-    // title/upvotes/author/sourceHash — derive the authoritative values here so
-    // markets can't be launched with spoofed stats or for removed/NSFW posts.
-    let meta;
-    try {
-      meta = await fetchRedditMetadata(permalink);
-    } catch (e: any) {
-      return NextResponse.json(
-        { error: e.message || "Could not verify the Reddit post." },
-        { status: 400 }
-      );
-    }
-    const sourceHash = meta.sourceHash;
+    // Reddit blocks server IPs, so the post is fetched in the browser and the
+    // metadata is supplied here. We compute the canonical sourceHash server-side
+    // from the permalink (so it can't be forged to dodge the duplicate check).
+    const sourceHash = generateSourceHash(permalink);
 
     // Double check duplicate
     const existing = await Database.getMarketBySourceHash(sourceHash);
@@ -39,10 +43,11 @@ export async function POST(req: NextRequest) {
     const tokenAddress = "0x" + hash.substring(0, 40);
     const marketAddress = "0x" + hash.substring(20, 60);
 
-    // Calculate initial virality score from verified Reddit stats
+    const up = parseInt(upvotes) || 0;
+    const com = parseInt(comments) || 0;
     const viralityScore = calculateViralityScore({
-      upvotes: meta.upvotes,
-      comments: meta.comments,
+      upvotes: up,
+      comments: com,
       createdAt: new Date().toISOString(),
       volume24h: 0,
       holdersCount: 1,
@@ -66,14 +71,14 @@ export async function POST(req: NextRequest) {
       createdAt: new Date().toISOString(),
       name,
       symbol,
-      redditPostId: meta.redditPostId,
-      subreddit: meta.subreddit,
-      author: meta.author,
-      title: meta.title,
-      permalink: meta.permalink,
-      thumbnail: meta.thumbnail,
-      upvotes: meta.upvotes,
-      comments: meta.comments
+      redditPostId: redditPostId || "unknown",
+      subreddit: subreddit || "r/all",
+      author: author || "unknown",
+      title,
+      permalink,
+      thumbnail: thumbnail || null,
+      upvotes: up,
+      comments: com
     };
 
     await Database.createMarket(marketData);

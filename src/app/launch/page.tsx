@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Flame, ShieldAlert, CheckCircle, HelpCircle, Loader2, ArrowRight, Wallet, AlertTriangle, Link as LinkIcon, Info, Copy, MessageSquare } from "lucide-react";
 import { useWallet } from "@/context/wallet";
+import { fetchRedditPostClient } from "@/lib/reddit-client";
 
 function LaunchContent() {
   const searchParams = useSearchParams();
@@ -47,10 +48,14 @@ function LaunchContent() {
     setRedditPost(null);
 
     try {
+      // Reddit blocks server IPs, so fetch the post in the browser (JSONP),
+      // then send the data to our API for hashing/moderation/suggestions.
+      const post = await fetchRedditPostClient(urlStr);
+
       const res = await fetch("/api/reddit/parse", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ url: urlStr })
+        body: JSON.stringify({ post })
       });
 
       const data = await res.json();
