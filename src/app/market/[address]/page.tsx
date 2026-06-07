@@ -60,13 +60,6 @@ export default function MarketDetail({ params }: MarketPageProps) {
         setMarket(data.market);
         setTrades(data.trades);
         setCandles(data.candles);
-
-        // Map candles to Recharts format
-        const formatted = data.candles.map((c: Record<string, unknown>) => ({
-          time: new Date(c.timestamp as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-          price: c.close
-        }));
-        setChartData(formatted);
       }
     } catch (e) {
       console.error("Failed to load market detail", e);
@@ -116,6 +109,23 @@ export default function MarketDetail({ params }: MarketPageProps) {
   useEffect(() => {
     loadChainState();
   }, [loadChainState]);
+
+  // Build the price chart from real recorded trades (oldest -> newest). With no
+  // trades yet, show a flat line at the current on-chain price.
+  useEffect(() => {
+    const asc = [...trades].reverse();
+    let series = asc.map((t) => ({
+      time: new Date(t.createdAt as string).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
+      price: parseFloat(t.price as string) || 0,
+    }));
+    if (series.length === 0) {
+      const p = onPrice || 0;
+      series = [{ time: "", price: p }, { time: "now", price: p }];
+    } else if (series.length === 1) {
+      series = [{ time: "", price: series[0].price }, ...series];
+    }
+    setChartData(series);
+  }, [trades, onPrice]);
 
   // Recalculate output quotes
   useEffect(() => {
