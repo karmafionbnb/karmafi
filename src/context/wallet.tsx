@@ -59,10 +59,18 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
 
   const connect = async (_type: string = "MetaMask") => {
     try {
-      // Prefer the MetaMask-targeted connector so Phantom (or any other wallet
-      // that grabs window.ethereum) doesn't get opened instead.
-      const metaMask = connectors.find((c) => c.id === "metaMask" || c.name === "MetaMask");
-      const target = metaMask || connectors.find((c) => c.type === "injected");
+      // EIP-6963 discovery exposes each wallet as its own connector. Prefer the
+      // one named/identified as MetaMask; fall back to any injected wallet.
+      const isMetaMask = (c: { id?: string; name?: string }) => {
+        const n = (c.name || "").toLowerCase();
+        const id = (c.id || "").toLowerCase();
+        return n.includes("metamask") || id.includes("metamask") || id === "io.metamask";
+      };
+      const metaMask = connectors.find(isMetaMask);
+      const target =
+        metaMask ||
+        connectors.find((c) => c.type === "injected") ||
+        connectors[0];
       if (target) {
         await wagmiConnect({ connector: target });
         return target.id;
