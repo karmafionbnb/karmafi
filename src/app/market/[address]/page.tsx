@@ -7,6 +7,9 @@ import Footer from "@/components/Footer";
 import { Flame, MessageSquare, ExternalLink, ShieldCheck, RefreshCw, AlertTriangle, Coins, TrendingUp, Info } from "lucide-react";
 import { useWallet } from "@/context/wallet";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
+import { useWriteContract, usePublicClient, useChainId } from "wagmi";
+import { parseEther, formatEther } from "viem";
+import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts } from "@/lib/web3/contracts";
 
 interface MarketPageProps {
   params: Promise<{
@@ -17,6 +20,9 @@ interface MarketPageProps {
 export default function MarketDetail({ params }: MarketPageProps) {
   const { address } = use(params);
   const { isConnected, connect, walletAddress, bnbBalance, updateBnbBalance, updateTokenBalance, tokenBalances } = useWallet();
+  const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
+  const chainId = useChainId();
 
   const [loading, setLoading] = useState(true);
   const [market, setMarket] = useState<Record<string, unknown> | null>(null);
@@ -40,32 +46,32 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const [reportDetails, setReportDetails] = useState("");
   const [reportSubmitted, setReportSubmitted] = useState(false);
 
-  useEffect(() => {
-    async function fetchDetails() {
-      try {
-        const res = await fetch(`/api/market/${address}`);
-        const data = await res.json();
-        if (data.success) {
-          setMarket(data.market);
-          setTrades(data.trades);
-          setCandles(data.candles);
+  const fetchDetails = React.useCallback(async () => {
+    try {
+      const res = await fetch(`/api/market/${address}`);
+      const data = await res.json();
+      if (data.success) {
+        setMarket(data.market);
+        setTrades(data.trades);
+        setCandles(data.candles);
 
-          // Map candles to Recharts format
-          const formatted = data.candles.map((c: Record<string, unknown>) => ({
-            time: new Date(c.timestamp as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
-            price: c.close
-          }));
-          setChartData(formatted);
-        }
-      } catch (e) {
-        console.error("Failed to load market detail", e);
-      } finally {
-        setLoading(false);
+        // Map candles to Recharts format
+        const formatted = data.candles.map((c: Record<string, unknown>) => ({
+          time: new Date(c.timestamp as string).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }),
+          price: c.close
+        }));
+        setChartData(formatted);
       }
+    } catch (e) {
+      console.error("Failed to load market detail", e);
+    } finally {
+      setLoading(false);
     }
-    
-    fetchDetails();
   }, [address]);
+
+  useEffect(() => {
+    fetchDetails();
+  }, [fetchDetails]);
 
   // Recalculate output quotes
   useEffect(() => {
@@ -94,64 +100,136 @@ export default function MarketDetail({ params }: MarketPageProps) {
     if (!market || !isConnected) return;
     setErrorMessage("");
     setSuccessMessage("");
-    setIsExecuting(true);
 
+    const amount = parseFloat(inputAmount);
+    if (!amount || amount <= 0) {
+      setErrorMessage("Enter a valid amount.");
+      return;
+    }
+    if (!getContracts(chainId)) {
+      setErrorMessage(`KarmaFi isn't deployed on chain ${chainId}. Switch your wallet to the right BNB network.`);
+      return;
+    }
+
+    setIsExecuting(true);
     try {
-      const amount = parseFloat(inputAmount);
-      const output = parseFloat(estOut);
-      const currentPrice = market.marketCap > 0 ? (market.marketCap / 1000) : 0.001;
+      if (!publicClient) throw new Error("No network client — reconnect your wallet.");
+      const marketAddr = market.marketAddress as `0x${string}`;
+      const tokenAddr = market.tokenAddress as `0x${string}`;
+      const ONE = parseEther("1");
+
+      // Current on-chain token supply drives the bonding-curve price.
+      const supply = (await publicClient.readContract({
+        address: tokenAddr,
+        abi: ATTENTION_TOKEN_ABI,
+        functionName: "totalSupply",
+      })) as bigint;
+
+      const slipBps = BigInt(Math.round((parseFloat(slippage || "1") || 1) * 100));
+      let recordBnb: number;
+      let recordTokens: number;
+      let txHash: `0x${string}`;
 
       if (tradeType === "BUY") {
-        // Buy action: send BNB, get tokens
-        const res = await fetch(`/api/market/${market.marketAddress}/trade`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            traderWallet: walletAddress,
-            type: "BUY",
-            bnbAmount: amount,
-            tokenAmount: output,
-            price: currentPrice
-          })
-        });
+        // Input is a BNB budget. The bonding curve is non-linear, so we
+        // replicate its cost formula locally and binary-search for the most
+        // tokens whose cost+1%fee fits the budget, then send the full budget
+        // (the contract mints the tokens and refunds any excess).
+        const budgetWei = parseEther(inputAmount);
+        const INITIAL = 1_000_000_000n; // 1 gwei (matches contract)
+        const MULT = 1_000_000_000n; // 1 gwei per token
+        const SCALE = 1_000_000_000_000_000_000n; // 1e18
+        const buyQuote = (s: bigint, n: bigint) => {
+          const avg = INITIAL + (MULT * (s + n / 2n)) / SCALE;
+          return (n * avg) / SCALE;
+        };
 
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.error || "Trade transaction failed");
-
-        updateBnbBalance(-amount);
-        updateTokenBalance(market.tokenAddress, output);
-        setSuccessMessage(`Successfully purchased ${output.toFixed(2)} ${market.symbol} tokens!`);
-      } else {
-        // Sell action: burn tokens, get BNB
-        const userBalance = tokenBalances[market.tokenAddress] || 0;
-        if (amount > userBalance) {
-          throw new Error(`Insufficient ${market.symbol} token balance (you hold ${userBalance.toFixed(2)})`);
+        let lo = 0n;
+        let hi = (budgetWei * SCALE) / INITIAL + SCALE; // generous upper bound
+        let best = 0n;
+        for (let i = 0; i < 130 && lo <= hi; i++) {
+          const mid = (lo + hi + 1n) / 2n;
+          const cost = buyQuote(supply, mid);
+          const total = cost + cost / 100n;
+          if (total <= budgetWei) {
+            best = mid;
+            lo = mid + 1n;
+          } else {
+            hi = mid - 1n;
+          }
         }
+        if (best <= 0n) throw new Error("Amount too small to buy any tokens at the current price.");
 
-        const res = await fetch(`/api/market/${market.marketAddress}/trade`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            traderWallet: walletAddress,
-            type: "SELL",
-            bnbAmount: output,
-            tokenAmount: amount,
-            price: currentPrice
-          })
+        const cost = buyQuote(supply, best);
+        const total = cost + cost / 100n;
+        txHash = await writeContractAsync({
+          address: marketAddr,
+          abi: BONDING_CURVE_ABI,
+          functionName: "buy",
+          args: [best, 0n],
+          value: budgetWei,
         });
+        recordTokens = Number(formatEther(best));
+        recordBnb = Number(formatEther(total));
+      } else {
+        // Input is a token amount to sell.
+        const tokenWei = parseEther(inputAmount);
+        const bal = (await publicClient.readContract({
+          address: tokenAddr,
+          abi: ATTENTION_TOKEN_ABI,
+          functionName: "balanceOf",
+          args: [walletAddress as `0x${string}`],
+        })) as bigint;
+        if (tokenWei > bal) {
+          throw new Error(`Insufficient balance — you hold ${Number(formatEther(bal)).toFixed(2)} ${market.symbol}.`);
+        }
+        const refund = (await publicClient.readContract({
+          address: marketAddr,
+          abi: BONDING_CURVE_ABI,
+          functionName: "getSellQuote",
+          args: [supply, tokenWei],
+        })) as bigint;
+        const net = refund - refund / 100n;
+        const minOut = (net * (10000n - slipBps)) / 10000n;
 
-        const data = await res.json();
-        if (!res.ok || !data.success) throw new Error(data.error || "Trade transaction failed");
-
-        updateTokenBalance(market.tokenAddress, -amount);
-        updateBnbBalance(output);
-        setSuccessMessage(`Successfully sold ${amount.toFixed(2)} tokens for ${output.toFixed(4)} BNB!`);
+        txHash = await writeContractAsync({
+          address: marketAddr,
+          abi: BONDING_CURVE_ABI,
+          functionName: "sell",
+          args: [tokenWei, minOut],
+        });
+        recordTokens = Number(formatEther(tokenWei));
+        recordBnb = Number(formatEther(net));
       }
 
-      setInputAmount("0.1");
-      fetchDetails();
+      await publicClient.waitForTransactionReceipt({ hash: txHash });
+
+      // Record the (real) trade so the trade list, chart and stats update.
+      const price = recordTokens > 0 ? recordBnb / recordTokens : 0;
+      await fetch(`/api/market/${market.marketAddress}/trade`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          traderWallet: walletAddress,
+          type: tradeType,
+          bnbAmount: recordBnb,
+          tokenAmount: recordTokens,
+          price,
+          txHash,
+        }),
+      }).catch(() => {});
+
+      setSuccessMessage(
+        tradeType === "BUY"
+          ? `Bought ~${recordTokens.toFixed(2)} ${market.symbol} for ${recordBnb.toFixed(4)} BNB!`
+          : `Sold ${recordTokens.toFixed(2)} ${market.symbol} for ~${recordBnb.toFixed(4)} BNB!`
+      );
+      setInputAmount(tradeType === "BUY" ? "0.1" : "10.0");
+      await fetchDetails();
     } catch (e: unknown) {
-      setErrorMessage((e as Error).message || "Failed to execute transaction.");
+      const err = e as { shortMessage?: string; message?: string };
+      const msg = err?.shortMessage || err?.message || "Failed to execute transaction.";
+      setErrorMessage(/user rejected|denied|user denied/i.test(msg) ? "Transaction rejected in your wallet." : msg);
     } finally {
       setIsExecuting(false);
     }
