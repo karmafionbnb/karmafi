@@ -17,6 +17,15 @@ interface MarketPageProps {
   }>;
 }
 
+// Token prices are tiny fractions of BNB early on; show Gwei for readability
+// (1 Gwei = 1e-9 BNB) and switch to BNB once the price grows.
+function formatPrice(bnb: number): string {
+  if (!bnb || bnb <= 0) return "0 BNB";
+  if (bnb >= 0.0001) return `${bnb.toFixed(6)} BNB`;
+  const gwei = bnb * 1e9;
+  return `${gwei.toLocaleString(undefined, { maximumFractionDigits: 2 })} Gwei`;
+}
+
 export default function MarketDetail({ params }: MarketPageProps) {
   const { address } = use(params);
   const { isConnected, connect, walletAddress, bnbBalance, updateBnbBalance, updateTokenBalance, tokenBalances } = useWallet();
@@ -391,7 +400,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 <div>
                   <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Price Chart</h3>
                   <div className="flex items-end gap-3 mt-1">
-                    <p className="text-[28px] font-black text-[#161616] leading-none">{currentTokenPrice > 0 && currentTokenPrice < 0.0001 ? currentTokenPrice.toExponential(2) : currentTokenPrice.toFixed(6)} BNB</p>
+                    <p className="text-[28px] font-black text-[#161616] leading-none">{formatPrice(currentTokenPrice)}</p>
                     <span className="text-xs font-black text-[#161616] mb-1">${market.symbol}</span>
                   </div>
                 </div>
@@ -456,7 +465,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                         </td>
                         <td className="py-4 text-right font-black text-[#161616]">{parseFloat(t.bnbAmount).toFixed(3)}</td>
                         <td className="py-4 text-right font-bold text-[#5F5B57]">{parseFloat(t.tokenAmount).toFixed(2)}</td>
-                        <td className="py-4 text-right font-medium text-[#8A817A]">{parseFloat(t.price).toFixed(6)}</td>
+                        <td className="py-4 text-right font-medium text-[#8A817A]">{formatPrice(parseFloat(t.price))}</td>
                         <td className="py-4 text-right font-medium text-[#8A817A]">
                           <a href="#" className="hover:text-[#FF6B1A] transition-colors">{t.txHash.substring(0, 8)}...</a>
                         </td>
