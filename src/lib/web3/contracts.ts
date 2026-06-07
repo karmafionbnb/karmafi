@@ -182,6 +182,24 @@ export function pricePerToken(supply: bigint): bigint {
   return buyCost(supply, CURVE_SCALE);
 }
 
+// Approx supply (wei) implied by a given BNB reserve (curve cost from 0).
+export function supplyForReserve(reserveWei: bigint): bigint {
+  if (reserveWei <= 0n) return 0n;
+  let lo = 0n;
+  let hi = (reserveWei * CURVE_SCALE) / CURVE_INITIAL + CURVE_SCALE;
+  let best = 0n;
+  for (let i = 0; i < 160 && lo <= hi; i++) {
+    const mid = (lo + hi + 1n) / 2n;
+    if (buyCost(0n, mid) <= reserveWei) {
+      best = mid;
+      lo = mid + 1n;
+    } else {
+      hi = mid - 1n;
+    }
+  }
+  return best;
+}
+
 // Max tokens (wei) whose cost + 1% fee fits within budgetWei. Binary search.
 export function tokensForBudget(supply: bigint, budgetWei: bigint): bigint {
   if (budgetWei <= 0n) return 0n;

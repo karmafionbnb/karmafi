@@ -11,8 +11,28 @@ import {
   Zap, Clock, ListFilter, Activity, ChevronRight, BarChart3, LineChart, Plus, ArrowRight
 } from "lucide-react";
 import { useWallet } from "@/context/wallet";
+import { parseEther, formatEther } from "viem";
+import { pricePerToken, supplyForReserve } from "@/lib/web3/contracts";
 
 // We will fetch real markets from the API instead of using MOCK_MARKETS
+
+function fmtUsd(usd: number): string {
+  if (!usd || usd <= 0) return "$0.00";
+  if (usd >= 1) return `$${usd.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  if (usd >= 0.01) return `$${usd.toFixed(4)}`;
+  return `$${usd.toLocaleString("en-US", { maximumFractionDigits: 8 })}`;
+}
+
+// Derive a token's BNB price from its accumulated BNB reserve (market cap).
+function priceFromMarketCapBnb(marketCapBnb: number): number {
+  try {
+    const reserveWei = parseEther(String(marketCapBnb || 0));
+    const supply = supplyForReserve(reserveWei);
+    return Number(formatEther(pricePerToken(supply)));
+  } catch {
+    return 0;
+  }
+}
 
 function FeedContent() {
   const searchParams = useSearchParams();
@@ -31,24 +51,85 @@ function FeedContent() {
   const [swapAmount, setSwapAmount] = useState("0.1");
   const [isSwapping, setIsSwapping] = useState(false);
 
+  const [bnbUsd, setBnbUsd] = useState(0);
+  const [summary, setSummary] = useState({
+    totalMarkets: 0,
+    volumeBnb: 0,
+    curators: 0,
+    creatorVaultBnb: 0,
+    holders: 0,
+    rising: [] as { symbol: string; virality: number }[],
+    topCurators: [] as { wallet: string; vol: number }[],
+  });
+
+  // Live BNB/USD (CoinGecko, Binance fallback)
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
+        const j = await r.json();
+        const p = Number(j?.binancecoin?.usd);
+        if (!cancelled && p > 0) { setBnbUsd(p); return; }
+        throw new Error("no price");
+      } catch {
+        try {
+          const r2 = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT");
+          const j2 = await r2.json();
+          const p2 = Number(j2?.price);
+          if (!cancelled && p2 > 0) setBnbUsd(p2);
+        } catch { /* keep 0 -> BNB fallback */ }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  const usd = (bnb: number) => (bnbUsd > 0 ? fmtUsd(bnb * bnbUsd) : `${(bnb || 0).toFixed(4)} BNB`);
+
   const fetchMarkets = async () => {
     setLoading(true);
     try {
       const res = await fetch(`/api/market?sort=${sortOption}&search=${encodeURIComponent(searchText)}`);
       const data = await res.json();
-      let list = data.success ? data.markets : [];
+      const full: any[] = data.success ? data.markets : [];
 
+      // Protocol-wide stats from the real market set.
+      const curatorVol: Record<string, number> = {};
+      let volumeBnb = 0;
+      let holders = 0;
+      for (const m of full) {
+        volumeBnb += m.volume24h || 0;
+        holders += m.holdersCount || 0;
+        const w = (m.curatorWallet || "").toLowerCase();
+        if (w) curatorVol[w] = (curatorVol[w] || 0) + (m.volume24h || 0);
+      }
+      setSummary({
+        totalMarkets: full.length,
+        volumeBnb,
+        curators: Object.keys(curatorVol).length,
+        creatorVaultBnb: volumeBnb * 0.01 * 0.3, // 30% of the 1% trading fee
+        holders,
+        rising: [...full]
+          .sort((a, b) => (b.viralityScore || 0) - (a.viralityScore || 0))
+          .slice(0, 5)
+          .map((m) => ({ symbol: m.symbol, virality: m.viralityScore || 0 })),
+        topCurators: Object.entries(curatorVol)
+          .sort((a, b) => b[1] - a[1])
+          .slice(0, 5)
+          .map(([wallet, vol]) => ({ wallet, vol })),
+      });
+
+      let list = full;
       if (selectedSubreddit) {
         list = list.filter((m: any) => m.subreddit.toLowerCase() === selectedSubreddit.toLowerCase());
       }
-      
-      // Map DB fields to UI fields
+
+      // Map DB fields to UI fields (price derived from the on-chain curve)
       list = list.map((m: any) => ({
         ...m,
         timeAgo: m.createdAt ? new Date(m.createdAt).toLocaleDateString() : "Just now",
         excerpt: `Trending discussion on ${m.subreddit}`,
-        price: m.marketCap > 0 ? (m.marketCap / 1000).toFixed(6) : "0.001",
-        change24h: "+12.5%",
+        priceBnb: priceFromMarketCapBnb(m.marketCap),
         creatorClaimed: !!m.creatorWallet,
         holders: m.holdersCount || 0
       }));
@@ -140,19 +221,19 @@ function FeedContent() {
           <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
             <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
               <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Total Markets</div>
-              <div className="text-2xl font-black text-[#161616]">128</div>
+              <div className="text-2xl font-black text-[#161616]">{summary.totalMarkets}</div>
             </div>
             <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
               <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">24h Volume</div>
-              <div className="text-2xl font-black text-[#161616]">742.5 BNB</div>
+              <div className="text-2xl font-black text-[#161616]">{usd(summary.volumeBnb)}</div>
             </div>
             <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
               <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Active Curators</div>
-              <div className="text-2xl font-black text-[#161616]">3,492</div>
+              <div className="text-2xl font-black text-[#161616]">{summary.curators.toLocaleString()}</div>
             </div>
             <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
               <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Creator Vault Paid</div>
-              <div className="text-2xl font-black text-[#161616]">89.4 BNB</div>
+              <div className="text-2xl font-black text-[#161616]">{usd(summary.creatorVaultBnb)}</div>
             </div>
           </div>
         </div>
@@ -213,7 +294,7 @@ function FeedContent() {
                 </div>
                 <div className="flex justify-between items-center">
                   <span className="text-[#5F5B57] font-bold">Active Holders</span>
-                  <span className="font-extrabold text-[#161616]">12,492</span>
+                  <span className="font-extrabold text-[#161616]">{summary.holders.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -339,23 +420,23 @@ function FeedContent() {
                     <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4 border-t border-[#F2D8C8]">
                       <div>
                         <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Price</div>
-                        <div className="text-sm font-black text-[#161616]">${m.price}</div>
+                        <div className="text-sm font-black text-[#161616]">{usd(m.priceBnb)}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Market Cap</div>
-                        <div className="text-sm font-black text-[#161616]">{m.marketCap} BNB</div>
+                        <div className="text-sm font-black text-[#161616]">{usd(m.marketCap)}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">24h Volume</div>
-                        <div className="text-sm font-black text-[#161616]">{m.volume24h} BNB</div>
+                        <div className="text-sm font-black text-[#161616]">{usd(m.volume24h)}</div>
                       </div>
                       <div>
                         <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Holders</div>
                         <div className="text-sm font-black text-[#161616]">{m.holders}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">24h Change</div>
-                        <div className="text-sm font-black text-[#19C37D]">{m.change24h}</div>
+                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Virality</div>
+                        <div className="text-sm font-black text-[#19C37D]">{m.viralityScore ?? 0}</div>
                       </div>
                     </div>
 
@@ -386,12 +467,12 @@ function FeedContent() {
                         >
                           View
                         </Link>
-                        <button
-                          onClick={() => setSwapMarket(m)}
+                        <Link
+                          href={`/market/${m.marketAddress}`}
                           className="rounded-full bg-[#161616] px-5 py-2 text-xs font-extrabold text-white hover:bg-[#FF6B1A] transition-colors shadow-sm"
                         >
                           Buy
-                        </button>
+                        </Link>
                       </div>
                     </div>
                   </article>
@@ -428,16 +509,13 @@ function FeedContent() {
                 <TrendingUp className="h-3.5 w-3.5 text-[#FF6B1A]" /> Rising Attention
               </h3>
               <div className="flex flex-col gap-3">
-                {[
-                  { symbol: "NVIDKARMA", change: "+45%" },
-                  { symbol: "QSTAR", change: "+28%" },
-                  { symbol: "MRR100K", change: "+22%" },
-                  { symbol: "CZPULSE", change: "+17%" },
-                  { symbol: "MMOKARMA", change: "+9%" },
-                ].map((item, i) => (
+                {summary.rising.length === 0 && (
+                  <span className="text-xs text-[#8A817A]">No markets yet.</span>
+                )}
+                {summary.rising.map((item, i) => (
                   <div key={i} className="flex items-center justify-between group cursor-pointer">
                     <span className="text-sm font-bold text-[#161616] group-hover:text-[#FF6B1A] transition-colors">${item.symbol}</span>
-                    <span className="text-xs font-black text-[#19C37D]">{item.change}</span>
+                    <span className="text-xs font-black text-[#19C37D]">Virality {item.virality}</span>
                   </div>
                 ))}
               </div>
@@ -449,20 +527,17 @@ function FeedContent() {
                 <Award className="h-3.5 w-3.5 text-[#FF6B1A]" /> Top Curators
               </h3>
               <div className="flex flex-col gap-3">
-                {[
-                  { name: "0xKarmaLord", profit: "1,240 BNB" },
-                  { name: "AlphaSeeker", profit: "890 BNB" },
-                  { name: "RedditWhale", profit: "450 BNB" },
-                  { name: "ChainScout", profit: "320 BNB" },
-                  { name: "LaunchHunter", profit: "210 BNB" },
-                ].map((curator, i) => (
+                {summary.topCurators.length === 0 && (
+                  <span className="text-xs text-[#8A817A]">No curators yet.</span>
+                )}
+                {summary.topCurators.map((curator, i) => (
                   <div key={i} className="flex items-center gap-3">
                     <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#FFF4EA] to-[#F2D8C8] flex items-center justify-center text-[10px] font-black text-[#FF6B1A]">
                       {i + 1}
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-[#161616] leading-tight">{curator.name}</span>
-                      <span className="text-[10px] font-bold text-[#8A817A]">{curator.profit} Vol</span>
+                      <span className="text-sm font-bold text-[#161616] leading-tight font-mono">{curator.wallet.slice(0, 6)}…{curator.wallet.slice(-4)}</span>
+                      <span className="text-[10px] font-bold text-[#8A817A]">{usd(curator.vol)} Vol</span>
                     </div>
                   </div>
                 ))}
