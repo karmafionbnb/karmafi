@@ -25,6 +25,13 @@ function formatPrice(bnb: number): string {
   return `${bnb.toLocaleString("en-US", { maximumFractionDigits: 12 })} BNB`;
 }
 
+function formatUsd(usd: number): string {
+  if (!usd || usd <= 0) return "$0.00";
+  if (usd >= 1) return `$${usd.toLocaleString("en-US", { maximumFractionDigits: 2 })}`;
+  if (usd >= 0.01) return `$${usd.toFixed(4)}`;
+  return `$${usd.toLocaleString("en-US", { maximumFractionDigits: 8 })}`;
+}
+
 export default function MarketDetail({ params }: MarketPageProps) {
   const { address } = use(params);
   const { isConnected, connect, walletAddress, bnbBalance, updateBnbBalance, updateTokenBalance, tokenBalances } = useWallet();
@@ -59,6 +66,34 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const [onPrice, setOnPrice] = useState(0); // BNB per token (marginal)
   const [onUserBal, setOnUserBal] = useState(0); // user's token balance
   const [onReserve, setOnReserve] = useState(0); // BNB locked in the curve
+  const [bnbUsd, setBnbUsd] = useState(0); // live BNB price in USD
+
+  // Live BNB/USD rate (CoinGecko, with a Binance fallback).
+  useEffect(() => {
+    let cancelled = false;
+    (async () => {
+      try {
+        const r = await fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd");
+        const j = await r.json();
+        const p = Number(j?.binancecoin?.usd);
+        if (!cancelled && p > 0) { setBnbUsd(p); return; }
+        throw new Error("no price");
+      } catch {
+        try {
+          const r2 = await fetch("https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT");
+          const j2 = await r2.json();
+          const p2 = Number(j2?.price);
+          if (!cancelled && p2 > 0) setBnbUsd(p2);
+        } catch {
+          /* leave at 0 -> falls back to BNB display */
+        }
+      }
+    })();
+    return () => { cancelled = true; };
+  }, []);
+
+  // Price label: USD when we have a rate, otherwise BNB.
+  const priceLabel = (bnb: number) => (bnbUsd > 0 ? formatUsd(bnb * bnbUsd) : formatPrice(bnb));
 
   const fetchDetails = React.useCallback(async () => {
     try {
@@ -121,19 +156,20 @@ export default function MarketDetail({ params }: MarketPageProps) {
   // Build the price chart from real recorded trades (oldest -> newest). With no
   // trades yet, show a flat line at the current on-chain price.
   useEffect(() => {
+    const mult = bnbUsd > 0 ? bnbUsd : 1; // chart in USD when rate is known
     const asc = [...trades].reverse();
     let series = asc.map((t) => ({
       time: new Date(t.createdAt as string).toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" }),
-      price: parseFloat(t.price as string) || 0,
+      price: (parseFloat(t.price as string) || 0) * mult,
     }));
     if (series.length === 0) {
-      const p = onPrice || 0;
+      const p = (onPrice || 0) * mult;
       series = [{ time: "", price: p }, { time: "now", price: p }];
     } else if (series.length === 1) {
       series = [{ time: "", price: series[0].price }, ...series];
     }
     setChartData(series);
-  }, [trades, onPrice]);
+  }, [trades, onPrice, bnbUsd]);
 
   // Recalculate output quotes
   useEffect(() => {
@@ -399,7 +435,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 <div>
                   <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Price Chart</h3>
                   <div className="flex items-end gap-3 mt-1">
-                    <p className="text-[28px] font-black text-[#161616] leading-none">{formatPrice(currentTokenPrice)}</p>
+                    <p className="text-[28px] font-black text-[#161616] leading-none">{priceLabel(currentTokenPrice)}</p>
                     <span className="text-xs font-black text-[#161616] mb-1">${market.symbol}</span>
                   </div>
                 </div>
@@ -464,7 +500,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                         </td>
                         <td className="py-4 text-right font-black text-[#161616]">{parseFloat(t.bnbAmount).toFixed(3)}</td>
                         <td className="py-4 text-right font-bold text-[#5F5B57]">{parseFloat(t.tokenAmount).toFixed(2)}</td>
-                        <td className="py-4 text-right font-medium text-[#8A817A]">{formatPrice(parseFloat(t.price))}</td>
+                        <td className="py-4 text-right font-medium text-[#8A817A]">{priceLabel(parseFloat(t.price))}</td>
                         <td className="py-4 text-right font-medium text-[#8A817A]">
                           <a href="#" className="hover:text-[#FF6B1A] transition-colors">{t.txHash.substring(0, 8)}...</a>
                         </td>
