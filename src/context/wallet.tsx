@@ -57,12 +57,15 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (savedCurated) setCuratedMarkets(JSON.parse(savedCurated));
   }, []);
 
-  const connect = async (_type: string = "Sandbox") => {
+  const connect = async (_type: string = "MetaMask") => {
     try {
-      const injectedConnector = connectors.find(c => c.type === 'injected');
-      if (injectedConnector) {
-        await wagmiConnect({ connector: injectedConnector });
-        return injectedConnector.id;
+      // Prefer the MetaMask-targeted connector so Phantom (or any other wallet
+      // that grabs window.ethereum) doesn't get opened instead.
+      const metaMask = connectors.find((c) => c.id === "metaMask" || c.name === "MetaMask");
+      const target = metaMask || connectors.find((c) => c.type === "injected");
+      if (target) {
+        await wagmiConnect({ connector: target });
+        return target.id;
       }
     } catch (e) {
       console.warn("Wallet connection failed", e);

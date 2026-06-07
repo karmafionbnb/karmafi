@@ -14,7 +14,9 @@ const isTestnet = process.env.NEXT_PUBLIC_CHAIN_ENV === 'testnet'
 // The first chain in the array is the default chain
 export const chains = isTestnet ? ([bscTestnet, bsc] as const) : ([bsc, bscTestnet] as const)
 
-const connectors = [injected()]
+// Target MetaMask specifically first (so Phantom/other injected wallets that
+// hijack window.ethereum don't get picked), then a generic injected fallback.
+const connectors = [injected({ target: 'metaMask' }), injected()]
 if (projectId) {
   connectors.push(walletConnect({ projectId }))
 }
