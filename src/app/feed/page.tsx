@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useEffect, useState, Suspense } from "react";
-import { useSearchParams } from "next/navigation";
+import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -36,7 +36,9 @@ function priceFromMarketCapBnb(marketCapBnb: number): number {
 
 function FeedContent() {
   const searchParams = useSearchParams();
+  const router = useRouter();
   const initialSearch = searchParams.get("search") || "";
+  const [quickUrl, setQuickUrl] = useState("");
 
   const { isConnected, connect, toggleWatchlist, watchlist, updateBnbBalance, updateTokenBalance } = useWallet();
   const [markets, setMarkets] = useState<any[]>([]);
@@ -198,16 +200,21 @@ function FeedContent() {
             </div>
             
             <div className="flex items-center gap-3">
-              <div className="hidden md:flex relative w-64">
-                <input 
-                  type="text" 
-                  placeholder="Paste Reddit URL..." 
+              <form
+                onSubmit={(e) => { e.preventDefault(); if (quickUrl.trim()) router.push(`/launch?url=${encodeURIComponent(quickUrl.trim())}`); }}
+                className="hidden md:flex relative w-64"
+              >
+                <input
+                  type="text"
+                  value={quickUrl}
+                  onChange={(e) => setQuickUrl(e.target.value)}
+                  placeholder="Paste Reddit URL..."
                   className="w-full h-12 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-4 pr-10 text-sm font-medium focus:border-[#FF6B1A] focus:outline-none placeholder:text-[#8A817A]"
                 />
-                <button className="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-full bg-[#161616] text-white">
+                <button type="submit" className="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-full bg-[#161616] text-white hover:bg-[#FF6B1A] transition-colors">
                   <ArrowRight className="h-4 w-4" />
                 </button>
-              </div>
+              </form>
               <Link
                 href="/launch"
                 className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-6 text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"

@@ -1,7 +1,7 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAccount, useConnect, useDisconnect, useBalance, useSignMessage } from "wagmi";
+import { useAccount, useConnect, useDisconnect, useBalance, useSignMessage, useChainId } from "wagmi";
 import { formatEther } from "viem";
 
 export interface WalletContextType {
@@ -35,7 +35,8 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
   const [tokenBalances, setTokenBalances] = useState<Record<string, number>>({});
   const [watchlist, setWatchlist] = useState<string[]>([]);
   const [curatedMarkets, setCuratedMarkets] = useState<string[]>([]);
-  const [isSandboxMode] = useState(true); // Can derive from chainId
+  const chainId = useChainId();
+  const isSandboxMode = chainId !== 56; // testnet/unknown = sandbox; mainnet = live
 
   const walletAddress = address ? address.toString() : null;
   const isConnected = wagmiIsConnected;

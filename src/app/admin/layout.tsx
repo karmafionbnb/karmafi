@@ -10,12 +10,14 @@ import {
   Menu, X, RefreshCw
 } from "lucide-react";
 
-// TODO: Replace mock admin auth with production backend role-based access control.
-// TODO: Store admin roles securely server-side, not in frontend-only state.
-const ADMIN_ALLOWLIST = [
-  "0x89223A449b25E123f1A2b3c4D5E6F7890123456", // Default Sandbox Wallet
-  "0xAdminWallet123..."
-];
+// Admin wallets come from NEXT_PUBLIC_ADMIN_WALLETS (comma-separated). Defaults
+// to the treasury wallet so the owner has access out of the box.
+const ADMIN_ALLOWLIST = (
+  process.env.NEXT_PUBLIC_ADMIN_WALLETS || "0xDe9300B6968334fD86CB50d5dB131EAC256Af199"
+)
+  .split(",")
+  .map((s) => s.trim().toLowerCase())
+  .filter(Boolean);
 
 function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const { walletAddress, isConnected, connect, isSandboxMode } = useWallet();
@@ -23,7 +25,7 @@ function AdminLayoutInner({ children }: { children: React.ReactNode }) {
   const searchParams = useSearchParams();
   const activeTab = searchParams.get("tab") || "overview";
 
-  const isAdmin = isConnected && walletAddress && ADMIN_ALLOWLIST.includes(walletAddress);
+  const isAdmin = isConnected && !!walletAddress && ADMIN_ALLOWLIST.includes(walletAddress.toLowerCase());
 
   if (!isConnected) {
     return (
