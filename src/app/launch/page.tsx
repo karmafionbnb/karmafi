@@ -8,13 +8,19 @@ import Footer from "@/components/Footer";
 import { Flame, ShieldAlert, CheckCircle, HelpCircle, Loader2, ArrowRight, Wallet, AlertTriangle, Link as LinkIcon, Info, Copy, MessageSquare } from "lucide-react";
 import { useWallet } from "@/context/wallet";
 import { fetchRedditPostClient } from "@/lib/reddit-client";
+import { useWriteContract, usePublicClient, useChainId } from "wagmi";
+import { parseEventLogs } from "viem";
+import { getContracts, FACTORY_ABI } from "@/lib/web3/contracts";
 
 function LaunchContent() {
   const searchParams = useSearchParams();
   const urlParam = searchParams.get("url") || "";
 
   const { isConnected, connect, walletAddress, addCuratedMarket } = useWallet();
-  
+  const { writeContractAsync } = useWriteContract();
+  const publicClient = usePublicClient();
+  const chainId = useChainId();
+
   // Wizard steps
   const [redditUrl, setRedditUrl] = useState(urlParam);
   const [loadingMetadata, setLoadingMetadata] = useState(false);
@@ -85,16 +91,57 @@ function LaunchContent() {
       return;
     }
 
+    const contracts = getContracts(chainId);
+    if (!contracts) {
+      setErrorMsg(
+        `KarmaFi isn't deployed on the network your wallet is connected to (chain ${chainId}). Switch to BNB ${chainId === 56 ? "Mainnet" : "Testnet"}.`
+      );
+      return;
+    }
+
     setIsLaunching(true);
     setErrorMsg("");
 
     try {
-      // Execute launch API
+      const metadataUri = "ipfs://QmMockMetadataHash";
+
+      // 1. Create the market on-chain — the curator's wallet signs and pays gas.
+      const txHash = await writeContractAsync({
+        address: contracts.factory,
+        abi: FACTORY_ABI,
+        functionName: "createMarket",
+        args: [
+          redditPost.sourceHash as `0x${string}`,
+          metadataUri,
+          tokenName,
+          tokenSymbol,
+          walletAddress as `0x${string}`,
+        ],
+      });
+
+      // 2. Wait for confirmation and read the real token/market addresses from
+      //    the MarketCreated event.
+      if (!publicClient) throw new Error("No network client available — reconnect your wallet.");
+      const receipt = await publicClient.waitForTransactionReceipt({ hash: txHash });
+      const events = parseEventLogs({
+        abi: FACTORY_ABI,
+        eventName: "MarketCreated",
+        logs: receipt.logs,
+      });
+      const created = events[0] as unknown as
+        | { args: { tokenAddress: string; marketAddress: string } }
+        | undefined;
+      if (!created) {
+        throw new Error("Market was created on-chain, but the event couldn't be read. Check the transaction on BscScan.");
+      }
+      const onchainToken = created.args.tokenAddress;
+      const onchainMarket = created.args.marketAddress;
+
+      // 3. Record the market (with its real on-chain addresses) in the backend.
       const res = await fetch("/api/market/launch", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          sourceHash: redditPost.sourceHash,
           redditPostId: redditPost.redditPostId,
           subreddit: redditPost.subreddit,
           author: redditPost.author,
@@ -106,25 +153,27 @@ function LaunchContent() {
           name: tokenName,
           symbol: tokenSymbol,
           curatorWallet: walletAddress,
-          metadataUri: "ipfs://QmMockMetadataHash"
-        })
+          metadataUri,
+          tokenAddress: onchainToken,
+          marketAddress: onchainMarket,
+          txHash,
+        }),
       });
 
       const data = await res.json();
       if (!res.ok || !data.success) {
-        throw new Error(data.error || "Failed to deploy contracts.");
+        throw new Error(data.error || "Market created on-chain but failed to register.");
       }
 
-      setLaunchedAddresses({
-        token: data.tokenAddress,
-        market: data.marketAddress
-      });
+      setLaunchedAddresses({ token: onchainToken, market: onchainMarket });
 
       // Add to curated markets list
       addCuratedMarket(redditPost.sourceHash);
-
     } catch (e: any) {
-      setErrorMsg(e.message || "Failed to launch attention market.");
+      const msg = e?.shortMessage || e?.message || "Failed to launch attention market.";
+      setErrorMsg(
+        /user rejected|denied/i.test(msg) ? "Transaction rejected in your wallet." : msg
+      );
     } finally {
       setIsLaunching(false);
     }

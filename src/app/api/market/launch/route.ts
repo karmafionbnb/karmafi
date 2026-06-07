@@ -20,10 +20,19 @@ export async function POST(req: NextRequest) {
       symbol,
       curatorWallet,
       metadataUri,
+      tokenAddress,
+      marketAddress,
+      txHash,
     } = await req.json();
 
     if (!permalink || !title || !name || !symbol || !curatorWallet) {
       return NextResponse.json({ error: "Missing required parameters" }, { status: 400 });
+    }
+    if (!tokenAddress || !marketAddress) {
+      return NextResponse.json(
+        { error: "Missing on-chain contract addresses. The createMarket transaction must complete first." },
+        { status: 400 }
+      );
     }
 
     // Reddit blocks server IPs, so the post is fetched in the browser and the
@@ -36,12 +45,6 @@ export async function POST(req: NextRequest) {
     if (existing) {
       return NextResponse.json({ error: "Market already exists for this post", marketAddress: existing.marketAddress }, { status: 400 });
     }
-
-    // Placeholder addresses until on-chain deployment (Stage D) wires the real
-    // factory-created token/market contract addresses.
-    const hash = sourceHash.substring(2);
-    const tokenAddress = "0x" + hash.substring(0, 40);
-    const marketAddress = "0x" + hash.substring(20, 60);
 
     const up = parseInt(upvotes) || 0;
     const com = parseInt(comments) || 0;
