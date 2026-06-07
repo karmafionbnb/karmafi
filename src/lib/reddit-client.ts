@@ -22,6 +22,45 @@ export interface ClientRedditPost {
   removed: boolean;
 }
 
+// Fetch a Reddit user's public profile (for ownership verification: the user
+// puts a code in their bio, we read it here via JSONP — only the account owner
+// can edit that bio).
+export function fetchRedditUserAbout(username: string): Promise<{ name: string; bio: string }> {
+  const u = username.replace(/^\/?u\//, "").trim();
+  if (!u) return Promise.reject(new Error("Missing Reddit username."));
+  return new Promise((resolve, reject) => {
+    const cb = "kf_user_" + Math.random().toString(36).slice(2);
+    const w = window as unknown as Record<string, unknown>;
+    let done = false;
+    const script = document.createElement("script");
+    const cleanup = () => {
+      try { delete w[cb]; } catch { w[cb] = undefined; }
+      if (script.parentNode) script.parentNode.removeChild(script);
+    };
+    w[cb] = (data: unknown) => {
+      done = true;
+      try {
+        const d = (data as { data?: Record<string, any> })?.data;
+        if (!d || !d.name) {
+          cleanup();
+          reject(new Error("Reddit user not found."));
+          return;
+        }
+        const sub = (d.subreddit || {}) as Record<string, string>;
+        const bio = sub.public_description || sub.description || d.description || "";
+        resolve({ name: d.name as string, bio: String(bio) });
+      } catch (e) {
+        reject(e as Error);
+      }
+      cleanup();
+    };
+    script.src = `https://www.reddit.com/user/${encodeURIComponent(u)}/about.json?jsonp=${cb}`;
+    script.onerror = () => { if (!done) { cleanup(); reject(new Error("Could not reach Reddit. Try again.")); } };
+    document.head.appendChild(script);
+    setTimeout(() => { if (!done) { cleanup(); reject(new Error("Timed out verifying. Try again.")); } }, 12000);
+  });
+}
+
 export function fetchRedditPostClient(url: string): Promise<ClientRedditPost> {
   const m = url.match(REDDIT_REGEX);
   if (!m) {

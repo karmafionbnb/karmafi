@@ -6,6 +6,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { ShieldCheck, CheckCircle2, AlertTriangle, Loader2, Wallet, ArrowRight, Check, Search } from "lucide-react";
 import { useWallet } from "@/context/wallet";
+import { fetchRedditUserAbout } from "@/lib/reddit-client";
 
 export default function CreatorClaim() {
   const { isConnected, connect, walletAddress, signMessage } = useWallet();
@@ -83,19 +84,33 @@ export default function CreatorClaim() {
     }
   };
 
-  const handleRedditAuth = () => {
+  // Unique, deterministic verification code for this claimer + market.
+  const verifyCode = selectedMarket
+    ? `KARMA-${((walletAddress || "0000").slice(2, 6) + selectedMarket.sourceHash.slice(2, 6)).toUpperCase()}`
+    : "";
+
+  const handleRedditAuth = async () => {
+    if (!selectedMarket) return;
     setIsVerifyingReddit(true);
     setErrorMsg("");
 
-    // Simulate Reddit OAuth popup and callback
-    setTimeout(() => {
-      if (!selectedMarket) return;
-      // Pre-fill Reddit poster username to make local sandbox verification easy
-      const targetUser = selectedMarket.author.replace(/^u\//, "");
+    const targetUser = selectedMarket.author.replace(/^u\//, "");
+    try {
+      // Read the post author's public Reddit bio and confirm it contains the
+      // code. Only the account owner can edit that bio, so this proves control.
+      const profile = await fetchRedditUserAbout(targetUser);
+      if (!profile.bio.toUpperCase().includes(verifyCode)) {
+        throw new Error(
+          `Couldn't find the code in u/${targetUser}'s Reddit bio yet. Add "${verifyCode}" to your profile bio, save, then try again (Reddit can take a few seconds).`
+        );
+      }
       setRedditUsername(targetUser);
+      setStep(4);
+    } catch (e: any) {
+      setErrorMsg(e.message || "Verification failed.");
+    } finally {
       setIsVerifyingReddit(false);
-      setStep(4); // proceed to sign & claim
-    }, 2000);
+    }
   };
 
   const handleExecuteClaim = async () => {
@@ -317,30 +332,53 @@ export default function CreatorClaim() {
                   <path d="M12 0A12 12 0 0 0 0 12a12 12 0 0 0 12 12 12 12 0 0 0 12-12A12 12 0 0 0 12 0zm5.01 4.744c.688 0 1.25.561 1.25 1.249a1.25 1.25 0 0 1-2.498.056l-2.597-.547-.8 3.747c1.824.07 3.48.632 4.674 1.488.308-.309.73-.491 1.207-.491.968 0 1.754.786 1.754 1.754 0 .716-.435 1.333-1.01 1.614a3.111 3.111 0 0 1 .042.52c0 2.694-3.13 4.87-7.004 4.87-3.874 0-7.004-2.176-7.004-4.87 0-.183.015-.366.043-.534A1.748 1.748 0 0 1 4.028 12c0-.968.786-1.754 1.754-1.754.463 0 .88.169 1.188.452 1.229-.894 2.943-1.474 4.846-1.545l.891-4.173 3.013.626a1.25 1.25 0 0 1 1.29-1.106zm-7.618 9.07c-.822 0-1.488.666-1.488 1.488 0 .822.666 1.488 1.488 1.488.822 0 1.488-.666 1.488-1.488 0-.822-.666-1.488-1.488-1.488zm5.244 0c-.822 0-1.488.666-1.488 1.488 0 .822.666 1.488 1.488 1.488.822 0 1.488-.666 1.488-1.488 0-.822-.666-1.488-1.488-1.488zm-5.068 3.84c.83.6 2.03.882 3.454.882 1.424 0 2.624-.282 3.454-.882a.333.333 0 1 1 .389.54c-1.026.744-2.42 1.053-3.843 1.053-1.424 0-2.817-.309-3.843-1.053a.333.333 0 1 1 .389-.54z" />
                 </svg>
               </div>
-              <h2 className="text-2xl font-black text-[#161616] mb-3">Reddit Authentication</h2>
-              <p className="text-sm font-medium text-[#5F5B57] max-w-md mx-auto mb-8 leading-relaxed">
-                To claim fees, we must verify you are the original Reddit author of this post.
+              <h2 className="text-2xl font-black text-[#161616] mb-3">Verify You Own the Reddit Account</h2>
+              <p className="text-sm font-medium text-[#5F5B57] max-w-md mx-auto mb-6 leading-relaxed">
+                This market is from a post by <span className="font-bold text-[#161616]">u/{selectedMarket.author.replace(/^u\//, "")}</span>. Prove you control that account by adding a code to its Reddit bio.
               </p>
-              
-              <div className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-5 text-left mb-8 relative">
-                <span className="text-[10px] uppercase font-bold text-[#8A817A] mb-1 block">Post Preview</span>
-                <h3 className="font-bold text-[#161616] truncate">"{selectedMarket.title}"</h3>
+
+              <div className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-5 text-left mb-6">
+                <ol className="text-sm text-[#5F5B57] font-medium flex flex-col gap-3 list-decimal pl-5">
+                  <li>
+                    Log into Reddit as <span className="font-bold text-[#161616]">u/{selectedMarket.author.replace(/^u\//, "")}</span> and open{" "}
+                    <a href={`https://www.reddit.com/settings/profile`} target="_blank" rel="noopener noreferrer" className="text-[#FF6B1A] font-bold underline">profile settings</a>.
+                  </li>
+                  <li>
+                    Add this code anywhere in your <span className="font-bold text-[#161616]">bio / About</span> and save:
+                    <div className="mt-2 flex items-center gap-2">
+                      <code className="rounded-lg bg-white border border-[#F2D8C8] px-3 py-2 text-[15px] font-black text-[#161616] tracking-wider select-all">{verifyCode}</code>
+                      <button
+                        type="button"
+                        onClick={() => navigator.clipboard?.writeText(verifyCode)}
+                        className="rounded-lg border border-[#F2D8C8] bg-white px-3 py-2 text-xs font-bold text-[#5F5B57] hover:text-[#FF6B1A] hover:border-[#FF6B1A] transition-colors"
+                      >
+                        Copy
+                      </button>
+                    </div>
+                  </li>
+                  <li>Come back and click <span className="font-bold text-[#161616]">Verify</span> below. You can remove the code afterwards.</li>
+                </ol>
               </div>
-              
+
+              {errorMsg && (
+                <div className="flex items-start gap-3 rounded-2xl border border-red-200 bg-red-50 p-4 text-sm font-bold text-red-600 text-left mb-6">
+                  <AlertTriangle className="h-5 w-5 shrink-0" />
+                  {errorMsg}
+                </div>
+              )}
+
               <button
                 onClick={handleRedditAuth}
                 disabled={isVerifyingReddit}
-                className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#FF4500] hover:bg-[#E03D00] text-white px-10 text-[15px] font-extrabold transition-all shadow-[0_4px_14px_rgba(255,69,0,0.3)] hover:scale-[1.02] active:scale-[0.98]"
+                className="inline-flex h-14 items-center justify-center gap-3 rounded-full bg-[#FF4500] hover:bg-[#E03D00] text-white px-10 text-[15px] font-extrabold transition-all shadow-[0_4px_14px_rgba(255,69,0,0.3)] hover:scale-[1.02] active:scale-[0.98] disabled:opacity-60"
               >
                 {isVerifyingReddit ? (
                   <>
                     <Loader2 className="animate-spin h-5 w-5" />
-                    Authenticating via OAuth...
+                    Checking your Reddit bio...
                   </>
                 ) : (
-                  <>
-                    Sign In with Reddit
-                  </>
+                  <>Verify Reddit Ownership</>
                 )}
               </button>
             </div>
