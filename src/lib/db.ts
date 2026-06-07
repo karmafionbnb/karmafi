@@ -172,6 +172,17 @@ export class Database {
     });
   }
 
+  static async getAllTrades() {
+    return prisma.trade.findMany({ orderBy: { createdAt: "desc" } });
+  }
+
+  static async getTradesByWallet(wallet: string) {
+    return prisma.trade.findMany({
+      where: { traderWallet: { equals: wallet, mode: "insensitive" } },
+      orderBy: { createdAt: "desc" },
+    });
+  }
+
   static async addTrade(trade: Trade) {
     await prisma.trade.create({
       data: {

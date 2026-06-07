@@ -6,120 +6,40 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Trophy, Award, Flame, ArrowRight, TrendingUp, Medal, Sparkles } from "lucide-react";
 
-// --- MOCK DATA ---
-const MOCK_MARKETS = [
-  {
-    id: "m1",
-    marketAddress: "0xMarket1",
-    subreddit: "r/wallstreetbets",
-    timeAgo: "2 hours ago",
-    curatorWallet: "0xKarmaLord",
-    title: "NVIDIA earnings leak shows 300% YoY growth? Post gaining massive traction.",
-    excerpt: "Traders are piling into the thread as speculation spreads across finance subs.",
-    symbol: "NVIDKARMA",
-    price: 0.042,
-    marketCap: 245.5,
-    volume24h: 1240,
-    holders: 3492,
-    viralityScore: 98,
-    change24h: "+45%",
-    creatorClaimed: false,
-    tokenAddress: "0xToken1",
-  },
-  {
-    id: "m3",
-    marketAddress: "0xMarket3",
-    subreddit: "r/technology",
-    timeAgo: "5 hours ago",
-    curatorWallet: "RedditWhale",
-    title: "OpenAI Q-Star model details leaked by former researcher. AGI closer than expected.",
-    excerpt: "AI Reddit threads are accelerating as developers debate the technical claims.",
-    symbol: "QSTAR",
-    price: 0.028,
-    marketCap: 890,
-    volume24h: 1490,
-    holders: 5204,
-    viralityScore: 94,
-    change24h: "+28%",
-    creatorClaimed: true,
-    tokenAddress: "0xToken3",
-  },
-  {
-    id: "m5",
-    marketAddress: "0xMarket5",
-    subreddit: "r/startups",
-    timeAgo: "1 day ago",
-    curatorWallet: "LaunchHunter",
-    title: "Solo founder reaches $100k MRR after viral Reddit launch post.",
-    excerpt: "Startup Reddit is breaking down the growth loop and acquisition strategy.",
-    symbol: "MRR100K",
-    price: 0.036,
-    marketCap: 334,
-    volume24h: 610,
-    holders: 1409,
-    viralityScore: 87,
-    change24h: "+22%",
-    creatorClaimed: true,
-    tokenAddress: "0xToken5",
-  },
-  {
-    id: "m2",
-    marketAddress: "0xMarket2",
-    subreddit: "r/cryptocurrency",
-    timeAgo: "4 hours ago",
-    curatorWallet: "AlphaSeeker",
-    title: "CZ spotted in Dubai airport, Binance moves 28 BUSD. Major announcement incoming?",
-    excerpt: "Crypto Reddit is debating whether this signals a major BNB ecosystem catalyst.",
-    symbol: "CZPULSE",
-    price: 0.018,
-    marketCap: 450,
-    volume24h: 890,
-    holders: 1832,
-    viralityScore: 82,
-    change24h: "+17%",
-    creatorClaimed: false,
-    tokenAddress: "0xToken2",
-  }
-];
-
 export default function Leaderboard() {
-  const [curators, setCurators] = useState<Record<string, unknown>[]>([]);
-  const [traders, setTraders] = useState<Record<string, unknown>[]>([]);
-  const [markets, setMarkets] = useState<Record<string, unknown>[]>([]);
+  const [curators, setCurators] = useState<any[]>([]);
+  const [traders, setTraders] = useState<any[]>([]);
+  const [markets, setMarkets] = useState<any[]>([]);
+  const [bnbUsd, setBnbUsd] = useState(0);
 
   useEffect(() => {
-    // Generate/fetch mock leaderboard stats
-    // eslint-disable-next-line react-hooks/set-state-in-effect
-    setCurators([
-      { rank: 1, wallet: "0x89223A449b25E123f1A2b3c4D5E6F7890123456", name: "KarmaLord.bnb", reputation: 98, marketsLaunched: 12, earned: "8.45 BNB" },
-      { rank: 2, wallet: "0x3A449b25E123f1A2b3c4D5E6F789012345678922", name: "AlphaSeeker", reputation: 85, marketsLaunched: 8, earned: "4.20 BNB" },
-      { rank: 3, wallet: "0x9E973Cc4b7b25E123f1A2b3c4D5E6F7890123456", name: "RedditWhale", reputation: 74, marketsLaunched: 5, earned: "2.10 BNB" },
-      { rank: 4, wallet: "0x5E6F789012345678901234567890123456789012", name: "ChainScout", reputation: 62, marketsLaunched: 3, earned: "1.05 BNB" },
-      { rank: 5, wallet: "0x1A2B3C4D5E6F7890123456789012345678901234", name: "LaunchHunter", reputation: 55, marketsLaunched: 2, earned: "0.80 BNB" }
-    ]);
-
-    setTraders([
-      { rank: 1, wallet: "0x5555555555555555555555555555555555555555", name: "DegenKing", volume: "45.80 BNB", trades: 34, pnl: "+12.45 BNB", winRate: "76%" },
-      { rank: 2, wallet: "0x6666666666666666666666666666666666666666", name: "YieldFarmer", volume: "28.50 BNB", trades: 21, pnl: "+6.80 BNB", winRate: "62%" },
-      { rank: 3, wallet: "0x89223A449b25E123f1A2b3c4D5E6F7890123456", name: "KarmaLord.bnb", volume: "18.20 BNB", trades: 14, pnl: "+2.15 BNB", winRate: "58%" },
-      { rank: 4, wallet: "0x7777777777777777777777777777777777777777", name: "MemeSniper", volume: "12.40 BNB", trades: 45, pnl: "+1.90 BNB", winRate: "42%" },
-      { rank: 5, wallet: "0x8888888888888888888888888888888888888888", name: "TrendCatcher", volume: "8.90 BNB", trades: 11, pnl: "+0.85 BNB", winRate: "65%" }
-    ]);
-
-    fetch("/api/market?sort=rising")
-      .then(res => res.json())
-      .then(data => {
-        if (data.success && data.markets && data.markets.length > 0) {
-          setMarkets(data.markets.slice(0, 4));
-        } else {
-          setMarkets(MOCK_MARKETS);
+    fetch("/api/leaderboard")
+      .then((r) => r.json())
+      .then((d) => {
+        if (d.success) {
+          setCurators(d.curators || []);
+          setTraders(d.traders || []);
+          setMarkets(d.markets || []);
         }
       })
-      .catch(e => {
-        console.error(e);
-        setMarkets(MOCK_MARKETS);
+      .catch((e) => console.error(e));
+
+    fetch("https://api.coingecko.com/api/v3/simple/price?ids=binancecoin&vs_currencies=usd")
+      .then((r) => r.json())
+      .then((j) => { const p = Number(j?.binancecoin?.usd); if (p > 0) setBnbUsd(p); })
+      .catch(() => {
+        fetch("https://api.binance.com/api/v3/ticker/price?symbol=BNBUSDT")
+          .then((r) => r.json())
+          .then((j) => { const p = Number(j?.price); if (p > 0) setBnbUsd(p); })
+          .catch(() => {});
       });
   }, []);
+
+  const usd = (bnb: number) =>
+    bnbUsd > 0
+      ? `$${(bnb * bnbUsd).toLocaleString("en-US", { maximumFractionDigits: 2 })}`
+      : `${(bnb || 0).toFixed(4)} BNB`;
+  const shortWallet = (w: string) => (w ? `${w.slice(0, 6)}…${w.slice(-4)}` : "");
 
   const getRankBadge = (rank: number) => {
     switch(rank) {
@@ -176,19 +96,22 @@ export default function Leaderboard() {
                 <div className="text-right">Fee Earned</div>
               </div>
               
+              {curators.length === 0 && (
+                <div className="text-center text-sm font-medium text-[#8A817A] py-8">No curators yet.</div>
+              )}
               {curators.map((c, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[#FFFAF5] border border-transparent hover:border-[#F2D8C8] transition-all group">
                   <div className="flex items-center gap-4">
-                    {getRankBadge(c.rank)}
+                    {getRankBadge(idx + 1)}
                     <div className="flex flex-col">
-                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors">{c.name}</span>
-                      <span className="text-xs font-medium text-[#8A817A]">{c.wallet.substring(0, 6)}...{c.wallet.substring(c.wallet.length - 4)}</span>
+                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(c.wallet)}</span>
+                      <span className="text-xs font-medium text-[#8A817A]">{c.marketsLaunched} market{c.marketsLaunched === 1 ? "" : "s"} launched</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-[15px] font-black text-[#19C37D]">{c.earned}</span>
+                    <span className="text-[15px] font-black text-[#19C37D]">{usd(c.earnedBnb)}</span>
                     <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#8A817A] mt-1">
-                      <Flame className="h-3 w-3 text-[#FF6B1A]" /> Rep {c.reputation} • {c.marketsLaunched} Markets
+                      <Flame className="h-3 w-3 text-[#FF6B1A]" /> Curator fees earned
                     </span>
                   </div>
                 </div>
@@ -214,19 +137,22 @@ export default function Leaderboard() {
                 <div className="text-right">PnL</div>
               </div>
               
+              {traders.length === 0 && (
+                <div className="text-center text-sm font-medium text-[#8A817A] py-8">No trades yet.</div>
+              )}
               {traders.map((t, idx) => (
                 <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[#FFFAF5] border border-transparent hover:border-[#F2D8C8] transition-all group">
                   <div className="flex items-center gap-4">
-                    {getRankBadge(t.rank)}
+                    {getRankBadge(idx + 1)}
                     <div className="flex flex-col">
-                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors">{t.name}</span>
-                      <span className="text-xs font-medium text-[#8A817A]">{t.wallet.substring(0, 6)}...{t.wallet.substring(t.wallet.length - 4)}</span>
+                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(t.wallet)}</span>
+                      <span className="text-xs font-medium text-[#8A817A]">{t.trades} trade{t.trades === 1 ? "" : "s"}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
-                    <span className="text-[15px] font-black text-[#19C37D]">{t.pnl}</span>
+                    <span className={`text-[15px] font-black ${t.netBnb >= 0 ? "text-[#19C37D]" : "text-[#DC2626]"}`}>{t.netBnb >= 0 ? "+" : ""}{usd(t.netBnb)}</span>
                     <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#8A817A] mt-1">
-                      Win Rate {t.winRate} • Vol {t.volume}
+                      Volume {usd(t.volumeBnb)}
                     </span>
                   </div>
                 </div>
@@ -279,7 +205,7 @@ export default function Leaderboard() {
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="text-[10px] uppercase">Market Cap</span>
-                    <span className="text-[#161616]">{m.marketCap} BNB</span>
+                    <span className="text-[#161616]">{usd(m.marketCap)}</span>
                   </span>
                 </div>
               </Link>
