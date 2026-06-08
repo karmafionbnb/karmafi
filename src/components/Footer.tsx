@@ -3,7 +3,7 @@
 import React from "react";
 import Link from "next/link";
 import Logo from "@/components/Logo";
-import { Share2, Link as LinkIcon, MessageCircle, Flame } from "lucide-react";
+import { Twitter, Link as LinkIcon, MessageCircle, Flame } from "lucide-react";
 
 export default function Footer() {
   return (
@@ -24,8 +24,8 @@ export default function Footer() {
               The first attention market on BNB Chain. Trade Reddit momentum before it goes viral.
             </p>
             <div className="flex items-center gap-3">
-              <a href="#" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E8D4C8] bg-white text-[#8A817A] shadow-sm transition-all hover:border-[#FF6B1A] hover:text-[#FF6B1A] hover:shadow-md hover:-translate-y-0.5">
-                <Share2 className="h-4 w-4" />
+              <a href="https://x.com/KarmafiBNB" target="_blank" rel="noopener noreferrer" aria-label="KarmaFi on X (Twitter)" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E8D4C8] bg-white text-[#8A817A] shadow-sm transition-all hover:border-[#FF6B1A] hover:text-[#FF6B1A] hover:shadow-md hover:-translate-y-0.5">
+                <Twitter className="h-4 w-4" />
               </a>
               <a href="#" className="flex h-11 w-11 items-center justify-center rounded-full border border-[#E8D4C8] bg-white text-[#8A817A] shadow-sm transition-all hover:border-[#FF6B1A] hover:text-[#FF6B1A] hover:shadow-md hover:-translate-y-0.5">
                 <LinkIcon className="h-4 w-4" />

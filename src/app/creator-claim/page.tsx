@@ -215,10 +215,10 @@ export default function CreatorClaim() {
                 </button>
               ) : (
                 <button
-                  onClick={() => connect("Sandbox")}
+                  onClick={() => connect()}
                   className="inline-flex h-14 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-8 text-[15px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] transition-transform hover:scale-[1.02] active:scale-[0.98]"
                 >
-                  Connect Sandbox Wallet
+                  Connect Wallet
                 </button>
               )}
             </div>

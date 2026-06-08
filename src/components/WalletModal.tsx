@@ -3,6 +3,7 @@
 import React from "react";
 import { useConnect } from "wagmi";
 import { X } from "lucide-react";
+import Logo from "@/components/Logo";
 
 export default function WalletModal({ onClose }: { onClose: () => void }) {
   const { connectors, connect, isPending, error } = useConnect();
@@ -30,7 +31,10 @@ export default function WalletModal({ onClose }: { onClose: () => void }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between mb-5">
-          <h3 className="text-lg font-black text-[#161616]">Connect a Wallet</h3>
+          <div className="flex items-center gap-2.5">
+            <Logo className="h-7 w-7" />
+            <h3 className="text-lg font-black text-[#161616]">Connect a Wallet</h3>
+          </div>
           <button
             onClick={onClose}
             className="h-8 w-8 rounded-full bg-[#FFFAF5] text-[#5F5B57] hover:bg-[#F2D8C8] hover:text-[#161616] flex items-center justify-center transition-colors"

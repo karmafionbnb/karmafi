@@ -80,7 +80,7 @@ function PortfolioContent() {
             Connect your wallet to track your holdings, claim rewards, and monitor your curated markets.
           </p>
           <button 
-            onClick={() => connect("Sandbox")}
+            onClick={() => connect()}
             className="w-full h-[52px] rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] text-[15px] font-bold text-white shadow-[0_8px_20px_rgba(255,107,26,0.25)] hover:scale-[1.02] active:scale-[0.98] transition-all"
           >
             Connect Wallet

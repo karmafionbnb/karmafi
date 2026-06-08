@@ -633,7 +633,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 ) : (
                   <button
                     type="button"
-                    onClick={() => connect("Sandbox")}
+                    onClick={() => connect()}
                     className="w-full rounded-full bg-[#161616] py-4 text-[14px] font-extrabold text-white shadow-sm hover:bg-[#2c2c2c] transition-all mt-2"
                   >
                     Connect Wallet to Trade

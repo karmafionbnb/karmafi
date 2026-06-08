@@ -21,6 +21,9 @@ if (projectId) {
 
 export const config = createConfig({
   chains,
+  // ssr:true defers wallet state to the client so server/client first render
+  // match — prevents the brief "flash"/hydration mismatch on page load.
+  ssr: true,
   transports: {
     [bsc.id]: http(bscRpcUrl),
     [bscTestnet.id]: http(bscTestnetRpcUrl),
