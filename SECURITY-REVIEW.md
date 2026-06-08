@@ -52,6 +52,8 @@ Manual line-by-line review covering: access control, reentrancy, arithmetic/over
 > - KarmaFiFactory: `0xb017eCCD18d374b5ee9461EF22052D298bAf1604`
 > - FeeDistributor: `0xed8a1eEbC494e187b0Ade9D927724DfD18E52Dd0`
 > - CreatorClaimVault: `0xbaB57d8ae5a01dB709c005Fc246082d53849874A`
+>
+> **⚠️ Pending re-review / redeploy:** `BondingCurveMarket.sol` and `KarmaFiFactory.sol` now include a PancakeSwap V2 **graduation** path (`_graduate()` migrates the full BNB reserve plus matching freshly-minted tokens into a V2 pool via `addLiquidityETH`, then burns the LP to `0x…dEaD`). This code is **not yet covered by the addresses above** — those were deployed before graduation existed. The graduation suite must be re-reviewed and **redeployed (testnet → mainnet)** with the new factory constructor signature `(feeDistributor, router, graduationReserve, owner)` before it goes live. Areas to focus the re-review on: the `tokensForLp` price calc in `_graduate()`, `addLiquidityETH` slippage mins (currently `0`), and the irreversibility of the `graduated` flag.
 
 ---
 
