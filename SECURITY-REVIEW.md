@@ -49,11 +49,11 @@ Manual line-by-line review covering: access control, reentrancy, arithmetic/over
 > **Remediation note:** M-01, L-02 and L-03 are fixed in source. The contract suite was **redeployed** to BNB Mainnet with the remediations live (see addresses below). L-01 is left as an intentional permissionless path: a third party can only *donate* their own BNB to a creator's pending rewards (no theft possible), so it is accepted rather than restricted.
 >
 > **Live (remediated) mainnet addresses:**
-> - KarmaFiFactory: `0xb017eCCD18d374b5ee9461EF22052D298bAf1604`
+> - KarmaFiFactory: `0x33bcA7b97D52d0Ff4aD6e4b4551eA0bc29e21bf5` *(graduation-enabled; supersedes pre-graduation `0xb017eCCD18d374b5ee9461EF22052D298bAf1604`)*
 > - FeeDistributor: `0xed8a1eEbC494e187b0Ade9D927724DfD18E52Dd0`
 > - CreatorClaimVault: `0xbaB57d8ae5a01dB709c005Fc246082d53849874A`
 >
-> **⚠️ Pending re-review / redeploy:** `BondingCurveMarket.sol` and `KarmaFiFactory.sol` now include a PancakeSwap V2 **graduation** path (`_graduate()` migrates the full BNB reserve plus matching freshly-minted tokens into a V2 pool via `addLiquidityETH`, then burns the LP to `0x…dEaD`). This code is **not yet covered by the addresses above** — those were deployed before graduation existed. The graduation suite must be re-reviewed and **redeployed (testnet → mainnet)** with the new factory constructor signature `(feeDistributor, router, graduationReserve, owner)` before it goes live. Areas to focus the re-review on: the `tokensForLp` price calc in `_graduate()`, `addLiquidityETH` slippage mins (currently `0`), and the irreversibility of the `graduated` flag.
+> **PancakeSwap V2 graduation (live):** `BondingCurveMarket.sol` and `KarmaFiFactory.sol` include a graduation path — `_graduate()` migrates the full BNB reserve plus matching freshly-minted tokens into a V2 pool via `addLiquidityETH`, then burns the LP to `0x…dEaD` (liquidity locked permanently). The factory above (`0x33bcA7b9…21bf5`) is the graduation-enabled deployment, constructed with router `0x10ED43C718714eb63d5aA57B78B54704E256024E` (PancakeSwap V2). Re-review focus areas: the `tokensForLp` price calc in `_graduate()`, the `addLiquidityETH` slippage mins (currently `0` — acceptable because the pair is created fresh with no pre-existing price to sandwich and the LP is burned immediately), and the irreversibility of the `graduated` flag.
 
 ---
 

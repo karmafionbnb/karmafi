@@ -19,9 +19,9 @@ export const CONTRACTS: Record<number, ChainContracts> = {
     feeDistributor: "0xc73565a7e42d8590a90e377A2233615Db14555Fa",
     creatorClaimVault: "0x2A02ad60B749f2979a22Ef992cDd0783866FCF73",
   },
-  // BNB Smart Chain Mainnet (live deployment — audited/remediated contracts)
+  // BNB Smart Chain Mainnet (live deployment — graduation-enabled factory)
   56: {
-    factory: "0xb017eCCD18d374b5ee9461EF22052D298bAf1604",
+    factory: "0x33bcA7b97D52d0Ff4aD6e4b4551eA0bc29e21bf5",
     feeDistributor: "0xed8a1eEbC494e187b0Ade9D927724DfD18E52Dd0",
     creatorClaimVault: "0xbaB57d8ae5a01dB709c005Fc246082d53849874A",
   },
