@@ -21,6 +21,10 @@ import {
   useAdminAuditLogs, 
   useAdminSettings 
 } from "@/hooks/useAdminData";
+import { useQueryClient } from "@tanstack/react-query";
+import { useWallet } from "@/context/wallet";
+import { adminAction } from "@/lib/adminAction";
+import { toast } from "@/lib/toast";
 import { 
   AlertTriangle, ShieldAlert, EyeOff, PauseCircle, Activity, FileText, 
   Users, Scale, AlertOctagon, Settings2, CheckCircle2, XCircle, ExternalLink 
@@ -75,19 +79,25 @@ export function AdminOverviewTab() {
 
 export function AdminReportsTab() {
   const { reports } = useAdminReports();
-  const [modalOpen, setModalOpen] = useState(false);
+  const { walletAddress, signMessage } = useWallet();
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const run = async (label: string, endpoint: string, body: Record<string, unknown>, keys: string[][]) => {
+    setBusy(label);
+    try {
+      await adminAction(endpoint, body, walletAddress || "", signMessage);
+      toast.success("Action completed.");
+      keys.forEach((k) => qc.invalidateQueries({ queryKey: k }));
+    } catch (e: any) {
+      toast.error(e?.message || "Action failed");
+    } finally {
+      setBusy(null);
+    }
+  };
 
   return (
     <div className="bg-white rounded-[24px] border border-[#F2D8C8] overflow-hidden">
-      <AdminConfirmationModal 
-        isOpen={modalOpen} 
-        onClose={() => setModalOpen(false)} 
-        onConfirm={(reason) => { console.log(reason); setModalOpen(false); }}
-        title="Hide Market"
-        targetName="Selected attention market"
-        actionKeyword="HIDE"
-        consequences="This market will be immediately hidden from the KarmaFi frontend and search results. Trading will still be technically possible via direct contract calls unless paused."
-      />
       <div className="overflow-x-auto">
         <table className="w-full text-left border-collapse min-w-[1000px]">
           <thead>
@@ -112,8 +122,23 @@ export function AdminReportsTab() {
                 <td className="px-6 py-4"><AdminSeverityBadge severity={r.severity} /></td>
                 <td className="px-6 py-4"><AdminStatusBadge status={r.status} /></td>
                 <td className="px-6 py-4 flex gap-2">
-                  <button className="px-3 py-1.5 rounded-md bg-[#F2D8C8]/30 text-[#161616] text-[13px] font-bold hover:bg-[#F2D8C8]">Review</button>
-                  <button onClick={() => setModalOpen(true)} className="px-3 py-1.5 rounded-md bg-red-50 text-red-600 text-[13px] font-bold hover:bg-red-100">Hide</button>
+                  <button
+                    onClick={() => run(`resolve-${r.id}`, "/api/admin/reports", { action: "RESOLVE", id: r.id }, [["admin", "reports"]])}
+                    disabled={busy === `resolve-${r.id}`}
+                    className="px-3 py-1.5 rounded-md bg-[#E5F9F1] text-[#0E7A4F] text-[13px] font-bold hover:bg-[#C1F0DB] disabled:opacity-60"
+                  >
+                    {busy === `resolve-${r.id}` ? "…" : "Resolve"}
+                  </button>
+                  <button
+                    onClick={() => {
+                      if (window.confirm("Hide this market from the app?"))
+                        run(`hide-${r.id}`, "/api/admin/markets", { marketAddress: r.market, status: "HIDDEN" }, [["admin", "markets"], ["admin", "reports"]]);
+                    }}
+                    disabled={busy === `hide-${r.id}`}
+                    className="px-3 py-1.5 rounded-md bg-red-50 text-red-600 text-[13px] font-bold hover:bg-red-100 disabled:opacity-60"
+                  >
+                    {busy === `hide-${r.id}` ? "…" : "Hide"}
+                  </button>
                 </td>
               </tr>
             ))}
@@ -207,6 +232,23 @@ export function AdminDuplicatePostsTab() {
 
 export function AdminCreatorClaimsTab() {
   const { claims } = useAdminCreatorClaims();
+  const { walletAddress, signMessage } = useWallet();
+  const qc = useQueryClient();
+  const [busy, setBusy] = useState<string | null>(null);
+
+  const run = async (label: string, action: "APPROVE" | "REJECT", sourceHash: string) => {
+    setBusy(label);
+    try {
+      const res = await adminAction("/api/admin/creator-claim", { sourceHash, action }, walletAddress || "", signMessage);
+      toast.success(action === "APPROVE" ? `Approved — paid ${res.paidBnb || "0"} BNB on-chain.` : "Claim rejected.");
+      qc.invalidateQueries({ queryKey: ["admin", "claims"] });
+    } catch (e: any) {
+      toast.error(e?.message || "Action failed");
+    } finally {
+      setBusy(null);
+    }
+  };
+
   return (
     <div className="bg-white rounded-[24px] border border-[#F2D8C8] overflow-hidden">
       <div className="overflow-x-auto">
@@ -233,7 +275,20 @@ export function AdminCreatorClaimsTab() {
                 <td className="px-6 py-4 text-[14px] font-black text-[#161616]">${c.claimAmount.toFixed(2)}</td>
                 <td className="px-6 py-4"><AdminStatusBadge status={c.status} /></td>
                 <td className="px-6 py-4 flex gap-2">
-                  <button className="px-3 py-1.5 rounded-md bg-[#FF6B1A]/10 text-[#FF6B1A] text-[13px] font-bold hover:bg-[#FF6B1A]/20">Review</button>
+                  <button
+                    onClick={() => { if (window.confirm("Approve and release vault rewards on-chain to this creator?")) run(`approve-${c.id}`, "APPROVE", c.market); }}
+                    disabled={busy === `approve-${c.id}` || c.status === "APPROVED"}
+                    className="px-3 py-1.5 rounded-md bg-[#E5F9F1] text-[#0E7A4F] text-[13px] font-bold hover:bg-[#C1F0DB] disabled:opacity-60"
+                  >
+                    {busy === `approve-${c.id}` ? "…" : "Approve & Pay"}
+                  </button>
+                  <button
+                    onClick={() => run(`reject-${c.id}`, "REJECT", c.market)}
+                    disabled={busy === `reject-${c.id}` || c.status === "APPROVED"}
+                    className="px-3 py-1.5 rounded-md bg-red-50 text-red-600 text-[13px] font-bold hover:bg-red-100 disabled:opacity-60"
+                  >
+                    {busy === `reject-${c.id}` ? "…" : "Reject"}
+                  </button>
                 </td>
               </tr>
             ))}
