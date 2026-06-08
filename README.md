@@ -20,7 +20,7 @@ Per-market token and bonding-curve contracts are deployed on-demand by the **Kar
 
 | Network | KarmaFiFactory (Core) | FeeDistributor | CreatorClaimVault |
 |---------|------------------------|----------------|-------------------|
-| BNB Mainnet | `0xC9Dd6dB82D37F7F16A79e420a819778b0a515EE0` | `0xc73565a7e42d8590a90e377A2233615Db14555Fa` | `0x2A02ad60B749f2979a22Ef992cDd0783866FCF73` |
+| BNB Mainnet | `0xb017eCCD18d374b5ee9461EF22052D298bAf1604` | `0xed8a1eEbC494e187b0Ade9D927724DfD18E52Dd0` | `0xbaB57d8ae5a01dB709c005Fc246082d53849874A` |
 | BNB Testnet | `0x8D018F5Ecd8dBb35f963350A86Da0d1EeCAdcAB7` | `0xc73565a7e42d8590a90e377A2233615Db14555Fa` | `0x2A02ad60B749f2979a22Ef992cDd0783866FCF73` |
 
 ## Features

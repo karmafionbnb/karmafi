@@ -37,16 +37,21 @@ Manual line-by-line review covering: access control, reentrancy, arithmetic/over
 
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
-| M-01 | Trading can be bricked by a reverting fee recipient | Medium | **Fixed** (redeploy required) |
+| M-01 | Trading can be bricked by a reverting fee recipient | Medium | **Fixed & deployed** |
 | L-01 | `distributeFees` is permissionless (reward inflation) | Low | Acknowledged (benign donation path) |
 | L-02 | `MigrationManager` traps BNB; placeholder logic | Low | **Fixed** (withdraw added; not in core deploy) |
-| L-03 | Stray BNB sent directly to `FeeDistributor` is unrecoverable | Low | **Fixed** (`rescue()` added) |
+| L-03 | Stray BNB sent directly to `FeeDistributor` is unrecoverable | Low | **Fixed & deployed** (`rescue()` added) |
 | I-01 | Centralized owner privileges | Informational | Acknowledged — use multisig/timelock |
 | I-02 | Creator ownership verification is off-chain | Informational | By design |
 | I-03 | Compiler/EVM (`PUSH0`) target | Informational | OK on BSC |
 | R-01 | `CreatorClaimVault` deposit reverted after a claim | High | **Resolved pre-deploy** |
 
-> **Remediation note:** M-01, L-02 and L-03 are fixed in source. M-01 and L-03 affect `FeeDistributor`, so a **redeploy of the contract suite** is required for them to take effect on-chain. L-01 is left as an intentional permissionless path: a third party can only *donate* their own BNB to a creator's pending rewards (no theft possible), so it is accepted rather than restricted.
+> **Remediation note:** M-01, L-02 and L-03 are fixed in source. The contract suite was **redeployed** to BNB Mainnet with the remediations live (see addresses below). L-01 is left as an intentional permissionless path: a third party can only *donate* their own BNB to a creator's pending rewards (no theft possible), so it is accepted rather than restricted.
+>
+> **Live (remediated) mainnet addresses:**
+> - KarmaFiFactory: `0xb017eCCD18d374b5ee9461EF22052D298bAf1604`
+> - FeeDistributor: `0xed8a1eEbC494e187b0Ade9D927724DfD18E52Dd0`
+> - CreatorClaimVault: `0xbaB57d8ae5a01dB709c005Fc246082d53849874A`
 
 ---
 
