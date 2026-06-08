@@ -9,7 +9,7 @@ import { useWallet } from "@/context/wallet";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget } from "@/lib/web3/contracts";
+import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget, explorerTx, explorerAddress } from "@/lib/web3/contracts";
 import { toast } from "@/lib/toast";
 
 interface MarketPageProps {
@@ -508,7 +508,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                         <td className="py-4 text-right font-bold text-[#5F5B57]">{parseFloat(t.tokenAmount).toFixed(2)}</td>
                         <td className="py-4 text-right font-medium text-[#8A817A]">{priceLabel(parseFloat(t.price))}</td>
                         <td className="py-4 text-right font-medium text-[#8A817A]">
-                          <a href="#" className="hover:text-[#FF6B1A] transition-colors">{t.txHash.substring(0, 8)}...</a>
+                          <a href={explorerTx(chainId, t.txHash as string)} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF6B1A] hover:underline transition-colors">{(t.txHash as string).substring(0, 8)}...</a>
                         </td>
                       </tr>
                     ))}
@@ -701,9 +701,14 @@ export default function MarketDetail({ params }: MarketPageProps) {
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Curator Wallet</span>
-                <span className="text-[#FF6B1A] font-extrabold">
-                  {market.curatorWallet.substring(0, 6)}...{market.curatorWallet.substring(market.curatorWallet.length - 4)}
-                </span>
+                <a
+                  href={explorerAddress(chainId, market.curatorWallet as string)}
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="text-[#FF6B1A] font-extrabold hover:underline"
+                >
+                  {(market.curatorWallet as string).substring(0, 6)}...{(market.curatorWallet as string).substring((market.curatorWallet as string).length - 4)}
+                </a>
               </div>
             </div>
 

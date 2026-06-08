@@ -12,7 +12,8 @@ import {
 } from "lucide-react";
 import { useWallet } from "@/context/wallet";
 import { parseEther, formatEther } from "viem";
-import { pricePerToken, supplyForReserve } from "@/lib/web3/contracts";
+import { pricePerToken, supplyForReserve, explorerAddress } from "@/lib/web3/contracts";
+import { useChainId } from "wagmi";
 
 // We will fetch real markets from the API instead of using MOCK_MARKETS
 
@@ -37,6 +38,7 @@ function priceFromMarketCapBnb(marketCapBnb: number): number {
 function FeedContent() {
   const searchParams = useSearchParams();
   const router = useRouter();
+  const chainId = useChainId();
   const initialSearch = searchParams.get("search") || "";
   const [quickUrl, setQuickUrl] = useState("");
 
@@ -419,7 +421,7 @@ function FeedContent() {
                           <span className="h-4 w-4 rounded-full bg-[#F3BA2F] flex items-center justify-center text-white text-[8px]">K</span>
                           <span className="text-[#161616]">${m.symbol}</span>
                         </span>
-                        <span>Curated by <span className="text-[#FF6B1A]">{m.curatorWallet}</span></span>
+                        <span>Curated by <a href={explorerAddress(chainId, m.curatorWallet)} target="_blank" rel="noopener noreferrer" className="text-[#FF6B1A] hover:underline">{m.curatorWallet}</a></span>
                       </div>
                     </div>
 

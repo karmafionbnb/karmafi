@@ -27,6 +27,17 @@ export const CONTRACTS: Record<number, ChainContracts> = {
   },
 };
 
+// BscScan explorer links (mainnet by default; testnet for chain 97).
+export function explorerBase(chainId?: number): string {
+  return chainId === 97 ? "https://testnet.bscscan.com" : "https://bscscan.com";
+}
+export function explorerTx(chainId: number | undefined, hash: string): string {
+  return `${explorerBase(chainId)}/tx/${hash}`;
+}
+export function explorerAddress(chainId: number | undefined, addr: string): string {
+  return `${explorerBase(chainId)}/address/${addr}`;
+}
+
 export function getContracts(chainId?: number): ChainContracts | null {
   if (!chainId) return null;
   const c = CONTRACTS[chainId];
