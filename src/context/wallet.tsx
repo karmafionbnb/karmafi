@@ -1,8 +1,9 @@
 "use client";
 
 import React, { createContext, useContext, useState, useEffect } from "react";
-import { useAccount, useConnect, useDisconnect, useBalance, useSignMessage, useChainId } from "wagmi";
+import { useAccount, useDisconnect, useBalance, useSignMessage, useChainId } from "wagmi";
 import { formatEther } from "viem";
+import WalletModal from "@/components/WalletModal";
 
 export interface WalletContextType {
   walletAddress: string | null;
@@ -26,11 +27,11 @@ const WalletContext = createContext<WalletContextType | undefined>(undefined);
 
 export function WalletProvider({ children }: { children: React.ReactNode }) {
   const { address, isConnected: wagmiIsConnected } = useAccount();
-  const { connect: wagmiConnect, connectors } = useConnect();
   const { disconnect: wagmiDisconnect } = useDisconnect();
   const { data: balanceData } = useBalance({ address });
   const { signMessageAsync } = useSignMessage();
 
+  const [showWalletModal, setShowWalletModal] = useState(false);
   const [reputation, setReputation] = useState(50);
   const [tokenBalances, setTokenBalances] = useState<Record<string, number>>({});
   const [watchlist, setWatchlist] = useState<string[]>([]);
@@ -57,27 +58,14 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
     if (savedCurated) setCuratedMarkets(JSON.parse(savedCurated));
   }, []);
 
-  const connect = async (_type: string = "MetaMask") => {
-    try {
-      // EIP-6963 discovery exposes each wallet as its own connector. Prefer the
-      // one named/identified as MetaMask; fall back to any injected wallet.
-      const isMetaMask = (c: { id?: string; name?: string }) => {
-        const n = (c.name || "").toLowerCase();
-        const id = (c.id || "").toLowerCase();
-        return n.includes("metamask") || id.includes("metamask") || id === "io.metamask";
-      };
-      const metaMask = connectors.find(isMetaMask);
-      const target =
-        metaMask ||
-        connectors.find((c) => c.type === "injected") ||
-        connectors[0];
-      if (target) {
-        await wagmiConnect({ connector: target });
-        return target.id;
-      }
-    } catch (e) {
-      console.warn("Wallet connection failed", e);
-    }
+  // Close the wallet picker once a wallet is connected.
+  useEffect(() => {
+    if (isConnected) setShowWalletModal(false);
+  }, [isConnected]);
+
+  // Opens the wallet picker modal so the user chooses which wallet to connect.
+  const connect = async (_type: string = "") => {
+    setShowWalletModal(true);
     return "";
   };
 
@@ -153,6 +141,7 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
       }}
     >
       {children}
+      {showWalletModal && <WalletModal onClose={() => setShowWalletModal(false)} />}
     </WalletContext.Provider>
   );
 }
