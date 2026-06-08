@@ -9,7 +9,7 @@ import { useWallet } from "@/context/wallet";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
-import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget, explorerTx, explorerAddress } from "@/lib/web3/contracts";
+import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget, explorerTx, explorerAddress, pancakeSwapUrl } from "@/lib/web3/contracts";
 import { toast } from "@/lib/toast";
 
 interface MarketPageProps {
@@ -68,6 +68,8 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const [onUserBal, setOnUserBal] = useState(0); // user's token balance
   const [onReserve, setOnReserve] = useState(0); // BNB locked in the curve
   const [bnbUsd, setBnbUsd] = useState(0); // live BNB price in USD
+  const [onGraduated, setOnGraduated] = useState(false); // migrated to PancakeSwap
+  const [onGradReserve, setOnGradReserve] = useState(0); // BNB threshold to graduate
 
   // Live BNB/USD rate (CoinGecko, with a Binance fallback).
   useEffect(() => {
@@ -133,6 +135,19 @@ export default function MarketDetail({ params }: MarketPageProps) {
 
       const reserve = await publicClient.getBalance({ address: marketAddr });
       setOnReserve(Number(formatEther(reserve)));
+
+      // Graduation status + threshold (best-effort; older markets may lack these).
+      try {
+        const [grad, gradReserve] = await Promise.all([
+          publicClient.readContract({ address: marketAddr, abi: BONDING_CURVE_ABI, functionName: "graduated" }) as Promise<boolean>,
+          publicClient.readContract({ address: marketAddr, abi: BONDING_CURVE_ABI, functionName: "graduationReserve" }) as Promise<bigint>,
+        ]);
+        setOnGraduated(grad);
+        setOnGradReserve(Number(formatEther(gradReserve)));
+      } catch {
+        setOnGraduated(false);
+        setOnGradReserve(0);
+      }
 
       if (walletAddress) {
         const bal = (await publicClient.readContract({
@@ -202,6 +217,11 @@ export default function MarketDetail({ params }: MarketPageProps) {
     if (!market || !isConnected) return;
     setErrorMessage("");
     setSuccessMessage("");
+
+    if (onGraduated) {
+      setErrorMessage("This market has graduated — trade it on PancakeSwap.");
+      return;
+    }
 
     const amount = parseFloat(inputAmount);
     if (!amount || amount <= 0) {
@@ -526,8 +546,51 @@ export default function MarketDetail({ params }: MarketPageProps) {
           {/* Right / Swap & Stats Panel */}
           <div className="lg:col-span-4 flex flex-col gap-6">
             
+            {/* Graduation progress (curve markets that haven't migrated yet) */}
+            {!onGraduated && onGradReserve > 0 && (
+              <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+                <div className="flex justify-between items-center mb-2">
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Graduation to PancakeSwap</h3>
+                  <span className="text-[11px] font-black text-[#FF6B1A]">
+                    {Math.min(100, Math.round((onReserve / onGradReserve) * 100))}%
+                  </span>
+                </div>
+                <div className="h-2.5 w-full rounded-full bg-[#FFF1ED] overflow-hidden">
+                  <div
+                    className="h-full rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] transition-all"
+                    style={{ width: `${Math.min(100, (onReserve / onGradReserve) * 100)}%` }}
+                  />
+                </div>
+                <p className="mt-3 text-[11px] font-medium text-[#5F5B57] leading-relaxed">
+                  {onReserve.toFixed(4)} / {onGradReserve.toFixed(4)} BNB raised. When the reserve hits the
+                  threshold, all liquidity migrates to a PancakeSwap V2 pool and the LP is burned — locking it forever.
+                </p>
+              </div>
+            )}
+
             {/* Swap widget */}
             <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              {onGraduated ? (
+                <div className="flex flex-col items-center text-center gap-4 py-2">
+                  <div className="rounded-full bg-[#FFF1ED] border border-[#F2D8C8] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF6B1A]">
+                    Graduated
+                  </div>
+                  <h3 className="text-sm font-black text-[#161616]">Now trading on PancakeSwap</h3>
+                  <p className="text-[11px] font-medium text-[#5F5B57] leading-relaxed">
+                    This market reached its graduation threshold. The bonding curve is closed and liquidity now lives in a
+                    PancakeSwap V2 pool. Trade ${String(market.symbol)} directly there.
+                  </p>
+                  <a
+                    href={pancakeSwapUrl(String(market.tokenAddress))}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="w-full rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] py-4 text-[14px] font-extrabold text-white shadow-[0_4px_14px_rgba(255,107,26,0.3)] hover:scale-[1.02] active:scale-[0.98] transition-all"
+                  >
+                    Trade on PancakeSwap
+                  </a>
+                </div>
+              ) : (
+              <>
               <div className="flex rounded-full bg-[#FFFAF5] p-1 border border-[#F2D8C8] mb-6">
                 <button
                   onClick={() => { setTradeType("BUY"); setInputAmount("0.1"); }}
@@ -644,6 +707,8 @@ export default function MarketDetail({ params }: MarketPageProps) {
                   </button>
                 )}
               </form>
+              </>
+              )}
             </div>
 
             {/* Creator Claim Box */}

@@ -7,7 +7,9 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 
 contract KarmaFiFactory is Ownable {
     address public feeDistributor;
-    
+    address public router;            // PancakeSwap V2 router (for graduation)
+    uint256 public graduationReserve; // BNB reserve that graduates a market to PancakeSwap
+
     mapping(bytes32 => address) public getMarketByHash;
     mapping(address => address) public getMarketByToken;
     address[] public allMarkets;
@@ -21,14 +23,30 @@ contract KarmaFiFactory is Ownable {
         string symbol
     );
     event FeeDistributorUpdated(address newFeeDistributor);
+    event GraduationConfigUpdated(address router, uint256 graduationReserve);
 
-    constructor(address _feeDistributor, address _owner) Ownable(_owner) {
+    constructor(
+        address _feeDistributor,
+        address _router,
+        uint256 _graduationReserve,
+        address _owner
+    ) Ownable(_owner) {
         feeDistributor = _feeDistributor;
+        router = _router;
+        graduationReserve = _graduationReserve;
     }
 
     function setFeeDistributor(address _feeDistributor) external onlyOwner {
         feeDistributor = _feeDistributor;
         emit FeeDistributorUpdated(_feeDistributor);
+    }
+
+    // Update graduation config for FUTURE markets (already-deployed markets keep
+    // the values they were created with).
+    function setGraduationConfig(address _router, uint256 _graduationReserve) external onlyOwner {
+        router = _router;
+        graduationReserve = _graduationReserve;
+        emit GraduationConfigUpdated(_router, _graduationReserve);
     }
 
     function allMarketsLength() external view returns (uint256) {
@@ -49,12 +67,14 @@ contract KarmaFiFactory is Ownable {
         AttentionToken token = new AttentionToken(name, symbol, metadataURI, address(this));
         tokenAddress = address(token);
 
-        // 2. Deploy BondingCurveMarket
+        // 2. Deploy BondingCurveMarket (with graduation config)
         BondingCurveMarket market = new BondingCurveMarket(
             tokenAddress,
             sourceHash,
             curator,
             feeDistributor,
+            router,
+            graduationReserve,
             owner()
         );
         marketAddress = address(market);

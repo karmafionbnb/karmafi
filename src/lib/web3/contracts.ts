@@ -38,6 +38,11 @@ export function explorerAddress(chainId: number | undefined, addr: string): stri
   return `${explorerBase(chainId)}/address/${addr}`;
 }
 
+// PancakeSwap swap link for a graduated token.
+export function pancakeSwapUrl(token: string): string {
+  return `https://pancakeswap.finance/swap?outputCurrency=${token}&chain=bsc`;
+}
+
 export function getContracts(chainId?: number): ChainContracts | null {
   if (!chainId) return null;
   const c = CONTRACTS[chainId];
@@ -130,6 +135,20 @@ export const BONDING_CURVE_ABI = [
     stateMutability: "view",
     inputs: [],
     outputs: [{ name: "", type: "address" }],
+  },
+  {
+    type: "function",
+    name: "graduated",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "bool" }],
+  },
+  {
+    type: "function",
+    name: "graduationReserve",
+    stateMutability: "view",
+    inputs: [],
+    outputs: [{ name: "", type: "uint256" }],
   },
   {
     type: "event",
