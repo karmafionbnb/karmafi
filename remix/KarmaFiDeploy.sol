@@ -296,33 +296,35 @@ contract FeeDistributor is Ownable {
         // Remaining is safety share to prevent rounding dust loss
         uint256 safetyShare = amount - (creatorShare + curatorShare + treasuryShare + liquidityShare);
 
-        // Deposit creator share to the vault
+        // M-01: distribution is best-effort and MUST NOT revert — otherwise a
+        // recipient (e.g. a curator contract) that rejects BNB would brick every
+        // trade. A failed transfer simply leaves that share in this contract,
+        // recoverable by the owner via rescue().
+
+        // Deposit creator share to the vault (low-level so a vault revert can't
+        // brick trading either).
         if (creatorShare > 0 && creatorClaimVault != address(0)) {
-            ICreatorClaimVault(creatorClaimVault).depositCreatorRewards{value: creatorShare}(sourceHash);
+            (bool ok, ) = creatorClaimVault.call{value: creatorShare}(
+                abi.encodeWithSignature("depositCreatorRewards(bytes32)", sourceHash)
+            );
+            if (!ok) { /* share retained for rescue */ }
         }
 
-        // Send curator share
         if (curatorShare > 0 && curator != address(0)) {
-            (bool success, ) = payable(curator).call{value: curatorShare}("");
-            require(success, "FeeDistributor: Curator payment failed");
+            (bool ok, ) = payable(curator).call{value: curatorShare}("");
+            if (!ok) { /* retained */ }
         }
-
-        // Send treasury share
         if (treasuryShare > 0 && platformTreasury != address(0)) {
-            (bool success, ) = payable(platformTreasury).call{value: treasuryShare}("");
-            require(success, "FeeDistributor: Treasury payment failed");
+            (bool ok, ) = payable(platformTreasury).call{value: treasuryShare}("");
+            if (!ok) { /* retained */ }
         }
-
-        // Send liquidity share
         if (liquidityShare > 0 && liquidityReserve != address(0)) {
-            (bool success, ) = payable(liquidityReserve).call{value: liquidityShare}("");
-            require(success, "FeeDistributor: Liquidity payment failed");
+            (bool ok, ) = payable(liquidityReserve).call{value: liquidityShare}("");
+            if (!ok) { /* retained */ }
         }
-
-        // Send safety/moderation share
         if (safetyShare > 0 && safetyFund != address(0)) {
-            (bool success, ) = payable(safetyFund).call{value: safetyShare}("");
-            require(success, "FeeDistributor: Safety payment failed");
+            (bool ok, ) = payable(safetyFund).call{value: safetyShare}("");
+            if (!ok) { /* retained */ }
         }
 
         emit FeesDistributed(
@@ -335,6 +337,13 @@ contract FeeDistributor is Ownable {
             liquidityShare,
             safetyShare
         );
+    }
+
+    // L-03: recover any BNB left in the contract (failed transfers / stray sends).
+    function rescue(address payable to, uint256 amount) external onlyOwner {
+        require(to != address(0), "FeeDistributor: zero address");
+        (bool ok, ) = to.call{value: amount}("");
+        require(ok, "FeeDistributor: rescue failed");
     }
 
     receive() external payable {}

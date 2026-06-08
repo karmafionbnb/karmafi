@@ -32,4 +32,13 @@ contract MigrationManager is IMigrationManager, Ownable {
         emit Migrated(tokenAddress, poolAddress, msg.value, msg.value * 1000);
         return poolAddress;
     }
+
+    // L-02: allow the owner to recover BNB held by this contract.
+    function withdraw(address payable to, uint256 amount) external onlyOwner {
+        require(to != address(0), "MigrationManager: zero address");
+        (bool ok, ) = to.call{value: amount}("");
+        require(ok, "MigrationManager: withdraw failed");
+    }
+
+    receive() external payable {}
 }

@@ -37,14 +37,16 @@ Manual line-by-line review covering: access control, reentrancy, arithmetic/over
 
 | ID | Title | Severity | Status |
 |----|-------|----------|--------|
-| M-01 | Trading can be bricked by a reverting fee recipient | Medium | Open |
-| L-01 | `distributeFees` is permissionless (reward inflation) | Low | Open |
-| L-02 | `MigrationManager` traps BNB; placeholder logic | Low | Open (not deployed in core) |
-| L-03 | Stray BNB sent directly to `FeeDistributor` is unrecoverable | Low | Open |
-| I-01 | Centralized owner privileges | Informational | Acknowledged |
+| M-01 | Trading can be bricked by a reverting fee recipient | Medium | **Fixed** (redeploy required) |
+| L-01 | `distributeFees` is permissionless (reward inflation) | Low | Acknowledged (benign donation path) |
+| L-02 | `MigrationManager` traps BNB; placeholder logic | Low | **Fixed** (withdraw added; not in core deploy) |
+| L-03 | Stray BNB sent directly to `FeeDistributor` is unrecoverable | Low | **Fixed** (`rescue()` added) |
+| I-01 | Centralized owner privileges | Informational | Acknowledged — use multisig/timelock |
 | I-02 | Creator ownership verification is off-chain | Informational | By design |
 | I-03 | Compiler/EVM (`PUSH0`) target | Informational | OK on BSC |
 | R-01 | `CreatorClaimVault` deposit reverted after a claim | High | **Resolved pre-deploy** |
+
+> **Remediation note:** M-01, L-02 and L-03 are fixed in source. M-01 and L-03 affect `FeeDistributor`, so a **redeploy of the contract suite** is required for them to take effect on-chain. L-01 is left as an intentional permissionless path: a third party can only *donate* their own BNB to a creator's pending rewards (no theft possible), so it is accepted rather than restricted.
 
 ---
 
@@ -95,6 +97,6 @@ A prior version reverted `depositCreatorRewards` once a `sourceHash` had been cl
 - Duplicate markets prevented via `sourceHash` registry in the factory.
 
 ## Conclusion
-No **Critical** or **High** severity issues were identified in the current contract set; the one previously-High issue (R-01) was fixed prior to deployment. The most notable open item is **M-01** (DoS via a reverting fee recipient). The system avoids common rug vectors (no admin reserve withdrawal, immutable mint authority, reentrancy guards).
+No **Critical** or **High** severity issues were identified in the current contract set; the one previously-High issue (R-01) was fixed prior to deployment. The **Medium** finding (M-01) and the recoverability **Low** findings (L-02, L-03) have been remediated in source — M-01/L-03 require a contract redeploy to take effect on-chain. The system avoids common rug vectors (no admin reserve withdrawal, immutable mint authority, reentrancy guards). The remaining items are informational/centralization notes.
 
 This internal review **does not replace an independent professional audit**, which is recommended before the protocol custodies significant value.
