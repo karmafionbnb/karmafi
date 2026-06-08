@@ -1,0 +1,224 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<style>
+  @page { size: 297mm 167mm; margin: 0; }
+  * { margin: 0; padding: 0; box-sizing: border-box; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  :root{
+    --orange:#FF6B1A; --orange2:#E9500E; --ink:#161616; --muted:#5F5B57; --soft:#8A817A;
+    --cream:#FFFAF5; --line:#F2D8C8; --gold:#FFB020;
+  }
+  html,body{ font-family:-apple-system,BlinkMacSystemFont,"Segoe UI",Helvetica,Arial,sans-serif; color:var(--ink); }
+  .slide{
+    position:relative; width:297mm; height:167mm; overflow:hidden;
+    page-break-after:always; padding:18mm 20mm; display:flex; flex-direction:column;
+    background:var(--cream);
+  }
+  .slide:last-child{ page-break-after:auto; }
+  .kicker{ font-size:11pt; font-weight:800; letter-spacing:.12em; text-transform:uppercase; color:var(--orange); }
+  h1{ font-size:34pt; font-weight:900; line-height:1.05; letter-spacing:-.02em; }
+  h2{ font-size:27pt; font-weight:900; line-height:1.08; letter-spacing:-.02em; margin-top:6mm; }
+  .lead{ font-size:14pt; font-weight:500; color:var(--muted); line-height:1.5; margin-top:7mm; max-width:215mm; }
+  .pageno{ position:absolute; right:14mm; bottom:10mm; font-size:9pt; font-weight:700; color:var(--soft); }
+  .brandfoot{ position:absolute; left:20mm; bottom:10mm; font-size:9pt; font-weight:800; color:var(--soft); letter-spacing:.02em;}
+  /* logo lockup */
+  .lock{ display:flex; align-items:center; gap:10px; }
+  .lock img{ width:44px; height:44px; border-radius:11px; box-shadow:0 4px 14px rgba(255,107,26,.28); }
+  .lock .name{ font-size:20pt; font-weight:900; letter-spacing:-.01em; }
+  /* cards */
+  .grid{ display:grid; gap:7mm; margin-top:auto; margin-bottom:auto; }
+  .g2{ grid-template-columns:1fr 1fr; }
+  .g3{ grid-template-columns:1fr 1fr 1fr; }
+  .g4{ grid-template-columns:1fr 1fr 1fr 1fr; }
+  .card{ background:#fff; border:1px solid var(--line); border-radius:16px; padding:7mm 7mm; box-shadow:0 4px 18px rgba(0,0,0,.03); }
+  .card .num{ font-size:13pt; font-weight:900; color:var(--orange); }
+  .card h3{ font-size:13.5pt; font-weight:900; margin-bottom:2.5mm; letter-spacing:-.01em; }
+  .card p{ font-size:11pt; color:var(--muted); line-height:1.45; font-weight:500; }
+  .step{ position:relative; }
+  .step .dot{ width:30px;height:30px;border-radius:9px;background:linear-gradient(135deg,var(--orange),var(--orange2));
+    color:#fff;font-weight:900;font-size:12pt;display:flex;align-items:center;justify-content:center;margin-bottom:4mm;}
+  ul.clean{ list-style:none; margin-top:6mm; }
+  ul.clean li{ font-size:13pt; font-weight:600; color:var(--ink); line-height:1.5; padding-left:26px; position:relative; margin-bottom:4mm;}
+  ul.clean li::before{ content:""; position:absolute; left:0; top:9px; width:11px;height:11px;border-radius:3px;
+    background:linear-gradient(135deg,var(--orange),var(--orange2)); }
+  ul.clean li b{ font-weight:900; }
+  .pillrow{ display:flex; gap:8px; flex-wrap:wrap; margin-top:6mm; }
+  .pill{ font-size:10pt; font-weight:800; color:var(--orange); background:#FFF1ED; border:1px solid var(--line);
+    border-radius:999px; padding:5px 12px; }
+  .big{ font-size:46pt; font-weight:900; letter-spacing:-.03em; line-height:1; }
+  .split{ display:flex; gap:12mm; align-items:center; height:100%; }
+  .split .col{ flex:1; }
+  /* cover */
+  .cover{ background:linear-gradient(140deg,#1a0d05 0%, #2a1206 40%, #3a1607 100%); color:#fff; }
+  .cover .logo{ width:96px;height:96px;border-radius:24px; box-shadow:0 12px 40px rgba(255,107,26,.4); }
+  .cover h1{ font-size:54pt; margin-top:10mm; background:linear-gradient(90deg,#fff,#FFD9C2); -webkit-background-clip:text; background-clip:text; color:transparent;}
+  .cover .tag{ font-size:18pt; font-weight:700; color:#FFB48A; margin-top:5mm; }
+  .cover .sub{ font-size:12.5pt; font-weight:500; color:#E9D6CC; margin-top:8mm; }
+  .cover .links{ position:absolute; left:20mm; bottom:16mm; font-size:11pt; font-weight:700; color:#FFC6A8; }
+  .cover .chainbadge{ position:absolute; right:20mm; bottom:16mm; display:flex; align-items:center; gap:8px; font-size:11pt; font-weight:800; color:#F3BA2F; }
+  .glow{ position:absolute; border-radius:50%; filter:blur(70px); opacity:.5; }
+  .endbg{ background:linear-gradient(140deg,#FF6B1A,#E9500E); color:#fff; }
+  .endbg h2{ color:#fff; }
+  .endbg .card{ background:rgba(255,255,255,.12); border-color:rgba(255,255,255,.25); }
+  .endbg .card h3{ color:#fff; } .endbg .card p{ color:#FFE7D9; }
+  .quote{ font-size:30pt; font-weight:900; line-height:1.18; letter-spacing:-.02em; max-width:230mm; margin:auto 0; }
+  .quote .hl{ color:var(--orange); }
+</style>
+</head>
+<body>
+
+<!-- 1 COVER -->
+<section class="slide cover">
+  <div class="glow" style="width:340px;height:340px;background:#FF6B1A;top:-80px;right:-60px;"></div>
+  <div class="glow" style="width:300px;height:300px;background:#FFB020;bottom:-120px;left:30%;opacity:.25;"></div>
+  <div style="position:relative;z-index:2;">
+    <img class="logo" src="./public/logo.png" alt="KarmaFi">
+    <h1>KarmaFi</h1>
+    <div class="tag">Turn attention into a market.</div>
+    <div class="sub">On-chain attention markets on BNB Chain — every viral post becomes a tradable token,<br>and the people who create and spot it early finally own the upside.</div>
+  </div>
+  <div class="links">karmafi.app&nbsp;&nbsp;·&nbsp;&nbsp;x.com/KarmafiBNB</div>
+  <div class="chainbadge">Built on BNB Chain</div>
+</section>
+
+<!-- 2 PROBLEM -->
+<section class="slide">
+  <div class="kicker">The Problem</div>
+  <h2>Attention is the internet's real currency —<br>but the people who make it own none of it.</h2>
+  <div class="grid g3">
+    <div class="card"><h3>Creators get nothing tradable</h3><p>A post can reach millions and the author walks away with karma points. The value accrues to the platform, not the person.</p></div>
+    <div class="card"><h3>Early spotters aren't rewarded</h3><p>The people with the taste to catch something before it goes viral have no way to back that conviction and share in the outcome.</p></div>
+    <div class="card"><h3>Attention isn't ownable</h3><p>Virality is locked inside walled gardens. It can't be priced, traded, or carried anywhere — so none of it compounds for the community.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">02</div>
+</section>
+
+<!-- 3 SOLUTION -->
+<section class="slide">
+  <div class="kicker">The Solution</div>
+  <h2>KarmaFi makes attention a market.</h2>
+  <p class="lead">Any Reddit post can be launched as its own BEP-20 token, priced live on an on-chain bonding curve. Back content early and share in its rise — and a fixed share of every trade is reserved on-chain for the <b>original creator</b> to claim.</p>
+  <div class="grid g3">
+    <div class="card"><h3>Price discovery from block one</h3><p>A linear bonding curve means a market exists the moment a post is launched — no order book, no seeding, instant liquidity.</p></div>
+    <div class="card"><h3>Creators are paid, on-chain</h3><p>A reserved cut of all trading fees is held for the verified original author — aligning creators and the crowd, not pitting them against each other.</p></div>
+    <div class="card"><h3>Winners graduate</h3><p>When a market matures, its liquidity migrates to a PancakeSwap V2 pool with permanently burned LP — a real, community-owned token.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">03</div>
+</section>
+
+<!-- 4 HOW IT WORKS -->
+<section class="slide">
+  <div class="kicker">How It Works</div>
+  <h2>From a post to a permanent token — in four steps.</h2>
+  <div class="grid g4" style="margin-top:9mm;">
+    <div class="card step"><div class="dot">1</div><h3>Launch</h3><p>A curator turns a Reddit post into a market. The curator pays gas — no cost to the platform per launch.</p></div>
+    <div class="card step"><div class="dot">2</div><h3>Trade</h3><p>The token trades on a bonding curve with a 1% fee. Price rises with demand, fully on-chain.</p></div>
+    <div class="card step"><div class="dot">3</div><h3>Claim</h3><p>The original Reddit author verifies ownership and claims their reserved share of accrued fees.</p></div>
+    <div class="card step"><div class="dot">4</div><h3>Graduate</h3><p>Past a reserve threshold, liquidity auto-migrates to PancakeSwap V2 and the LP is burned forever.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">04</div>
+</section>
+
+<!-- 5 WHY NOW -->
+<section class="slide">
+  <div class="kicker">Why Now</div>
+  <h2>Consumer crypto found its format —<br>and BNB Chain is where it scales.</h2>
+  <ul class="clean">
+    <li><b>Bonding-curve launches are proven.</b> The token-launch model has shown there's enormous demand for instant, fair, no-presale markets — KarmaFi points it at real attention instead of empty memes.</li>
+    <li><b>SocialFi is the next on-ramp.</b> The next wave of users arrives through content and community, not trading screens.</li>
+    <li><b>BNB Chain fits consumer scale.</b> Low fees, fast finality, and the distribution to onboard mainstream users at the price point this needs.</li>
+  </ul>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">05</div>
+</section>
+
+<!-- 6 PRODUCT / LIVE -->
+<section class="slide">
+  <div class="kicker">Product · Live on Mainnet</div>
+  <h2>Not a concept — it's shipped and trading.</h2>
+  <p class="lead">The full stack is deployed on BNB Smart Chain mainnet, with audited and remediated smart contracts.</p>
+  <div class="pillrow">
+    <span class="pill">Bonding-curve trading</span>
+    <span class="pill">Creator-claim vault</span>
+    <span class="pill">PancakeSwap V2 graduation</span>
+    <span class="pill">Audited & remediated contracts</span>
+    <span class="pill">Live USD pricing</span>
+    <span class="pill">Multi-wallet support</span>
+    <span class="pill">Admin moderation</span>
+    <span class="pill">On-chain fee distribution</span>
+  </div>
+  <div class="grid g3" style="margin-top:9mm;">
+    <div class="card"><div class="num">100% on-chain</div><h3>Real trades, real reserves</h3><p>Every buy, sell, fee split and graduation settles on BNB Chain — verifiable on BscScan.</p></div>
+    <div class="card"><div class="num">1% fee</div><h3>Sustainable from day one</h3><p>A simple protocol fee on every trade, with a creator share reserved automatically.</p></div>
+    <div class="card"><div class="num">LP burned</div><h3>Trust by design</h3><p>Graduated liquidity is locked forever — no rug vector on matured markets.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">06</div>
+</section>
+
+<!-- 7 BUSINESS MODEL -->
+<section class="slide">
+  <div class="kicker">Business Model</div>
+  <h2>Revenue scales directly with attention traded.</h2>
+  <div class="split">
+    <div class="col">
+      <ul class="clean">
+        <li><b>1% fee on every trade</b> across all markets — buys and sells alike.</li>
+        <li><b>Creator share reserved on-chain</b> to keep authors and curators bringing the best content.</li>
+        <li><b>Graduation deepens PancakeSwap liquidity</b>, extending each token's life and trading volume beyond the curve.</li>
+      </ul>
+    </div>
+    <div class="col">
+      <div class="card">
+        <h3>Why it compounds</h3>
+        <p style="font-size:12pt;line-height:1.6;">More markets → more trades → more fees. Each graduated token becomes a standing, liquid asset that keeps generating volume, while the creator-reward loop pulls in the people who make content go viral in the first place. The flywheel is attention itself.</p>
+      </div>
+    </div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">07</div>
+</section>
+
+<!-- 8 MOAT -->
+<section class="slide">
+  <div class="kicker">Why KarmaFi Wins</div>
+  <h2>A creator-aligned attention primitive — not just another launchpad.</h2>
+  <div class="grid g2">
+    <div class="card"><h3>Creators are paid, not extracted from</h3><p>Reserving fees for the original author is a structural advantage: it turns the people with the audience into distribution instead of adversaries.</p></div>
+    <div class="card"><h3>Real-world attention as the asset</h3><p>Markets are anchored to actual posts and creators, giving every token a reason to exist beyond speculation.</p></div>
+    <div class="card"><h3>Trust engineered in</h3><p>Permanent burned liquidity on graduation and audited, remediated contracts directly attack the rug-pull reputation of the category.</p></div>
+    <div class="card"><h3>Composable & expandable</h3><p>An on-chain primitive that can extend to any social source — X, YouTube, and beyond — from the same engine.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">08</div>
+</section>
+
+<!-- 9 ROADMAP -->
+<section class="slide">
+  <div class="kicker">Roadmap</div>
+  <h2>From live product to attention layer.</h2>
+  <div class="grid g3" style="margin-top:9mm;">
+    <div class="card"><div class="num">Now</div><h3>Live & hardening</h3><p>Mainnet trading, creator claims, and PancakeSwap graduation live. Focused on first markets and creator onboarding.</p></div>
+    <div class="card"><div class="num">Next</div><h3>More sources & tooling</h3><p>Expand beyond Reddit to additional social sources, richer creator dashboards, analytics, and discovery.</p></div>
+    <div class="card"><div class="num">Later</div><h3>The attention layer</h3><p>Mobile, deeper liquidity partnerships, and a path to community ownership of the protocol itself.</p></div>
+  </div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">09</div>
+</section>
+
+<!-- 10 VISION -->
+<section class="slide">
+  <div class="quote">Make attention a <span class="hl">liquid, fairly-distributed asset</span> across every social network —<br>where spotting something early is rewarded, and the creator always gets their cut.</div>
+  <div class="lock" style="margin-top:12mm;"><img src="./public/logo.png"><span class="name">KarmaFi</span></div>
+  <div class="brandfoot">KarmaFi</div><div class="pageno">10</div>
+</section>
+
+<!-- 11 CONTACT -->
+<section class="slide endbg">
+  <div class="kicker" style="color:#FFE0CF;">Let's Build</div>
+  <h2>KarmaFi — the attention market for the internet.</h2>
+  <div class="grid g2" style="margin-top:10mm;">
+    <div class="card"><h3>Links</h3><p>Website&nbsp;·&nbsp;karmafi.app<br>X&nbsp;·&nbsp;x.com/KarmafiBNB<br>GitHub&nbsp;·&nbsp;github.com/karmafionbnb/karmafi<br>Telegram&nbsp;·&nbsp;@jessekarmafi</p></div>
+    <div class="card"><h3>At a glance</h3><p>Sector&nbsp;·&nbsp;Web3 / SocialFi<br>Chain&nbsp;·&nbsp;BNB Smart Chain (mainnet, live)<br>Stage&nbsp;·&nbsp;Live product, audited contracts<br>Model&nbsp;·&nbsp;1% protocol fee + creator share</p></div>
+  </div>
+  <div class="brandfoot" style="color:#FFE0CF;">karmafi.app</div><div class="pageno" style="color:#FFD9C7;">11</div>
+</section>
+
+</body>
+</html>
