@@ -10,6 +10,7 @@ import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "rec
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEther, formatEther } from "viem";
 import { BONDING_CURVE_ABI, ATTENTION_TOKEN_ABI, getContracts, buyCost, sellRefund, pricePerToken, tokensForBudget } from "@/lib/web3/contracts";
+import { toast } from "@/lib/toast";
 
 interface MarketPageProps {
   params: Promise<{
@@ -301,18 +302,21 @@ export default function MarketDetail({ params }: MarketPageProps) {
         }),
       }).catch(() => {});
 
-      setSuccessMessage(
+      const okMsg =
         tradeType === "BUY"
           ? `Bought ~${recordTokens.toFixed(2)} ${market.symbol} for ${recordBnb.toFixed(4)} BNB!`
-          : `Sold ${recordTokens.toFixed(2)} ${market.symbol} for ~${recordBnb.toFixed(4)} BNB!`
-      );
+          : `Sold ${recordTokens.toFixed(2)} ${market.symbol} for ~${recordBnb.toFixed(4)} BNB!`;
+      setSuccessMessage(okMsg);
+      toast.success(okMsg);
       setInputAmount(tradeType === "BUY" ? "0.1" : "10.0");
       await fetchDetails();
       await loadChainState();
     } catch (e: unknown) {
       const err = e as { shortMessage?: string; message?: string };
-      const msg = err?.shortMessage || err?.message || "Failed to execute transaction.";
-      setErrorMessage(/user rejected|denied|user denied/i.test(msg) ? "Transaction rejected in your wallet." : msg);
+      const raw = err?.shortMessage || err?.message || "Failed to execute transaction.";
+      const msg = /user rejected|denied|user denied/i.test(raw) ? "Transaction rejected in your wallet." : raw;
+      setErrorMessage(msg);
+      toast.error(msg);
     } finally {
       setIsExecuting(false);
     }

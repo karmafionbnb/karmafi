@@ -7,6 +7,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { Flame, ShieldAlert, CheckCircle, HelpCircle, Loader2, ArrowRight, Wallet, AlertTriangle, Link as LinkIcon, Info, Copy, MessageSquare } from "lucide-react";
 import { useWallet } from "@/context/wallet";
+import { toast } from "@/lib/toast";
 import { fetchRedditPostClient } from "@/lib/reddit-client";
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
 import { parseEventLogs } from "viem";
@@ -166,14 +167,15 @@ function LaunchContent() {
       }
 
       setLaunchedAddresses({ token: onchainToken, market: onchainMarket });
+      toast.success(`Market launched — $${tokenSymbol} is live on-chain!`);
 
       // Add to curated markets list
       addCuratedMarket(redditPost.sourceHash);
     } catch (e: any) {
-      const msg = e?.shortMessage || e?.message || "Failed to launch attention market.";
-      setErrorMsg(
-        /user rejected|denied/i.test(msg) ? "Transaction rejected in your wallet." : msg
-      );
+      const raw = e?.shortMessage || e?.message || "Failed to launch attention market.";
+      const msg = /user rejected|denied/i.test(raw) ? "Transaction rejected in your wallet." : raw;
+      setErrorMsg(msg);
+      toast.error(msg);
     } finally {
       setIsLaunching(false);
     }

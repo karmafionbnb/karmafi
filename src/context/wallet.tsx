@@ -4,6 +4,8 @@ import React, { createContext, useContext, useState, useEffect } from "react";
 import { useAccount, useDisconnect, useBalance, useSignMessage, useChainId } from "wagmi";
 import { formatEther } from "viem";
 import WalletModal from "@/components/WalletModal";
+import NetworkBanner from "@/components/NetworkBanner";
+import Toaster from "@/components/Toaster";
 
 export interface WalletContextType {
   walletAddress: string | null;
@@ -140,8 +142,10 @@ export function WalletProvider({ children }: { children: React.ReactNode }) {
         signMessage
       }}
     >
+      <NetworkBanner />
       {children}
       {showWalletModal && <WalletModal onClose={() => setShowWalletModal(false)} />}
+      <Toaster />
     </WalletContext.Provider>
   );
 }
