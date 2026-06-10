@@ -53,7 +53,7 @@ function AdminDashboardContent() {
 
 export default function AdminPage() {
   return (
-    <Suspense fallback={<div className="p-8 text-center text-[#8A817A] font-bold">Loading admin interface...</div>}>
+    <Suspense fallback={<div className="p-8 text-center text-[var(--text-muted)] font-bold">Loading admin interface...</div>}>
       <AdminDashboardContent />
     </Suspense>
   );

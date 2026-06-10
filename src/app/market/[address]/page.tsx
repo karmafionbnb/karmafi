@@ -4,7 +4,7 @@ import React, { useEffect, useState, use } from "react";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Flame, MessageSquare, ExternalLink, ShieldCheck, RefreshCw, AlertTriangle, Coins, TrendingUp, Info } from "lucide-react";
+import { Flame, MessageSquare, ExternalLink, ShieldCheck, RefreshCw, AlertTriangle, Coins, TrendingUp, Info, Copy, Check } from "lucide-react";
 import { useWallet } from "@/context/wallet";
 import { AreaChart, Area, XAxis, YAxis, Tooltip, ResponsiveContainer } from "recharts";
 import { useWriteContract, usePublicClient, useChainId } from "wagmi";
@@ -70,6 +70,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const [bnbUsd, setBnbUsd] = useState(0); // live BNB price in USD
   const [onGraduated, setOnGraduated] = useState(false); // migrated to PancakeSwap
   const [onGradReserve, setOnGradReserve] = useState(0); // BNB threshold to graduate
+  const [copiedAddress, setCopiedAddress] = useState<string | null>(null);
 
   // Live BNB/USD rate (CoinGecko, with a Binance fallback).
   useEffect(() => {
@@ -374,7 +375,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFFCF8]">
+      <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)]">
         <Navbar />
         <div className="flex-1 flex items-center justify-center text-[#FF6B1A]">
           <RefreshCw className="animate-spin h-8 w-8" />
@@ -386,12 +387,12 @@ export default function MarketDetail({ params }: MarketPageProps) {
 
   if (!market) {
     return (
-      <div className="min-h-screen flex flex-col bg-[#FFFCF8]">
+      <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)]">
         <Navbar />
         <div className="flex-1 flex flex-col items-center justify-center p-8 text-center">
           <AlertTriangle className="h-12 w-12 text-[#FF6B1A] mb-4 opacity-80" />
-          <h2 className="text-xl font-black text-[#161616] mb-2">Market Not Found</h2>
-          <p className="text-sm font-medium text-[#5F5B57] mb-6">The contract address you provided does not match any registered attention market.</p>
+          <h2 className="text-xl font-black text-[var(--text-primary)] mb-2">Market Not Found</h2>
+          <p className="text-sm font-medium text-[var(--text-secondary)] mb-6">The contract address you provided does not match any registered attention market.</p>
           <Link href="/feed" className="rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-6 py-2.5 text-sm font-extrabold text-white shadow-sm hover:scale-[1.02] transition-transform">
             Return to Feed
           </Link>
@@ -406,19 +407,19 @@ export default function MarketDetail({ params }: MarketPageProps) {
   const isCreatorClaimed = !!market?.creatorWallet;
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFCF8]">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)]">
       <Navbar />
 
       {/* Main Container */}
       <main className="mx-auto max-w-[1320px] px-6 py-10 flex-1 w-full">
         
         {/* Risk Disclaimer Alert bar */}
-        <div className="mb-6 rounded-[20px] border border-[#F2D8C8] bg-[#FFFAF5] p-4 text-[11px] text-[#5F5B57] flex gap-3 items-start leading-relaxed shadow-sm">
-          <div className="mt-0.5 rounded-full bg-[#FFF4EA] p-1 text-[#FF6B1A]">
+        <div className="mb-6 rounded-[20px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4 text-[11px] text-[var(--text-secondary)] flex gap-3 items-start leading-relaxed shadow-sm">
+          <div className="mt-0.5 rounded-full bg-[var(--tint-orange)] p-1 text-[#FF6B1A]">
             <Info className="h-4 w-4 shrink-0" />
           </div>
           <div>
-            <strong className="text-[#161616] font-extrabold block mb-0.5">KarmaFi Specification Disclaimer:</strong>
+            <strong className="text-[var(--text-primary)] font-extrabold block mb-0.5">KarmaFi Specification Disclaimer:</strong>
             This market is an unaffiliated attention market based on publicly available social momentum. It does not represent ownership, copyright, endorsement, sponsorship, partnership, or affiliation with Reddit or the original poster. Trading Karma Markets is highly speculative and risky. Prices may be volatile and can go to zero.
           </div>
         </div>
@@ -429,17 +430,17 @@ export default function MarketDetail({ params }: MarketPageProps) {
           <div className="lg:col-span-8 flex flex-col gap-6">
             
             {/* Post Header Card */}
-            <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden">
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)] relative overflow-hidden">
               <div className="absolute top-0 left-10 right-10 h-[2px] bg-gradient-to-r from-transparent via-[#FF6B1A]/40 to-transparent opacity-50" />
               <div className="flex items-center justify-between gap-2 mb-5">
-                <span className="rounded-full bg-[#FFFAF5] border border-[#F2D8C8] px-3.5 py-1.5 text-[11px] font-black text-[#161616]">
+                <span className="rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] px-3.5 py-1.5 text-[11px] font-black text-[var(--text-primary)]">
                   {market.subreddit}
                 </span>
-                <span className="text-[11px] font-medium text-[#8A817A]">
-                  Originally posted by <strong className="text-[#161616]">{market.author}</strong>
+                <span className="text-[11px] font-medium text-[var(--text-muted)]">
+                  Originally posted by <strong className="text-[var(--text-primary)]">{market.author}</strong>
                 </span>
               </div>
-              <h1 className="text-[24px] md:text-[28px] font-black text-[#161616] mb-5 leading-tight tracking-tight hover:text-[#FF6B1A] transition-colors">
+              <h1 className="text-[24px] md:text-[28px] font-black text-[var(--text-primary)] mb-5 leading-tight tracking-tight hover:text-[#FF6B1A] transition-colors">
                 {market.title}
               </h1>
               <div className="flex items-center gap-3">
@@ -447,7 +448,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                   href={market.permalink}
                   target="_blank"
                   rel="noreferrer"
-                  className="inline-flex items-center gap-1.5 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] px-4 py-2 text-xs font-bold text-[#5F5B57] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors shadow-sm"
+                  className="inline-flex items-center gap-1.5 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors shadow-sm"
                 >
                   View Original Post
                   <ExternalLink className="h-3.5 w-3.5" />
@@ -456,17 +457,17 @@ export default function MarketDetail({ params }: MarketPageProps) {
             </div>
 
             {/* Price Chart */}
-            <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <div className="flex items-center justify-between mb-8 border-b border-[#F2D8C8] pb-6">
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <div className="flex items-center justify-between mb-8 border-b border-[var(--border-subtle)] pb-6">
                 <div>
-                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Price Chart</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Price Chart</h3>
                   <div className="flex items-end gap-3 mt-1">
-                    <p className="text-[28px] font-black text-[#161616] leading-none">{priceLabel(currentTokenPrice)}</p>
-                    <span className="text-xs font-black text-[#161616] mb-1">${market.symbol}</span>
+                    <p className="text-[28px] font-black text-[var(--text-primary)] leading-none">{priceLabel(currentTokenPrice)}</p>
+                    <span className="text-xs font-black text-[var(--text-primary)] mb-1">${market.symbol}</span>
                   </div>
                 </div>
                 <div className="text-right">
-                  <span className="flex items-center gap-1.5 rounded-full bg-[#E5F9F1] px-3 py-1.5 text-xs font-extrabold text-[#19C37D]">
+                  <span className="flex items-center gap-1.5 rounded-full bg-[var(--tint-success)] px-3 py-1.5 text-xs font-extrabold text-[#19C37D]">
                     <TrendingUp className="h-3.5 w-3.5" />
                     +12.4% (1h)
                   </span>
@@ -482,14 +483,14 @@ export default function MarketDetail({ params }: MarketPageProps) {
                           <stop offset="95%" stopColor="#FF6B1A" stopOpacity={0}/>
                         </linearGradient>
                       </defs>
-                      <XAxis dataKey="time" stroke="#8A817A" fontSize={10} tickLine={false} axisLine={false} dy={10} />
-                      <YAxis stroke="#8A817A" fontSize={10} tickLine={false} axisLine={false} domain={['auto', 'auto']} dx={-10} orientation="right" />
-                      <Tooltip contentStyle={{ background: '#FFF', borderRadius: '16px', border: '1px solid #F2D8C8', fontSize: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} itemStyle={{ color: '#FF6B1A', fontWeight: 800 }} />
+                      <XAxis dataKey="time" stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} dy={10} />
+                      <YAxis stroke="var(--text-muted)" fontSize={10} tickLine={false} axisLine={false} domain={['auto', 'auto']} dx={-10} orientation="right" />
+                      <Tooltip contentStyle={{ background: 'var(--surface-primary)', borderRadius: '16px', border: '1px solid var(--border-subtle)', fontSize: '12px', boxShadow: '0 4px 20px rgba(0,0,0,0.05)' }} itemStyle={{ color: '#FF6B1A', fontWeight: 800 }} />
                       <Area type="monotone" dataKey="price" stroke="#FF6B1A" strokeWidth={3} fillOpacity={1} fill="url(#colorPrice)" />
                     </AreaChart>
                   </ResponsiveContainer>
                 ) : (
-                  <div className="h-full flex items-center justify-center rounded-[16px] bg-[#FFFAF5] border border-dashed border-[#F2D8C8] text-xs font-medium text-[#8A817A]">
+                  <div className="h-full flex items-center justify-center rounded-[16px] bg-[var(--surface-secondary)] border border-dashed border-[var(--border-subtle)] text-xs font-medium text-[var(--text-muted)]">
                     No historical price ticks recorded yet.
                   </div>
                 )}
@@ -497,12 +498,12 @@ export default function MarketDetail({ params }: MarketPageProps) {
             </div>
 
             {/* Historical Trades */}
-            <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-6 border-b border-[#F2D8C8] pb-4">Historical Trades</h3>
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 md:p-8 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-6 border-b border-[var(--border-subtle)] pb-4">Historical Trades</h3>
               <div className="overflow-x-auto">
                 <table className="w-full text-left text-[13px] border-collapse min-w-[600px]">
                   <thead>
-                    <tr className="border-b border-[#F2D8C8] text-[#8A817A] font-bold">
+                    <tr className="border-b border-[var(--border-subtle)] text-[var(--text-muted)] font-bold">
                       <th className="pb-4 font-bold text-xs uppercase tracking-wider">Trader</th>
                       <th className="pb-4 font-bold text-xs uppercase tracking-wider">Action</th>
                       <th className="pb-4 text-right font-bold text-xs uppercase tracking-wider">BNB</th>
@@ -513,28 +514,28 @@ export default function MarketDetail({ params }: MarketPageProps) {
                   </thead>
                   <tbody>
                     {trades.map((t, idx) => (
-                      <tr key={idx} className="border-b border-[#F2D8C8]/40 hover:bg-[#FFFAF5] transition-colors group">
-                        <td className="py-4 font-extrabold text-[#161616]">
+                      <tr key={idx} className="border-b border-[var(--border-subtle)]/40 hover:bg-[var(--surface-secondary)] transition-colors group">
+                        <td className="py-4 font-extrabold text-[var(--text-primary)]">
                           {t.traderWallet.substring(0, 6)}...{t.traderWallet.substring(t.traderWallet.length - 4)}
                         </td>
                         <td className="py-4">
                           <span className={`rounded-full px-2.5 py-1 text-[10px] font-black tracking-wider ${
-                            t.type === "BUY" ? "bg-[#E5F9F1] text-[#19C37D]" : "bg-[#FFEBEB] text-[#FF453A]"
+                            t.type === "BUY" ? "bg-[var(--tint-success)] text-[#19C37D]" : "bg-[var(--tint-danger)] text-[#FF453A]"
                           }`}>
                             {t.type}
                           </span>
                         </td>
-                        <td className="py-4 text-right font-black text-[#161616]">{parseFloat(t.bnbAmount).toFixed(3)}</td>
-                        <td className="py-4 text-right font-bold text-[#5F5B57]">{parseFloat(t.tokenAmount).toFixed(2)}</td>
-                        <td className="py-4 text-right font-medium text-[#8A817A]">{priceLabel(parseFloat(t.price))}</td>
-                        <td className="py-4 text-right font-medium text-[#8A817A]">
+                        <td className="py-4 text-right font-black text-[var(--text-primary)]">{parseFloat(t.bnbAmount).toFixed(3)}</td>
+                        <td className="py-4 text-right font-bold text-[var(--text-secondary)]">{parseFloat(t.tokenAmount).toFixed(2)}</td>
+                        <td className="py-4 text-right font-medium text-[var(--text-muted)]">{priceLabel(parseFloat(t.price))}</td>
+                        <td className="py-4 text-right font-medium text-[var(--text-muted)]">
                           <a href={explorerTx(chainId, t.txHash as string)} target="_blank" rel="noopener noreferrer" className="hover:text-[#FF6B1A] hover:underline transition-colors">{(t.txHash as string).substring(0, 8)}...</a>
                         </td>
                       </tr>
                     ))}
                     {trades.length === 0 && (
                       <tr>
-                        <td colSpan={6} className="py-8 text-center text-sm font-medium text-[#8A817A]">No trades recorded. Be the first to trade!</td>
+                        <td colSpan={6} className="py-8 text-center text-sm font-medium text-[var(--text-muted)]">No trades recorded. Be the first to trade!</td>
                       </tr>
                     )}
                   </tbody>
@@ -548,20 +549,20 @@ export default function MarketDetail({ params }: MarketPageProps) {
             
             {/* Graduation progress (curve markets that haven't migrated yet) */}
             {!onGraduated && onGradReserve > 0 && (
-              <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
                 <div className="flex justify-between items-center mb-2">
-                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A]">Graduation to PancakeSwap</h3>
+                  <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)]">Graduation to PancakeSwap</h3>
                   <span className="text-[11px] font-black text-[#FF6B1A]">
                     {Math.min(100, Math.round((onReserve / onGradReserve) * 100))}%
                   </span>
                 </div>
-                <div className="h-2.5 w-full rounded-full bg-[#FFF1ED] overflow-hidden">
+                <div className="h-2.5 w-full rounded-full bg-[var(--surface-peach)] overflow-hidden">
                   <div
                     className="h-full rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] transition-all"
                     style={{ width: `${Math.min(100, (onReserve / onGradReserve) * 100)}%` }}
                   />
                 </div>
-                <p className="mt-3 text-[11px] font-medium text-[#5F5B57] leading-relaxed">
+                <p className="mt-3 text-[11px] font-medium text-[var(--text-secondary)] leading-relaxed">
                   {onReserve.toFixed(4)} / {onGradReserve.toFixed(4)} BNB raised. When the reserve hits the
                   threshold, all liquidity migrates to a PancakeSwap V2 pool and the LP is burned — locking it forever.
                 </p>
@@ -569,14 +570,14 @@ export default function MarketDetail({ params }: MarketPageProps) {
             )}
 
             {/* Swap widget */}
-            <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
               {onGraduated ? (
                 <div className="flex flex-col items-center text-center gap-4 py-2">
-                  <div className="rounded-full bg-[#FFF1ED] border border-[#F2D8C8] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF6B1A]">
+                  <div className="rounded-full bg-[var(--surface-peach)] border border-[var(--border-subtle)] px-3 py-1 text-[10px] font-black uppercase tracking-wider text-[#FF6B1A]">
                     Graduated
                   </div>
-                  <h3 className="text-sm font-black text-[#161616]">Now trading on PancakeSwap</h3>
-                  <p className="text-[11px] font-medium text-[#5F5B57] leading-relaxed">
+                  <h3 className="text-sm font-black text-[var(--text-primary)]">Now trading on PancakeSwap</h3>
+                  <p className="text-[11px] font-medium text-[var(--text-secondary)] leading-relaxed">
                     This market reached its graduation threshold. The bonding curve is closed and liquidity now lives in a
                     PancakeSwap V2 pool. Trade ${String(market.symbol)} directly there.
                   </p>
@@ -591,11 +592,11 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 </div>
               ) : (
               <>
-              <div className="flex rounded-full bg-[#FFFAF5] p-1 border border-[#F2D8C8] mb-6">
+              <div className="flex rounded-full bg-[var(--surface-secondary)] p-1 border border-[var(--border-subtle)] mb-6">
                 <button
                   onClick={() => { setTradeType("BUY"); setInputAmount("0.1"); }}
                   className={`flex-1 rounded-full py-2.5 text-xs font-black transition-all duration-200 ${
-                    tradeType === "BUY" ? "bg-white text-[#FF6B1A] shadow-sm border border-[#F2D8C8]" : "text-[#8A817A] hover:text-[#161616] border border-transparent"
+                    tradeType === "BUY" ? "bg-[var(--surface-primary)] text-[#FF6B1A] shadow-sm border border-[var(--border-subtle)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent"
                   }`}
                 >
                   Buy
@@ -603,7 +604,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 <button
                   onClick={() => { setTradeType("SELL"); setInputAmount("10.0"); }}
                   className={`flex-1 rounded-full py-2.5 text-xs font-black transition-all duration-200 ${
-                    tradeType === "SELL" ? "bg-white text-[#FF6B1A] shadow-sm border border-[#F2D8C8]" : "text-[#8A817A] hover:text-[#161616] border border-transparent"
+                    tradeType === "SELL" ? "bg-[var(--surface-primary)] text-[#FF6B1A] shadow-sm border border-[var(--border-subtle)]" : "text-[var(--text-muted)] hover:text-[var(--text-primary)] border border-transparent"
                   }`}
                 >
                   Sell
@@ -612,10 +613,10 @@ export default function MarketDetail({ params }: MarketPageProps) {
 
               <form onSubmit={handleTradeSubmit} className="flex flex-col gap-5">
                 <div>
-                  <div className="flex justify-between text-[11px] font-bold text-[#8A817A] uppercase tracking-wider mb-2">
+                  <div className="flex justify-between text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">
                     <label>{tradeType === "BUY" ? "Pay Amount" : "Sell Tokens"}</label>
                     {isConnected && (
-                      <span className="text-[#5F5B57] flex items-center gap-2 normal-case">
+                      <span className="text-[var(--text-secondary)] flex items-center gap-2 normal-case">
                         Bal: {tradeType === "BUY" ? `${bnbBalance.toFixed(4)} BNB` : `${userTokenBalance.toFixed(2)} ${market.symbol}`}
                         <button
                           type="button"
@@ -627,7 +628,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                               setInputAmount(userTokenBalance > 0 ? String(userTokenBalance) : "0");
                             }
                           }}
-                          className="rounded-md bg-[#FFF1ED] border border-[#F2D8C8] px-2 py-0.5 text-[10px] font-extrabold text-[#FF6B1A] hover:bg-[#FF6B1A] hover:text-white transition-colors"
+                          className="rounded-md bg-[var(--surface-peach)] border border-[var(--border-subtle)] px-2 py-0.5 text-[10px] font-extrabold text-[#FF6B1A] hover:bg-[#FF6B1A] hover:text-white transition-colors"
                         >
                           MAX
                         </button>
@@ -641,25 +642,25 @@ export default function MarketDetail({ params }: MarketPageProps) {
                       min="0.01"
                       value={inputAmount}
                       onChange={(e) => setInputAmount(e.target.value)}
-                      className="w-full rounded-[16px] border border-[#F2D8C8] bg-[#FFFAF5] px-4 py-3.5 text-[15px] font-black text-[#161616] focus:border-[#FF6B1A] focus:outline-none focus:bg-white transition-colors"
+                      className="w-full rounded-[16px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-3.5 text-[15px] font-black text-[var(--text-primary)] focus:border-[#FF6B1A] focus:outline-none focus:bg-[var(--surface-primary)] transition-colors"
                     />
-                    <span className="absolute right-4 top-4 text-sm font-black text-[#161616]">
+                    <span className="absolute right-4 top-4 text-sm font-black text-[var(--text-primary)]">
                       {tradeType === "BUY" ? "BNB" : market.symbol}
                     </span>
                   </div>
                 </div>
 
                 <div>
-                  <label className="block text-[11px] font-bold text-[#8A817A] uppercase tracking-wider mb-2">Est. Receive (Slippage included)</label>
-                  <div className="rounded-[16px] border border-[#F2D8C8] bg-[#FFFAF5] px-4 py-3.5 text-[15px] font-black text-[#161616] flex justify-between items-center">
+                  <label className="block text-[11px] font-bold text-[var(--text-muted)] uppercase tracking-wider mb-2">Est. Receive (Slippage included)</label>
+                  <div className="rounded-[16px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-3.5 text-[15px] font-black text-[var(--text-primary)] flex justify-between items-center">
                     <span>{estOut}</span>
-                    <span className="text-sm text-[#5F5B57]">{tradeType === "BUY" ? market.symbol : "BNB"}</span>
+                    <span className="text-sm text-[var(--text-secondary)]">{tradeType === "BUY" ? market.symbol : "BNB"}</span>
                   </div>
                 </div>
 
                 {/* Slippage Settings */}
-                <div className="flex items-center justify-between text-[11px] mb-2 border-t border-[#F2D8C8] pt-4">
-                  <span className="text-[#8A817A] font-bold uppercase tracking-wider">Max Slippage</span>
+                <div className="flex items-center justify-between text-[11px] mb-2 border-t border-[var(--border-subtle)] pt-4">
+                  <span className="text-[var(--text-muted)] font-bold uppercase tracking-wider">Max Slippage</span>
                   <div className="flex gap-1.5">
                     {["0.5", "1.0", "3.0"].map((s) => (
                       <button
@@ -668,8 +669,8 @@ export default function MarketDetail({ params }: MarketPageProps) {
                         onClick={() => setSlippage(s)}
                         className={`rounded-full px-2.5 py-1 text-[10px] font-black border transition-colors ${
                           slippage === s
-                            ? "border-[#FF6B1A] text-[#FF6B1A] bg-[#FFF4EA]"
-                            : "border-[#F2D8C8] text-[#8A817A] hover:bg-[#FFFAF5]"
+                            ? "border-[#FF6B1A] text-[#FF6B1A] bg-[var(--tint-orange)]"
+                            : "border-[var(--border-subtle)] text-[var(--text-muted)] hover:bg-[var(--surface-secondary)]"
                         }`}
                       >
                         {s}%
@@ -679,12 +680,12 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 </div>
 
                 {errorMessage && (
-                  <div className="rounded-[12px] border border-[#FF453A]/20 bg-[#FFEBEB] p-3 text-[11px] font-bold text-[#FF453A]">
+                  <div className="rounded-[12px] border border-[#FF453A]/20 bg-[var(--tint-danger)] p-3 text-[11px] font-bold text-[#FF453A]">
                     {errorMessage}
                   </div>
                 )}
                 {successMessage && (
-                  <div className="rounded-[12px] border border-[#19C37D]/20 bg-[#E5F9F1] p-3 text-[11px] font-bold text-[#19C37D]">
+                  <div className="rounded-[12px] border border-[#19C37D]/20 bg-[var(--tint-success)] p-3 text-[11px] font-bold text-[#19C37D]">
                     {successMessage}
                   </div>
                 )}
@@ -701,7 +702,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                   <button
                     type="button"
                     onClick={() => connect()}
-                    className="w-full rounded-full bg-[#161616] py-4 text-[14px] font-extrabold text-white shadow-sm hover:bg-[#2c2c2c] transition-all mt-2"
+                    className="w-full rounded-full bg-[var(--ink-solid)] py-4 text-[14px] font-extrabold text-white shadow-sm hover:bg-[var(--ink-solid-hover)] transition-all mt-2"
                   >
                     Connect Wallet to Trade
                   </button>
@@ -732,7 +733,7 @@ export default function MarketDetail({ params }: MarketPageProps) {
                 ) : (
                   <Link
                     href="/creator-claim"
-                    className="block w-full text-center rounded-full bg-white py-3 text-xs font-extrabold text-[#FF6B1A] hover:bg-[#FFF4EA] transition-colors shadow-sm"
+                    className="block w-full text-center rounded-full bg-[var(--surface-primary)] py-3 text-xs font-extrabold text-[#FF6B1A] hover:bg-[var(--tint-orange)] transition-colors shadow-sm"
                   >
                     Authenticate & Claim Rewards
                   </Link>
@@ -741,28 +742,47 @@ export default function MarketDetail({ params }: MarketPageProps) {
             </div>
 
             {/* Token/Market Info */}
-            <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col gap-4 text-xs font-medium text-[#5F5B57]">
-              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[#8A817A] mb-2 border-b border-[#F2D8C8] pb-3">Market Metrics</h3>
+            <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] flex flex-col gap-4 text-xs font-medium text-[var(--text-secondary)]">
+              <h3 className="text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-2 border-b border-[var(--border-subtle)] pb-3">Market Metrics</h3>
               
               <div className="flex justify-between items-center py-1">
+                <span>Token Address</span>
+                <div className="flex items-center gap-1.5">
+                  <span className="text-[var(--text-primary)] font-black font-mono">
+                    {(market.tokenAddress as string).substring(0, 6)}…{(market.tokenAddress as string).slice(-4)}
+                  </span>
+                  <button
+                    onClick={() => {
+                      navigator.clipboard.writeText(market.tokenAddress as string);
+                      setCopiedAddress(market.tokenAddress as string);
+                      setTimeout(() => setCopiedAddress(null), 2000);
+                    }}
+                    className="flex h-6 w-6 items-center justify-center rounded-full hover:bg-[var(--surface-peach)] text-[var(--text-muted)] hover:text-[#FF6B1A] transition-colors"
+                    title="Copy token address"
+                  >
+                    {copiedAddress === market.tokenAddress ? <Check className="h-3 w-3 text-[#19C37D]" /> : <Copy className="h-3 w-3" />}
+                  </button>
+                </div>
+              </div>
+              <div className="flex justify-between items-center py-1">
                 <span>Token Name</span>
-                <span className="text-[#161616] font-black">{market.name}</span>
+                <span className="text-[var(--text-primary)] font-black">{market.name}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Symbol</span>
-                <span className="text-[#161616] font-black">${market.symbol}</span>
+                <span className="text-[var(--text-primary)] font-black">${market.symbol}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Liquidity (on-chain)</span>
-                <span className="text-[#161616] font-black">{priceLabel(onReserve > 0 ? onReserve : (market.marketCap as number))}</span>
+                <span className="text-[var(--text-primary)] font-black">{priceLabel(onReserve > 0 ? onReserve : (market.marketCap as number))}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>24h Trading Volume</span>
-                <span className="text-[#161616] font-black">{priceLabel(market.volume24h as number)}</span>
+                <span className="text-[var(--text-primary)] font-black">{priceLabel(market.volume24h as number)}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Holders</span>
-                <span className="text-[#161616] font-black">{market.holdersCount}</span>
+                <span className="text-[var(--text-primary)] font-black">{market.holdersCount}</span>
               </div>
               <div className="flex justify-between items-center py-1">
                 <span>Curator Wallet</span>
@@ -782,19 +802,19 @@ export default function MarketDetail({ params }: MarketPageProps) {
               {!showReport ? (
                 <button
                   onClick={() => setShowReport(true)}
-                  className="text-[11px] font-bold text-[#8A817A] hover:text-[#FF453A] underline underline-offset-2 transition-colors"
+                  className="text-[11px] font-bold text-[var(--text-muted)] hover:text-[#FF453A] underline underline-offset-2 transition-colors"
                 >
                   Report this Attention Market
                 </button>
               ) : (
-                <form onSubmit={handleReportSubmit} className="rounded-[20px] border border-[#F2D8C8] bg-white p-5 text-left flex flex-col gap-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
-                  <h4 className="text-xs font-black text-[#161616] border-b border-[#F2D8C8] pb-2">Report Content</h4>
+                <form onSubmit={handleReportSubmit} className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 text-left flex flex-col gap-4 shadow-sm animate-in fade-in slide-in-from-top-2 duration-200">
+                  <h4 className="text-xs font-black text-[var(--text-primary)] border-b border-[var(--border-subtle)] pb-2">Report Content</h4>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8A817A] mb-1.5">Reason</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">Reason</label>
                     <select
                       value={reportReason}
                       onChange={(e) => setReportReason(e.target.value)}
-                      className="w-full rounded-[12px] border border-[#F2D8C8] bg-[#FFFAF5] p-2.5 text-xs font-bold text-[#161616] focus:outline-none focus:border-[#FF6B1A]"
+                      className="w-full rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2.5 text-xs font-bold text-[var(--text-primary)] focus:outline-none focus:border-[#FF6B1A]"
                       required
                     >
                       <option value="">Select a reason...</option>
@@ -805,31 +825,31 @@ export default function MarketDetail({ params }: MarketPageProps) {
                     </select>
                   </div>
                   <div>
-                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[#8A817A] mb-1.5">Details</label>
+                    <label className="block text-[10px] font-bold uppercase tracking-wider text-[var(--text-muted)] mb-1.5">Details</label>
                     <textarea
                       value={reportDetails}
                       onChange={(e) => setReportDetails(e.target.value)}
                       rows={2}
-                      className="w-full rounded-[12px] border border-[#F2D8C8] bg-[#FFFAF5] p-2.5 text-xs font-medium text-[#161616] focus:outline-none focus:border-[#FF6B1A]"
+                      className="w-full rounded-[12px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-2.5 text-xs font-medium text-[var(--text-primary)] focus:outline-none focus:border-[#FF6B1A]"
                       placeholder="Provide additional details..."
                     />
                   </div>
 
                   {reportSubmitted && (
-                    <div className="text-[11px] text-[#19C37D] font-bold rounded-[8px] bg-[#E5F9F1] p-2">Report submitted. Moderation pending.</div>
+                    <div className="text-[11px] text-[#19C37D] font-bold rounded-[8px] bg-[var(--tint-success)] p-2">Report submitted. Moderation pending.</div>
                   )}
 
                   <div className="flex gap-3 mt-2">
                     <button
                       type="button"
                       onClick={() => setShowReport(false)}
-                      className="flex-1 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] py-2 text-[11px] font-extrabold text-[#5F5B57] hover:bg-[#F2D8C8] transition-colors"
+                      className="flex-1 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] py-2 text-[11px] font-extrabold text-[var(--text-secondary)] hover:bg-[var(--border-subtle)] transition-colors"
                     >
                       Cancel
                     </button>
                     <button
                       type="submit"
-                      className="flex-1 rounded-full bg-[#FFEBEB] text-[#FF453A] py-2 text-[11px] font-extrabold hover:bg-[#FF453A] hover:text-white transition-colors"
+                      className="flex-1 rounded-full bg-[var(--tint-danger)] text-[#FF453A] py-2 text-[11px] font-extrabold hover:bg-[#FF453A] hover:text-white transition-colors"
                     >
                       Submit
                     </button>

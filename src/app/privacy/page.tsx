@@ -48,7 +48,7 @@ export default function PrivacyPage() {
               This privacy policy is a draft template and should be reviewed by qualified legal counsel before production use.
             </LegalNoticeBox>
             
-            <p className="text-[14px] text-[#8A817A] italic mb-10">Last updated: {currentDate}</p>
+            <p className="text-[14px] text-[var(--text-muted)] italic mb-10">Last updated: {currentDate}</p>
 
             <PageSection id="overview" title="1. Overview">
               <p>This Privacy Policy explains how KarmaFi collects, uses, and discloses information about you when you access or use our platform, website, and related services.</p>

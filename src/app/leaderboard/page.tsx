@@ -50,12 +50,12 @@ export default function Leaderboard() {
       case 3:
         return <div className="h-8 w-8 rounded-full bg-gradient-to-br from-amber-600 to-amber-700 flex items-center justify-center text-white font-black shadow-sm"><Medal className="h-4 w-4" /></div>;
       default:
-        return <div className="h-8 w-8 rounded-full bg-[#FFFAF5] border border-[#F2D8C8] flex items-center justify-center text-[#5F5B57] font-black">{rank}</div>;
+        return <div className="h-8 w-8 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--text-secondary)] font-black">{rank}</div>;
     }
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFCF8] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)] relative overflow-hidden">
       {/* Background glowing orb */}
       <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[1000px] h-[1000px] bg-gradient-to-br from-[#FF6B1A]/10 via-[#E9500E]/5 to-transparent rounded-full blur-[100px] -z-10 pointer-events-none" />
       
@@ -65,30 +65,30 @@ export default function Leaderboard() {
         
         {/* Header Area */}
         <div className="text-center mb-16">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#FFF4EA] to-[#F2D8C8] mb-6 shadow-sm relative">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--tint-orange)] to-[var(--border-subtle)] mb-6 shadow-sm relative">
             <Trophy className="h-8 w-8 text-[#FF6B1A]" />
             <Sparkles className="absolute -top-2 -right-2 h-5 w-5 text-[#E9500E]" />
           </div>
-          <h1 className="text-[40px] md:text-[48px] font-[900] text-[#161616] leading-tight tracking-tight mb-4">
+          <h1 className="text-[40px] md:text-[48px] font-[900] text-[var(--text-primary)] leading-tight tracking-tight mb-4">
             Leaderboards
           </h1>
-          <p className="text-[16px] md:text-[18px] text-[#5F5B57] font-medium max-w-xl mx-auto">
+          <p className="text-[16px] md:text-[18px] text-[var(--text-secondary)] font-medium max-w-xl mx-auto">
             Top performing early curators, elite traders, and the most viral attention markets on BNB Chain.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 mb-16">
           {/* Top Curators */}
-          <div className="rounded-[32px] border border-[#F2D8C8] bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-            <h2 className="text-xl font-black text-[#161616] mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF4EA] text-[#FF6B1A]">
+          <div className="rounded-[32px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <h2 className="text-xl font-black text-[var(--text-primary)] mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tint-orange)] text-[#FF6B1A]">
                 <Award className="h-5 w-5" />
               </div>
               Top Curators
             </h2>
             
             <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#8A817A] border-b border-[#F2D8C8]">
+              <div className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <div className="flex items-center gap-4">
                   <div className="w-8 text-center">Rank</div>
                   <div>Curator</div>
@@ -97,20 +97,20 @@ export default function Leaderboard() {
               </div>
               
               {curators.length === 0 && (
-                <div className="text-center text-sm font-medium text-[#8A817A] py-8">No curators yet.</div>
+                <div className="text-center text-sm font-medium text-[var(--text-muted)] py-8">No curators yet.</div>
               )}
               {curators.map((c, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[#FFFAF5] border border-transparent hover:border-[#F2D8C8] transition-all group">
+                <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[var(--surface-secondary)] border border-transparent hover:border-[var(--border-subtle)] transition-all group">
                   <div className="flex items-center gap-4">
                     {getRankBadge(idx + 1)}
                     <div className="flex flex-col">
-                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(c.wallet)}</span>
-                      <span className="text-xs font-medium text-[#8A817A]">{c.marketsLaunched} market{c.marketsLaunched === 1 ? "" : "s"} launched</span>
+                      <span className="text-[15px] font-black text-[var(--text-primary)] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(c.wallet)}</span>
+                      <span className="text-xs font-medium text-[var(--text-muted)]">{c.marketsLaunched} market{c.marketsLaunched === 1 ? "" : "s"} launched</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className="text-[15px] font-black text-[#19C37D]">{usd(c.earnedBnb)}</span>
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#8A817A] mt-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] mt-1">
                       <Flame className="h-3 w-3 text-[#FF6B1A]" /> Curator fees earned
                     </span>
                   </div>
@@ -120,16 +120,16 @@ export default function Leaderboard() {
           </div>
 
           {/* Top Traders */}
-          <div className="rounded-[32px] border border-[#F2D8C8] bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
-            <h2 className="text-xl font-black text-[#161616] mb-6 flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF4EA] text-[#FF6B1A]">
+          <div className="rounded-[32px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+            <h2 className="text-xl font-black text-[var(--text-primary)] mb-6 flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tint-orange)] text-[#FF6B1A]">
                 <TrendingUp className="h-5 w-5" />
               </div>
               Top Traders
             </h2>
             
             <div className="flex flex-col gap-3">
-              <div className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider text-[#8A817A] border-b border-[#F2D8C8]">
+              <div className="flex items-center justify-between px-4 py-2 text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] border-b border-[var(--border-subtle)]">
                 <div className="flex items-center gap-4">
                   <div className="w-8 text-center">Rank</div>
                   <div>Trader</div>
@@ -138,20 +138,20 @@ export default function Leaderboard() {
               </div>
               
               {traders.length === 0 && (
-                <div className="text-center text-sm font-medium text-[#8A817A] py-8">No trades yet.</div>
+                <div className="text-center text-sm font-medium text-[var(--text-muted)] py-8">No trades yet.</div>
               )}
               {traders.map((t, idx) => (
-                <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[#FFFAF5] border border-transparent hover:border-[#F2D8C8] transition-all group">
+                <div key={idx} className="flex items-center justify-between p-4 rounded-[20px] hover:bg-[var(--surface-secondary)] border border-transparent hover:border-[var(--border-subtle)] transition-all group">
                   <div className="flex items-center gap-4">
                     {getRankBadge(idx + 1)}
                     <div className="flex flex-col">
-                      <span className="text-[15px] font-black text-[#161616] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(t.wallet)}</span>
-                      <span className="text-xs font-medium text-[#8A817A]">{t.trades} trade{t.trades === 1 ? "" : "s"}</span>
+                      <span className="text-[15px] font-black text-[var(--text-primary)] group-hover:text-[#FF6B1A] transition-colors font-mono">{shortWallet(t.wallet)}</span>
+                      <span className="text-xs font-medium text-[var(--text-muted)]">{t.trades} trade{t.trades === 1 ? "" : "s"}</span>
                     </div>
                   </div>
                   <div className="flex flex-col items-end">
                     <span className={`text-[15px] font-black ${t.netBnb >= 0 ? "text-[#19C37D]" : "text-[#DC2626]"}`}>{t.netBnb >= 0 ? "+" : ""}{usd(t.netBnb)}</span>
-                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[#8A817A] mt-1">
+                    <span className="flex items-center gap-1.5 text-[10px] font-bold text-[var(--text-muted)] mt-1">
                       Volume {usd(t.volumeBnb)}
                     </span>
                   </div>
@@ -162,10 +162,10 @@ export default function Leaderboard() {
         </div>
 
         {/* High Virality pools row */}
-        <div className="rounded-[32px] border border-[#F2D8C8] bg-white p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        <div className="rounded-[32px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-8 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
           <div className="flex items-center justify-between mb-8">
-            <h2 className="text-xl font-black text-[#161616] flex items-center gap-3">
-              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF4EA] text-[#FF6B1A]">
+            <h2 className="text-xl font-black text-[var(--text-primary)] flex items-center gap-3">
+              <div className="flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--tint-orange)] text-[#FF6B1A]">
                 <Flame className="h-5 w-5 fill-[#FF6B1A]" />
               </div>
               Top Virality Score Pools
@@ -180,32 +180,32 @@ export default function Leaderboard() {
               <Link
                 key={idx}
                 href={`/market/${m.marketAddress}`}
-                className="group relative rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-6 hover:shadow-[0_8px_24px_rgba(255,107,26,0.12)] hover:border-[#FF6B1A]/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
+                className="group relative rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-6 hover:shadow-[0_8px_24px_rgba(255,107,26,0.12)] hover:border-[#FF6B1A]/50 transition-all duration-300 hover:-translate-y-1 overflow-hidden"
               >
                 <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] opacity-0 group-hover:opacity-100 transition-opacity" />
                 
                 <div className="flex items-center justify-between mb-4">
-                  <span className="rounded-full bg-white border border-[#F2D8C8] px-2.5 py-1 text-[10px] font-black text-[#161616]">
+                  <span className="rounded-full bg-[var(--surface-primary)] border border-[var(--border-subtle)] px-2.5 py-1 text-[10px] font-black text-[var(--text-primary)]">
                     {m.subreddit}
                   </span>
-                  <div className="flex items-center gap-1.5 rounded-full bg-[#FFF4EA] px-2.5 py-1 text-xs font-black text-[#FF6B1A]">
+                  <div className="flex items-center gap-1.5 rounded-full bg-[var(--tint-orange)] px-2.5 py-1 text-xs font-black text-[#FF6B1A]">
                     <Flame className="h-3.5 w-3.5 fill-[#FF6B1A]" /> 
                     {m.viralityScore}
                   </div>
                 </div>
                 
-                <h3 className="text-[15px] font-black text-[#161616] leading-snug mb-4 line-clamp-2 group-hover:text-[#FF6B1A] transition-colors">
+                <h3 className="text-[15px] font-black text-[var(--text-primary)] leading-snug mb-4 line-clamp-2 group-hover:text-[#FF6B1A] transition-colors">
                   {m.title}
                 </h3>
                 
-                <div className="flex items-center gap-4 text-xs font-bold text-[#8A817A] border-t border-[#F2D8C8] pt-4">
+                <div className="flex items-center gap-4 text-xs font-bold text-[var(--text-muted)] border-t border-[var(--border-subtle)] pt-4">
                   <span className="flex flex-col gap-1">
                     <span className="text-[10px] uppercase">Symbol</span>
-                    <span className="text-[#161616]">${m.symbol}</span>
+                    <span className="text-[var(--text-primary)]">${m.symbol}</span>
                   </span>
                   <span className="flex flex-col gap-1">
                     <span className="text-[10px] uppercase">Market Cap</span>
-                    <span className="text-[#161616]">{usd(m.marketCap)}</span>
+                    <span className="text-[var(--text-primary)]">{usd(m.marketCap)}</span>
                   </span>
                 </div>
               </Link>

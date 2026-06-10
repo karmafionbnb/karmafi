@@ -26,14 +26,14 @@ export default function FAQ() {
   ];
 
   return (
-    <section id="faq" className="w-full py-12 bg-[#FFFAF5]">
+    <section id="faq" className="w-full py-12 bg-[var(--surface-secondary)]">
       <div className="mx-auto max-w-[700px] px-6">
         
         <div className="mb-10 text-center">
-          <h2 className="text-[28px] md:text-[36px] font-[900] tracking-tight text-[#161616] mb-3">
+          <h2 className="text-[28px] md:text-[36px] font-[900] tracking-tight text-[var(--text-primary)] mb-3">
             Frequently Asked Questions
           </h2>
-          <p className="text-[16px] text-[#5F5B57] font-medium">
+          <p className="text-[16px] text-[var(--text-secondary)] font-medium">
             Everything you need to know about trading attention.
           </p>
         </div>
@@ -44,19 +44,19 @@ export default function FAQ() {
             return (
               <div 
                 key={index} 
-                className={`overflow-hidden rounded-[20px] border bg-white transition-all duration-200 ${
-                  isOpen ? "border-[#FF6B1A] shadow-[0_8px_24px_rgba(255,107,26,0.12)]" : "border-[#F2D8C8] shadow-sm hover:border-[#FF6B1A]"
+                className={`overflow-hidden rounded-[20px] border bg-[var(--surface-primary)] transition-all duration-200 ${
+                  isOpen ? "border-[#FF6B1A] shadow-[0_8px_24px_rgba(255,107,26,0.12)]" : "border-[var(--border-subtle)] shadow-sm hover:border-[#FF6B1A]"
                 }`}
               >
                 <button
                   className="flex w-full items-center justify-between p-5 text-left"
                   onClick={() => setOpenIndex(isOpen ? null : index)}
                 >
-                  <span className="text-[16px] font-extrabold text-[#161616]">
+                  <span className="text-[16px] font-extrabold text-[var(--text-primary)]">
                     {faq.question}
                   </span>
                   <div className={`flex h-8 w-8 shrink-0 items-center justify-center rounded-full transition-transform duration-200 ${
-                    isOpen ? "bg-[#FFF1ED] text-[#FF6B1A] rotate-180" : "bg-[#FFFAF5] text-[#8A817A]"
+                    isOpen ? "bg-[var(--surface-peach)] text-[#FF6B1A] rotate-180" : "bg-[var(--surface-secondary)] text-[var(--text-muted)]"
                   }`}>
                     <ChevronDown className="h-5 w-5" />
                   </div>
@@ -68,7 +68,7 @@ export default function FAQ() {
                   }`}
                 >
                   <div className="overflow-hidden">
-                    <p className="px-5 pb-5 pt-0 text-[14.5px] font-medium leading-relaxed text-[#5F5B57]">
+                    <p className="px-5 pb-5 pt-0 text-[14.5px] font-medium leading-relaxed text-[var(--text-secondary)]">
                       {faq.answer}
                     </p>
                   </div>

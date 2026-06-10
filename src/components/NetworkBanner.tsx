@@ -22,7 +22,7 @@ export default function NetworkBanner() {
       <button
         onClick={() => switchChain({ chainId: 56 })}
         disabled={isPending}
-        className="rounded-full bg-white text-[#DC2626] px-3 py-1 text-[12px] font-extrabold hover:bg-white/90 transition-colors disabled:opacity-70"
+        className="rounded-full bg-[var(--surface-primary)] text-[#DC2626] px-3 py-1 text-[12px] font-extrabold hover:bg-white/90 transition-colors disabled:opacity-70"
       >
         {isPending ? "Switching…" : "Switch to BNB Chain"}
       </button>

@@ -26,14 +26,14 @@ export default function HowItWorks() {
   ];
 
   return (
-    <section className="w-full py-12 bg-[#FFFDFB] border-b border-[#F2D8C8]">
+    <section className="w-full py-12 bg-[var(--surface-tertiary)] border-b border-[var(--border-subtle)]">
       <div className="mx-auto max-w-[1080px] px-6">
         
         <div className="mb-12 text-center">
-          <h2 className="text-[28px] md:text-[36px] font-[900] tracking-tight text-[#161616] mb-3">
+          <h2 className="text-[28px] md:text-[36px] font-[900] tracking-tight text-[var(--text-primary)] mb-3">
             How KarmaFi Works
           </h2>
-          <p className="mx-auto max-w-2xl text-[16px] text-[#5F5B57] font-medium">
+          <p className="mx-auto max-w-2xl text-[16px] text-[var(--text-secondary)] font-medium">
             Turn social signals into liquid markets in seconds.
           </p>
         </div>
@@ -44,19 +44,19 @@ export default function HowItWorks() {
             return (
               <div 
                 key={index} 
-                className="relative flex flex-col items-start rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-sm transition-shadow hover:shadow-[0_16px_40px_rgba(255,107,26,0.1)]"
+                className="relative flex flex-col items-start rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-sm transition-shadow hover:shadow-[0_16px_40px_rgba(255,107,26,0.1)]"
               >
-                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[#FFF1ED] text-[#FF6B1A]">
+                <div className="mb-5 flex h-10 w-10 items-center justify-center rounded-xl bg-[var(--surface-peach)] text-[#FF6B1A]">
                   <Icon className="h-5 w-5" />
                 </div>
                 
                 {/* Step Number Background */}
-                <div className="absolute top-5 right-5 text-5xl font-black text-[#FFF1ED] pointer-events-none">
+                <div className="absolute top-5 right-5 text-5xl font-black text-[var(--surface-peach)] pointer-events-none">
                   {index + 1}
                 </div>
 
-                <h3 className="mb-2 text-[16px] font-extrabold text-[#161616] z-10">{step.title}</h3>
-                <p className="text-[14.5px] font-medium text-[#5F5B57] leading-relaxed z-10">
+                <h3 className="mb-2 text-[16px] font-extrabold text-[var(--text-primary)] z-10">{step.title}</h3>
+                <p className="text-[14.5px] font-medium text-[var(--text-secondary)] leading-relaxed z-10">
                   {step.description}
                 </p>
               </div>

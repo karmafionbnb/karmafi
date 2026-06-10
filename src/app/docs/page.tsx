@@ -43,14 +43,14 @@ export default function DocsPage() {
         </Link>
         <Link
           href="/feed"
-          className="flex h-[50px] items-center justify-center rounded-full bg-white border border-[#E8D4C8] px-8 text-[15.5px] font-bold text-[#161616] shadow-sm hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
+          className="flex h-[50px] items-center justify-center rounded-full bg-[var(--surface-primary)] border border-[var(--border-strong)] px-8 text-[15.5px] font-bold text-[var(--text-primary)] shadow-sm hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
         >
           Explore Markets
           <Compass className="ml-2 h-4 w-4" />
         </Link>
         <Link
           href="/whitepaper"
-          className="flex h-[50px] items-center justify-center rounded-full bg-white border border-[#E8D4C8] px-8 text-[15.5px] font-bold text-[#8A817A] shadow-sm hover:bg-[#F9F7F5] transition-colors"
+          className="flex h-[50px] items-center justify-center rounded-full bg-[var(--surface-primary)] border border-[var(--border-strong)] px-8 text-[15.5px] font-bold text-[var(--text-muted)] shadow-sm hover:bg-[var(--surface-tertiary)] transition-colors"
         >
           Read Whitepaper
         </Link>
@@ -166,28 +166,28 @@ export default function DocsPage() {
             <PageSection id="faq" title="8. FAQ">
               <div className="space-y-6">
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">Do I need a wallet?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">Yes, you need a Web3 wallet (like MetaMask) connected to BNB Chain.</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">Do I need a wallet?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">Yes, you need a Web3 wallet (like MetaMask) connected to BNB Chain.</p>
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">Do I need BNB for gas?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">Yes, all transactions on the BNB Chain require a small amount of BNB to cover network fees (gas).</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">Do I need BNB for gas?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">Yes, all transactions on the BNB Chain require a small amount of BNB to cover network fees (gas).</p>
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">Can any Reddit post be used?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">Most public Reddit posts can be used, though KarmaFi moderation policies prohibit certain content (e.g., illegal activity, hate speech, doxxing).</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">Can any Reddit post be used?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">Most public Reddit posts can be used, though KarmaFi moderation policies prohibit certain content (e.g., illegal activity, hate speech, doxxing).</p>
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">What happens if a post is deleted?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">The Karma Market continues to exist on-chain, but the underlying momentum signals (upvotes/comments) will cease updating.</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">What happens if a post is deleted?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">The Karma Market continues to exist on-chain, but the underlying momentum signals (upvotes/comments) will cease updating.</p>
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">Can creators opt out?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">Original creators can verify their identity and request their market be hidden from the KarmaFi frontend.</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">Can creators opt out?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">Original creators can verify their identity and request their market be hidden from the KarmaFi frontend.</p>
                 </div>
                 <div>
-                  <h4 className="text-[18px] font-bold text-[#161616] mb-2">Are markets risky?</h4>
-                  <p className="text-[15px] text-[#5F5B57]">Yes. Attention markets are highly speculative and volatile. You may lose your entire investment.</p>
+                  <h4 className="text-[18px] font-bold text-[var(--text-primary)] mb-2">Are markets risky?</h4>
+                  <p className="text-[15px] text-[var(--text-secondary)]">Yes. Attention markets are highly speculative and volatile. You may lose your entire investment.</p>
                 </div>
               </div>
             </PageSection>

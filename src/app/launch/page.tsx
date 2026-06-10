@@ -193,7 +193,7 @@ function LaunchContent() {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFCF8] relative overflow-hidden">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)] relative overflow-hidden">
       {/* Background glowing orb */}
       <div className="absolute top-[-20%] left-1/2 -translate-x-1/2 w-[800px] h-[800px] bg-gradient-to-br from-[#FF6B1A]/10 via-[#E9500E]/5 to-transparent rounded-full blur-[100px] -z-10 pointer-events-none" />
       
@@ -203,25 +203,25 @@ function LaunchContent() {
         
         {/* Header Area */}
         <div className="text-center mb-12">
-          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[#FFF4EA] to-[#F2D8C8] mb-6 shadow-sm">
+          <div className="inline-flex h-16 w-16 items-center justify-center rounded-3xl bg-gradient-to-br from-[var(--tint-orange)] to-[var(--border-subtle)] mb-6 shadow-sm">
             <Flame className="h-8 w-8 text-[#FF6B1A]" />
           </div>
-          <h1 className="text-[40px] md:text-[48px] font-[900] text-[#161616] leading-tight tracking-tight mb-4">
+          <h1 className="text-[40px] md:text-[48px] font-[900] text-[var(--text-primary)] leading-tight tracking-tight mb-4">
             Launch a Karma Market
           </h1>
-          <p className="text-[16px] md:text-[18px] text-[#5F5B57] font-medium max-w-xl mx-auto">
+          <p className="text-[16px] md:text-[18px] text-[var(--text-secondary)] font-medium max-w-xl mx-auto">
             Spot organic social velocity and launch a custom BEP-20 bonding curve directly from a Reddit post.
           </p>
         </div>
 
-        <div className="rounded-[32px] border border-[#F2D8C8] bg-white p-6 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
+        <div className="rounded-[32px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 sm:p-10 shadow-[0_8px_30px_rgba(0,0,0,0.04)]">
           {!isConnected ? (
             <div className="text-center py-10">
-              <div className="inline-flex h-20 w-20 items-center justify-center rounded-[24px] bg-[#FFF4EA] mb-6">
+              <div className="inline-flex h-20 w-20 items-center justify-center rounded-[24px] bg-[var(--tint-orange)] mb-6">
                 <Wallet className="h-10 w-10 text-[#FF6B1A]" />
               </div>
-              <h2 className="text-2xl font-black text-[#161616] mb-3">Wallet Connection Required</h2>
-              <p className="text-sm font-medium text-[#5F5B57] max-w-sm mx-auto mb-8 leading-relaxed">
+              <h2 className="text-2xl font-black text-[var(--text-primary)] mb-3">Wallet Connection Required</h2>
+              <p className="text-sm font-medium text-[var(--text-secondary)] max-w-sm mx-auto mb-8 leading-relaxed">
                 Curating attention markets on BNB Chain requires signing and wallet verification. Connect to continue.
               </p>
               <button
@@ -234,18 +234,18 @@ function LaunchContent() {
           ) : launchedAddresses ? (
             // Success step
             <div className="text-center py-6">
-              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-[#E5F9F1] mb-6 shadow-[0_4px_20px_rgba(25,195,125,0.2)]">
+              <div className="inline-flex h-24 w-24 items-center justify-center rounded-full bg-[var(--tint-success)] mb-6 shadow-[0_4px_20px_rgba(25,195,125,0.2)]">
                 <CheckCircle className="h-12 w-12 text-[#19C37D]" />
               </div>
-              <h2 className="text-[28px] font-black text-[#161616] mb-3">Market Deployed!</h2>
-              <p className="text-[15px] font-medium text-[#5F5B57] max-w-md mx-auto mb-10 leading-relaxed">
+              <h2 className="text-[28px] font-black text-[var(--text-primary)] mb-3">Market Deployed!</h2>
+              <p className="text-[15px] font-medium text-[var(--text-secondary)] max-w-md mx-auto mb-10 leading-relaxed">
                 Your market contracts have been successfully initialized on the BNB Smart Chain. You have been registered as the Curator!
               </p>
 
-              <div className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-6 text-left mb-10 flex flex-col gap-5">
+              <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-6 text-left mb-10 flex flex-col gap-5">
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Token Address (BEP-20)</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Token Address (BEP-20)</span>
                     <button 
                       onClick={() => copyToClipboard(launchedAddresses.token, 'token')}
                       className="text-[#FF6B1A] flex items-center gap-1.5 text-xs font-bold hover:text-[#E9500E] transition-colors"
@@ -254,14 +254,14 @@ function LaunchContent() {
                       {copiedToken ? "Copied!" : "Copy"}
                     </button>
                   </div>
-                  <div className="bg-white rounded-xl border border-[#F2D8C8] p-3 text-[13px] font-bold text-[#161616] break-all font-mono">
+                  <div className="bg-[var(--surface-primary)] rounded-xl border border-[var(--border-subtle)] p-3 text-[13px] font-bold text-[var(--text-primary)] break-all font-mono">
                     {launchedAddresses.token}
                   </div>
                 </div>
                 
                 <div>
                   <div className="flex items-center justify-between mb-2">
-                    <span className="text-xs font-bold uppercase tracking-wider text-[#8A817A]">Bonding Curve Market Address</span>
+                    <span className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)]">Bonding Curve Market Address</span>
                     <button 
                       onClick={() => copyToClipboard(launchedAddresses.market, 'market')}
                       className="text-[#FF6B1A] flex items-center gap-1.5 text-xs font-bold hover:text-[#E9500E] transition-colors"
@@ -270,7 +270,7 @@ function LaunchContent() {
                       {copiedMarket ? "Copied!" : "Copy"}
                     </button>
                   </div>
-                  <div className="bg-white rounded-xl border border-[#F2D8C8] p-3 text-[13px] font-bold text-[#161616] break-all font-mono">
+                  <div className="bg-[var(--surface-primary)] rounded-xl border border-[var(--border-subtle)] p-3 text-[13px] font-bold text-[var(--text-primary)] break-all font-mono">
                     {launchedAddresses.market}
                   </div>
                 </div>
@@ -291,22 +291,22 @@ function LaunchContent() {
               {!redditPost && (
                 <div className="flex flex-col gap-6">
                   <div>
-                    <label className="block text-sm font-bold text-[#161616] mb-3">Reddit Post URL</label>
+                    <label className="block text-sm font-bold text-[var(--text-primary)] mb-3">Reddit Post URL</label>
                     <div className="flex flex-col sm:flex-row gap-3">
                       <div className="relative flex-1">
-                        <LinkIcon className="absolute left-4 top-[18px] h-5 w-5 text-[#8A817A]" />
+                        <LinkIcon className="absolute left-4 top-[18px] h-5 w-5 text-[var(--text-muted)]" />
                         <input
                           type="text"
                           value={redditUrl}
                           onChange={(e) => setRedditUrl(e.target.value)}
                           placeholder="https://www.reddit.com/r/technology/comments/..."
-                          className="w-full h-14 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-12 pr-4 text-[15px] font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors shadow-sm"
+                          className="w-full h-14 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] pl-12 pr-4 text-[15px] font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[#FF6B1A] focus:bg-[var(--surface-primary)] focus:outline-none transition-colors shadow-sm"
                         />
                       </div>
                       <button
                         onClick={() => handleFetchMetadata(redditUrl)}
                         disabled={loadingMetadata || !redditUrl}
-                        className="h-14 shrink-0 rounded-full bg-gradient-to-r from-[#161616] to-[#2a2a2a] px-8 text-[14px] font-extrabold text-white transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
+                        className="h-14 shrink-0 rounded-full bg-gradient-to-r from-[var(--ink-solid)] to-[var(--ink-solid-2)] px-8 text-[14px] font-extrabold text-white transition-all disabled:opacity-50 disabled:scale-100 flex items-center justify-center gap-2 shadow-sm hover:shadow-md hover:scale-[1.02] active:scale-[0.98]"
                       >
                         {loadingMetadata ? (
                           <>
@@ -327,12 +327,12 @@ function LaunchContent() {
                     </div>
                   )}
 
-                  <div className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-6">
+                  <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-6">
                     <div className="flex items-center gap-2 mb-3">
                       <Info className="h-5 w-5 text-[#FF6B1A]" />
-                      <h3 className="font-black text-[#161616]">Guidelines</h3>
+                      <h3 className="font-black text-[var(--text-primary)]">Guidelines</h3>
                     </div>
-                    <ul className="list-disc pl-5 flex flex-col gap-2 text-[14px] font-medium text-[#5F5B57]">
+                    <ul className="list-disc pl-5 flex flex-col gap-2 text-[14px] font-medium text-[var(--text-secondary)]">
                       <li>Must be a public post (not deleted, archived, or locked).</li>
                       <li>Post content will be moderated for hate speech and doxxing.</li>
                       <li>Duplicate launches for the same post are blocked by the smart contract factory.</li>
@@ -346,84 +346,84 @@ function LaunchContent() {
                 <form onSubmit={handleLaunchMarket} className="flex flex-col gap-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
                   
                   {/* Post Preview box */}
-                  <div className="rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-sm relative overflow-hidden">
+                  <div className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-sm relative overflow-hidden">
                     <div className="absolute top-0 left-0 w-1 h-full bg-[#FF6B1A]" />
                     <div className="flex items-center gap-2 mb-3">
-                      <span className="rounded-full bg-[#FFF4EA] px-2.5 py-1 text-[11px] font-black text-[#FF6B1A] uppercase tracking-wider">
+                      <span className="rounded-full bg-[var(--tint-orange)] px-2.5 py-1 text-[11px] font-black text-[#FF6B1A] uppercase tracking-wider">
                         {redditPost.subreddit}
                       </span>
-                      <span className="text-xs font-bold text-[#8A817A]">
+                      <span className="text-xs font-bold text-[var(--text-muted)]">
                         Posted by {redditPost.author}
                       </span>
                     </div>
-                    <h3 className="text-xl font-black text-[#161616] leading-snug mb-3">
+                    <h3 className="text-xl font-black text-[var(--text-primary)] leading-snug mb-3">
                       {redditPost.title}
                     </h3>
-                    <div className="flex items-center gap-4 text-xs font-extrabold text-[#5F5B57]">
+                    <div className="flex items-center gap-4 text-xs font-extrabold text-[var(--text-secondary)]">
                       <span className="flex items-center gap-1.5">
                         <Flame className="h-4 w-4 text-[#FF6B1A]" /> {redditPost.upvotes} Upvotes
                       </span>
                       <span className="flex items-center gap-1.5">
-                        <MessageSquare className="h-4 w-4 text-[#8A817A]" /> {redditPost.comments} Comments
+                        <MessageSquare className="h-4 w-4 text-[var(--text-muted)]" /> {redditPost.comments} Comments
                       </span>
                     </div>
                   </div>
 
                   {/* Token Customizations */}
                   <div className="flex flex-col gap-5">
-                    <h3 className="text-lg font-black text-[#161616]">Market Configuration</h3>
+                    <h3 className="text-lg font-black text-[var(--text-primary)]">Market Configuration</h3>
                     
                     <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                       <div>
-                        <label className="block text-xs font-bold text-[#161616] mb-2">Token Name</label>
+                        <label className="block text-xs font-bold text-[var(--text-primary)] mb-2">Token Name</label>
                         <input
                           type="text"
                           value={tokenName}
                           onChange={(e) => setTokenName(e.target.value)}
-                          className="w-full h-12 rounded-xl border border-[#F2D8C8] bg-[#FFFAF5] px-4 text-sm font-bold text-[#161616] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors"
+                          className="w-full h-12 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 text-sm font-bold text-[var(--text-primary)] focus:border-[#FF6B1A] focus:bg-[var(--surface-primary)] focus:outline-none transition-colors"
                         />
                       </div>
                       <div>
-                        <label className="block text-xs font-bold text-[#161616] mb-2">Token Ticker / Symbol</label>
+                        <label className="block text-xs font-bold text-[var(--text-primary)] mb-2">Token Ticker / Symbol</label>
                         <div className="relative">
-                          <span className="absolute left-4 top-[14px] text-sm font-black text-[#8A817A]">$</span>
+                          <span className="absolute left-4 top-[14px] text-sm font-black text-[var(--text-muted)]">$</span>
                           <input
                             type="text"
                             value={tokenSymbol}
                             onChange={(e) => setTokenSymbol(e.target.value)}
-                            className="w-full h-12 rounded-xl border border-[#F2D8C8] bg-[#FFFAF5] pl-8 pr-4 text-sm font-bold text-[#161616] uppercase focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors"
+                            className="w-full h-12 rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] pl-8 pr-4 text-sm font-bold text-[var(--text-primary)] uppercase focus:border-[#FF6B1A] focus:bg-[var(--surface-primary)] focus:outline-none transition-colors"
                           />
                         </div>
                       </div>
                     </div>
 
                     <div>
-                      <label className="block text-xs font-bold text-[#161616] mb-2">Suggested Description</label>
+                      <label className="block text-xs font-bold text-[var(--text-primary)] mb-2">Suggested Description</label>
                       <textarea
                         value={tokenDesc}
                         onChange={(e) => setTokenDesc(e.target.value)}
                         rows={3}
-                        className="w-full rounded-xl border border-[#F2D8C8] bg-[#FFFAF5] p-4 text-sm font-medium text-[#161616] focus:border-[#FF6B1A] focus:bg-white focus:outline-none transition-colors resize-none"
+                        className="w-full rounded-xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-4 text-sm font-medium text-[var(--text-primary)] focus:border-[#FF6B1A] focus:bg-[var(--surface-primary)] focus:outline-none transition-colors resize-none"
                       />
                     </div>
                   </div>
 
                   {/* Disclosures & Terms check */}
-                  <div className="rounded-[20px] border border-[#F2D8C8] bg-[#FFF4EA] p-5 flex gap-4 text-left items-start">
+                  <div className="rounded-[20px] border border-[var(--border-subtle)] bg-[var(--tint-orange)] p-5 flex gap-4 text-left items-start">
                     <div className="pt-0.5">
                       <input
                         type="checkbox"
                         id="disclaimer-check"
                         checked={acceptedDisclaimer}
                         onChange={(e) => setAcceptedDisclaimer(e.target.checked)}
-                        className="h-5 w-5 rounded border-[#F2D8C8] text-[#FF6B1A] focus:ring-[#FF6B1A]/20 cursor-pointer"
+                        className="h-5 w-5 rounded border-[var(--border-subtle)] text-[#FF6B1A] focus:ring-[#FF6B1A]/20 cursor-pointer"
                       />
                     </div>
                     <label htmlFor="disclaimer-check" className="cursor-pointer">
                       <span className="text-sm font-black text-[#FF6B1A] block mb-1 flex items-center gap-1.5">
                         <ShieldAlert className="h-4 w-4" /> Speculative Risk Agreement
                       </span>
-                      <span className="text-[13px] font-medium text-[#5F5B57] leading-relaxed block">
+                      <span className="text-[13px] font-medium text-[var(--text-secondary)] leading-relaxed block">
                         I acknowledge that this market is launched purely for public speculative purposes around attention momentum. It does not represent copyright, license, endorsement, or partnership with Reddit, Inc. or the author. I accept all smart contract fees and risks.
                       </span>
                     </label>
@@ -436,11 +436,11 @@ function LaunchContent() {
                     </div>
                   )}
 
-                  <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[#F2D8C8]">
+                  <div className="flex flex-col sm:flex-row gap-4 pt-4 border-t border-[var(--border-subtle)]">
                     <button
                       type="button"
                       onClick={() => setRedditPost(null)}
-                      className="h-14 sm:w-32 rounded-full border border-[#F2D8C8] bg-white text-[15px] font-extrabold text-[#5F5B57] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
+                      className="h-14 sm:w-32 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[15px] font-extrabold text-[var(--text-secondary)] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
                     >
                       Back
                     </button>
@@ -474,7 +474,7 @@ function LaunchContent() {
 export default function Launch() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFCF8] text-[#FF6B1A]">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface-tertiary)] text-[#FF6B1A]">
         <Loader2 className="animate-spin h-8 w-8" />
       </div>
     }>

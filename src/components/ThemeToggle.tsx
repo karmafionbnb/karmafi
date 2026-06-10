@@ -20,19 +20,16 @@ export default function ThemeToggle() {
 
   const toggleTheme = () => {
     const root = document.documentElement;
-    if (isDark) {
-      root.classList.remove("dark");
-      setIsDark(false);
-    } else {
-      root.classList.add("dark");
-      setIsDark(true);
-    }
+    const next = !isDark;
+    root.classList.toggle("dark", next);
+    localStorage.setItem("karmafi-theme", next ? "dark" : "light");
+    setIsDark(next);
   };
 
   return (
     <button
       onClick={toggleTheme}
-      className="flex h-10 w-10 items-center justify-center rounded-xl border border-brand-border bg-brand-surface text-brand-secondary hover:bg-brand-peach hover:text-brand-orange transition-colors"
+      className="flex h-9 w-9 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-muted)] hover:bg-[var(--surface-peach)] hover:text-[#FF6B1A] transition-colors"
       aria-label="Toggle Theme"
     >
       {isDark ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}

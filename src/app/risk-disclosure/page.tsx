@@ -7,7 +7,7 @@ export default function RiskDisclosure() {
     <div className="min-h-screen flex flex-col bg-brand-bg">
       <Navbar />
       <main className="mx-auto max-w-4xl px-4 sm:px-6 lg:px-8 py-12 flex-1">
-        <div className="rounded-3xl border border-brand-border bg-white p-8 shadow-sm text-xs text-brand-muted leading-relaxed flex flex-col gap-6">
+        <div className="rounded-3xl border border-brand-border bg-[var(--surface-primary)] p-8 shadow-sm text-xs text-brand-muted leading-relaxed flex flex-col gap-6">
           <h1 className="text-2xl font-extrabold text-brand-charcoal">Risk Disclosure</h1>
           <p className="text-sm font-semibold text-brand-charcoal">Last Updated: June 2, 2026</p>
 

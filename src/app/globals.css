@@ -1,31 +1,81 @@
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&display=swap');
+@import "tailwindcss";
+
+/* Class-based dark mode: .dark on <html> activates the dark: variant. */
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme inline {
+  --color-brand-bg: var(--page-shell);
+  --color-brand-shell: var(--page-shell);
+  --color-brand-surface: var(--surface-primary);
+  --color-brand-surface-secondary: var(--surface-secondary);
+  --color-brand-peach: var(--surface-peach);
+  --color-brand-orange: var(--primary-orange);
+  --color-brand-deep-orange: var(--primary-orange-dark);
+  --color-brand-bnb: var(--bnb-yellow);
+  --color-brand-charcoal: var(--text-primary);
+  --color-brand-muted: var(--text-muted);
+  --color-brand-secondary: var(--text-secondary);
+  --color-brand-border: var(--border-warm);
+  --color-brand-success: var(--accent-green);
+  --color-brand-cyan: var(--accent-cyan);
+  --color-brand-purple: var(--accent-purple);
+  --color-brand-error: var(--danger-red);
+  --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  --shadow-premium: 0 20px 40px -10px rgba(0, 0, 0, 0.05), 0 0 20px rgba(255, 107, 26, 0.05);
+}
 
 *, *::before, *::after {
   box-sizing: border-box;
-  margin: 0;
-  padding: 0;
 }
 
 :root {
+  color-scheme: light;
+
   /* Outer Background */
   --bg-outer-left: #40c4ff;
   --bg-outer-right: #ff8a65;
-  
+
   /* Shell & Surfaces */
   --page-shell: #FFFFFF;
   --surface-primary: #FFFFFF;
   --surface-secondary: #FFFAF5;
+  --surface-tertiary: #FFFDFB;
   --surface-peach: #FFF1ED;
-  
+  --tint-orange: #FFF4EA;
+
+  /* Solid ink (dark buttons / dark panels that keep light text) */
+  --ink-solid: #161616;
+  --ink-solid-2: #2a2a2a;
+  --ink-solid-hover: #2c2c2c;
+
   /* Borders */
   --border-warm: #F7C8BD;
   --border-subtle: #F2D8C8;
-  
+  --border-strong: #E8D4C8;
+  --border-soft: #F1DDD0;
+  --border-mid: #D1C3B8;
+
   /* Typography */
   --text-primary: #161616;
   --text-secondary: #5F5B57;
   --text-muted: #8A817A;
-  
+
+  /* Status tints + deep status text */
+  --tint-success: #E5F9F1;
+  --tint-success-strong: #C1F0DB;
+  --tint-success-2: #F0FDF4;
+  --tint-success-border: #BBF7D0;
+  --text-success-deep: #0E7A4F;
+  --text-success-mid: #15803D;
+  --tint-danger: #FFEBEB;
+  --tint-info: #F0F9FF;
+  --tint-info-border: #BAE6FD;
+  --text-info: #0369A1;
+  --text-info-bright: #0284C7;
+  --text-gold: #D49E1F;
+  --text-gold-2: #D89F12;
+
   /* Brand Accents */
   --primary-orange: #FF6B1A;
   --primary-orange-dark: #E9500E;
@@ -34,28 +84,61 @@
   --accent-green: #19C37D;
   --accent-purple: #9B7CFF;
   --danger-red: #EF4444;
+
+  /* Chrome */
+  --scrollbar-track: #FAFAF7;
+  --scrollbar-thumb: #EFE7DF;
+  --glass-bg: rgba(255, 255, 255, 0.7);
+  --glass-border: #EFE7DF;
 }
 
 .dark {
+  color-scheme: dark;
+
   /* Outer Background */
   --bg-outer-left: #111827;
   --bg-outer-right: #431407;
-  
+
   /* Shell & Surfaces */
-  --page-shell: #121015;
-  --surface-primary: #18141F;
-  --surface-secondary: #211827;
-  --surface-peach: #2C1A16;
-  
+  --page-shell: #131016;
+  --surface-primary: #1C1722;
+  --surface-secondary: #211B28;
+  --surface-tertiary: #1E1924;
+  --surface-peach: #2B1B15;
+  --tint-orange: #2E2014;
+
+  /* Solid ink — stays dark so hardcoded light text on it remains legible */
+  --ink-solid: #2E2836;
+  --ink-solid-2: #3A3344;
+  --ink-solid-hover: #3A3344;
+
   /* Borders */
-  --border-warm: rgba(255,107,26,0.15);
-  --border-subtle: rgba(255,255,255,0.05);
-  
+  --border-warm: rgba(255, 122, 26, 0.25);
+  --border-subtle: #2F2735;
+  --border-strong: #3A3142;
+  --border-soft: #2B2431;
+  --border-mid: #443A4D;
+
   /* Typography */
-  --text-primary: #FAFAF7;
-  --text-secondary: #D8D1CC;
-  --text-muted: #9F9690;
-  
+  --text-primary: #F4EFEA;
+  --text-secondary: #C8C0B9;
+  --text-muted: #978E87;
+
+  /* Status tints + deep status text */
+  --tint-success: #122B20;
+  --tint-success-strong: #1C4734;
+  --tint-success-2: #122B20;
+  --tint-success-border: #1C4734;
+  --text-success-deep: #3FD68F;
+  --text-success-mid: #36CE85;
+  --tint-danger: #321A1C;
+  --tint-info: #102331;
+  --tint-info-border: #1D3C55;
+  --text-info: #6FBDF2;
+  --text-info-bright: #5FB6F2;
+  --text-gold: #E9B637;
+  --text-gold-2: #E4B02C;
+
   /* Brand Accents */
   --primary-orange: #FF7A1A;
   --primary-orange-dark: #E9500E;
@@ -64,34 +147,47 @@
   --accent-green: #19C37D;
   --accent-purple: #9B7CFF;
   --danger-red: #F87171;
+
+  /* Chrome */
+  --scrollbar-track: #1A1520;
+  --scrollbar-thumb: #352D3D;
+  --glass-bg: rgba(28, 23, 34, 0.7);
+  --glass-border: #2F2735;
 }
 
 html, body {
   height: 100%;
 }
 
+html {
+  /* Keep native form controls / scrollbars matched to the active theme. */
+  background: var(--page-shell);
+}
+
 body {
-  background: #FFFFFF;
+  margin: 0;
+  background: var(--page-shell);
   color: var(--text-primary);
   font-family: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   overflow-x: hidden;
   line-height: 1.6;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
 }
 
 /* Custom Premium UI scrollbar */
 ::-webkit-scrollbar { width: 6px; height: 6px; }
-::-webkit-scrollbar-track { background: #FAFAF7; }
-::-webkit-scrollbar-thumb { background: #EFE7DF; border-radius: 9999px; }
-::-webkit-scrollbar-thumb:hover { background: #FF6B1A; }
+::-webkit-scrollbar-track { background: var(--scrollbar-track); }
+::-webkit-scrollbar-thumb { background: var(--scrollbar-thumb); border-radius: 9999px; }
+::-webkit-scrollbar-thumb:hover { background: var(--primary-orange); }
 
 /* Glassmorphism helpers */
 .glass-container {
-  background: rgba(255, 255, 255, 0.7);
+  background: var(--glass-bg);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border: 1px solid #EFE7DF;
+  border: 1px solid var(--glass-border);
 }
 
 .glow-orange { box-shadow: 0 0 20px rgba(255, 107, 26, 0.15); }
@@ -110,6 +206,17 @@ body {
 .animate-bounce { animation: bounce 1s infinite; }
 .animate-pulse  { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-spin   { animation: spin 1s linear infinite; }
+
+/* Entrance animation utilities (used across modals/toasts) */
+@keyframes kf-enter {
+  from { opacity: var(--kf-enter-opacity, 1); transform: translate3d(var(--kf-enter-x, 0), var(--kf-enter-y, 0), 0) scale(var(--kf-enter-scale, 1)); }
+}
+.animate-in { animation: kf-enter 0.2s ease-out both; }
+.fade-in { --kf-enter-opacity: 0; }
+.slide-in-from-top-2 { --kf-enter-y: -0.5rem; }
+.slide-in-from-bottom-2 { --kf-enter-y: 0.5rem; }
+.slide-in-from-bottom-4 { --kf-enter-y: 1rem; }
+.zoom-in-95 { --kf-enter-scale: 0.95; }
 
 /* line-clamp */
 .line-clamp-2 {

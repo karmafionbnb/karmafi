@@ -51,7 +51,7 @@ export default function TermsPage() {
               This page is a draft template for product launch preparation and should be reviewed by qualified legal counsel before production use.
             </LegalNoticeBox>
             
-            <p className="text-[14px] text-[#8A817A] italic mb-10">Last updated: {currentDate}</p>
+            <p className="text-[14px] text-[var(--text-muted)] italic mb-10">Last updated: {currentDate}</p>
 
             <PageSection id="acceptance" title="1. Acceptance of Terms">
               <p>By accessing or using KarmaFi, users agree to be bound by these Terms of Service. If you do not agree to these terms, you may not use the platform.</p>

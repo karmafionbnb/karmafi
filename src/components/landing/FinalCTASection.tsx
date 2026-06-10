@@ -6,7 +6,7 @@ import FadeIn from "@/components/ui/FadeIn";
 
 export default function FinalCTASection() {
   return (
-    <section className="w-full bg-[#FFFDFB] py-12">
+    <section className="w-full bg-[var(--surface-tertiary)] py-12">
       <div className="mx-auto max-w-[1200px] px-6">
         
         <FadeIn delay={0.1}>
@@ -28,7 +28,7 @@ export default function FinalCTASection() {
               
               <div className="mb-5 relative">
                 <div className="absolute inset-0 bg-white/30 blur-xl rounded-full" />
-                <Logo className="relative h-12 w-12 rounded-2xl shadow-2xl bg-white p-1.5 border border-white/50" />
+                <Logo className="relative h-12 w-12 rounded-2xl shadow-2xl bg-[var(--surface-primary)] p-1.5 border border-white/50" />
               </div>
               
               <h2 className="text-[28px] md:text-[36px] font-black tracking-tight text-white mb-3 leading-tight max-w-[800px]">
@@ -42,7 +42,7 @@ export default function FinalCTASection() {
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 w-full sm:w-auto">
                 <Link
                   href="/launch"
-                  className="w-full sm:w-auto flex h-[52px] items-center justify-center rounded-full bg-white px-8 text-[15.5px] font-black text-[#E9500E] shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] hover:scale-[1.03] active:scale-[0.98] transition-all"
+                  className="w-full sm:w-auto flex h-[52px] items-center justify-center rounded-full bg-[var(--surface-primary)] px-8 text-[15.5px] font-black text-[#E9500E] shadow-[0_8px_20px_rgba(0,0,0,0.15)] hover:shadow-[0_12px_24px_rgba(0,0,0,0.2)] hover:scale-[1.03] active:scale-[0.98] transition-all"
                 >
                   Launch a Karma Market
                 </Link>

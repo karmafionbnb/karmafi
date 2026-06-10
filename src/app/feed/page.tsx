@@ -5,10 +5,9 @@ import { useSearchParams, useRouter } from "next/navigation";
 import Link from "next/link";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { 
-  Flame, Compass, MessageSquare, ExternalLink, ShieldCheck, 
-  ChevronUp, ChevronDown, Award, TrendingUp, RefreshCw, Eye, Search,
-  Zap, Clock, ListFilter, Activity, ChevronRight, BarChart3, LineChart, Plus, ArrowRight
+import {
+  Flame, ShieldCheck, ChevronDown, Award, TrendingUp, RefreshCw, Search,
+  ArrowRight
 } from "lucide-react";
 import { useWallet } from "@/context/wallet";
 import { parseEther, formatEther } from "viem";
@@ -62,7 +61,7 @@ function FeedContent() {
     curators: 0,
     creatorVaultBnb: 0,
     holders: 0,
-    rising: [] as { symbol: string; virality: number }[],
+    rising: [] as { symbol: string; virality: number; marketAddress: string }[],
     topCurators: [] as { wallet: string; vol: number }[],
   });
 
@@ -116,7 +115,7 @@ function FeedContent() {
         rising: [...full]
           .sort((a, b) => (b.viralityScore || 0) - (a.viralityScore || 0))
           .slice(0, 5)
-          .map((m) => ({ symbol: m.symbol, virality: m.viralityScore || 0 })),
+          .map((m) => ({ symbol: m.symbol, virality: m.viralityScore || 0, marketAddress: m.marketAddress || "" })),
         topCurators: Object.entries(curatorVol)
           .sort((a, b) => b[1] - a[1])
           .slice(0, 5)
@@ -185,18 +184,18 @@ function FeedContent() {
   ];
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#FFFCF8]">
+    <div className="min-h-screen flex flex-col bg-[var(--surface-tertiary)]">
       <Navbar />
 
       {/* Page Header */}
-      <div className="bg-white border-b border-[#F2D8C8]">
+      <div className="bg-[var(--surface-primary)] border-b border-[var(--border-subtle)]">
         <div className="mx-auto max-w-[1320px] px-6 py-10 md:py-14">
           <div className="flex flex-col md:flex-row md:items-end justify-between gap-6">
             <div>
-              <h1 className="text-[40px] md:text-[48px] font-[900] text-[#161616] leading-tight tracking-tight">
+              <h1 className="text-[40px] md:text-[48px] font-[900] text-[var(--text-primary)] leading-tight tracking-tight">
                 Explore Karma Markets
               </h1>
-              <p className="mt-2 text-[16px] md:text-[18px] text-[#5F5B57] max-w-2xl font-medium">
+              <p className="mt-2 text-[16px] md:text-[18px] text-[var(--text-secondary)] max-w-2xl font-medium">
                 Discover live Reddit attention markets, track rising momentum, and trade social signals before the crowd arrives.
               </p>
             </div>
@@ -211,9 +210,9 @@ function FeedContent() {
                   value={quickUrl}
                   onChange={(e) => setQuickUrl(e.target.value)}
                   placeholder="Paste Reddit URL..."
-                  className="w-full h-12 rounded-full border border-[#F2D8C8] bg-[#FFFAF5] pl-4 pr-10 text-sm font-medium focus:border-[#FF6B1A] focus:outline-none placeholder:text-[#8A817A]"
+                  className="w-full h-12 rounded-full border border-[var(--border-subtle)] bg-[var(--surface-secondary)] pl-4 pr-10 text-sm font-medium focus:border-[#FF6B1A] focus:outline-none placeholder:text-[var(--text-muted)]"
                 />
-                <button type="submit" className="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-full bg-[#161616] text-white hover:bg-[#FF6B1A] transition-colors">
+                <button type="submit" className="absolute right-2 top-2 h-8 w-8 flex items-center justify-center rounded-full bg-[var(--ink-solid)] text-white hover:bg-[#FF6B1A] transition-colors">
                   <ArrowRight className="h-4 w-4" />
                 </button>
               </form>
@@ -228,21 +227,21 @@ function FeedContent() {
           
           {/* Header Stats Row */}
           <div className="mt-10 grid grid-cols-2 md:grid-cols-4 gap-4">
-            <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
-              <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Total Markets</div>
-              <div className="text-2xl font-black text-[#161616]">{summary.totalMarkets}</div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-5 shadow-sm">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Total Markets</div>
+              <div className="text-2xl font-black text-[var(--text-primary)]">{summary.totalMarkets}</div>
             </div>
-            <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
-              <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">24h Volume</div>
-              <div className="text-2xl font-black text-[#161616]">{usd(summary.volumeBnb)}</div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-5 shadow-sm">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">24h Volume</div>
+              <div className="text-2xl font-black text-[var(--text-primary)]">{usd(summary.volumeBnb)}</div>
             </div>
-            <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
-              <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Active Curators</div>
-              <div className="text-2xl font-black text-[#161616]">{summary.curators.toLocaleString()}</div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-5 shadow-sm">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Active Curators</div>
+              <div className="text-2xl font-black text-[var(--text-primary)]">{summary.curators.toLocaleString()}</div>
             </div>
-            <div className="rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] p-5 shadow-sm">
-              <div className="text-xs font-bold text-[#8A817A] uppercase tracking-wider mb-1">Creator Vault Paid</div>
-              <div className="text-2xl font-black text-[#161616]">{usd(summary.creatorVaultBnb)}</div>
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-5 shadow-sm">
+              <div className="text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider mb-1">Creator Vault Paid</div>
+              <div className="text-2xl font-black text-[var(--text-primary)]">{usd(summary.creatorVaultBnb)}</div>
             </div>
           </div>
         </div>
@@ -255,8 +254,8 @@ function FeedContent() {
           <aside className="hidden lg:flex lg:col-span-3 flex-col gap-6 sticky top-24 h-max">
             
             {/* Attention Categories */}
-            <div className="rounded-[22px] border border-[#F2D8C8] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-4">Attention Categories</h3>
+            <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Attention Categories</h3>
               <div className="flex flex-col gap-1.5">
                 {subreddits.map((sub, idx) => (
                   <button
@@ -264,8 +263,8 @@ function FeedContent() {
                     onClick={() => setSelectedSubreddit(sub.value)}
                     className={`flex items-center justify-between w-full text-left rounded-xl px-3 py-2.5 text-sm font-bold transition-colors ${
                       (selectedSubreddit === sub.value)
-                        ? "bg-[#FFF4EA] text-[#FF6B1A]"
-                        : "text-[#5F5B57] hover:bg-[#FFFAF5] hover:text-[#161616]"
+                        ? "bg-[var(--tint-orange)] text-[#FF6B1A]"
+                        : "text-[var(--text-secondary)] hover:bg-[var(--surface-secondary)] hover:text-[var(--text-primary)]"
                     }`}
                   >
                     <div className="flex items-center gap-2.5">
@@ -278,32 +277,32 @@ function FeedContent() {
             </div>
 
             {/* Market Filters */}
-            <div className="rounded-[22px] border border-[#F2D8C8] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-4">Filters</h3>
+            <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Filters</h3>
               <div className="flex flex-col gap-1.5">
                 {["Hot", "New", "Rising", "Top", "Creator Claimed", "High Volume", "BNB Ecosystem"].map((filter, i) => (
                   <label key={i} className="flex items-center gap-3 px-2 py-1.5 cursor-pointer group">
-                    <input type="checkbox" className="w-4 h-4 rounded border-[#F2D8C8] text-[#FF6B1A] focus:ring-[#FF6B1A]/20" />
-                    <span className="text-sm font-bold text-[#5F5B57] group-hover:text-[#161616] transition-colors">{filter}</span>
+                    <input type="checkbox" className="w-4 h-4 rounded border-[var(--border-subtle)] text-[#FF6B1A] focus:ring-[#FF6B1A]/20" />
+                    <span className="text-sm font-bold text-[var(--text-secondary)] group-hover:text-[var(--text-primary)] transition-colors">{filter}</span>
                   </label>
                 ))}
               </div>
             </div>
 
             {/* Ecosystem Stats */}
-            <div className="rounded-[22px] border border-[#F2D8C8] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-4">Ecosystem</h3>
+            <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4">Ecosystem</h3>
               <div className="flex flex-col gap-3 text-sm">
                 <div className="flex justify-between items-center">
-                  <span className="text-[#5F5B57] font-bold">BNB RPC Status</span>
-                  <span className="flex items-center gap-1.5 rounded-full bg-[#E5F9F1] px-2.5 py-1 text-[11px] font-extrabold text-[#19C37D]">
+                  <span className="text-[var(--text-secondary)] font-bold">BNB RPC Status</span>
+                  <span className="flex items-center gap-1.5 rounded-full bg-[var(--tint-success)] px-2.5 py-1 text-[11px] font-extrabold text-[#19C37D]">
                     <div className="h-1.5 w-1.5 rounded-full bg-[#19C37D] animate-pulse" />
                     Connected
                   </span>
                 </div>
                 <div className="flex justify-between items-center">
-                  <span className="text-[#5F5B57] font-bold">Active Holders</span>
-                  <span className="font-extrabold text-[#161616]">{summary.holders.toLocaleString()}</span>
+                  <span className="text-[var(--text-secondary)] font-bold">Active Holders</span>
+                  <span className="font-extrabold text-[var(--text-primary)]">{summary.holders.toLocaleString()}</span>
                 </div>
               </div>
             </div>
@@ -315,7 +314,7 @@ function FeedContent() {
             
             {/* Top Controls */}
             <div className="flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto bg-white rounded-full p-1 border border-[#F2D8C8] shadow-sm">
+              <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto bg-[var(--surface-primary)] rounded-full p-1 border border-[var(--border-subtle)] shadow-sm">
                 {["Hot", "New", "Rising", "Top"].map((tab) => {
                   const isActive = activeTab === tab.toLowerCase();
                   return (
@@ -325,7 +324,7 @@ function FeedContent() {
                       className={`rounded-full px-5 py-2 text-xs font-bold transition-all duration-200 ${
                         isActive
                           ? "bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] text-white shadow-sm"
-                          : "text-[#5F5B57] hover:text-[#161616] hover:bg-[#FFFAF5]"
+                          : "text-[var(--text-secondary)] hover:text-[var(--text-primary)] hover:bg-[var(--surface-secondary)]"
                       }`}
                     >
                       {tab}
@@ -341,22 +340,22 @@ function FeedContent() {
                     placeholder="Search markets..."
                     value={searchText}
                     onChange={(e) => setSearchText(e.target.value)}
-                    className="w-full rounded-full border border-[#F2D8C8] bg-white pl-10 pr-4 py-2.5 text-sm font-medium text-[#161616] placeholder:text-[#8A817A] focus:border-[#FF6B1A] focus:outline-none shadow-sm"
+                    className="w-full rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] pl-10 pr-4 py-2.5 text-sm font-medium text-[var(--text-primary)] placeholder:text-[var(--text-muted)] focus:border-[#FF6B1A] focus:outline-none shadow-sm"
                   />
-                  <Search className="absolute left-3.5 top-3 h-4 w-4 text-[#8A817A]" />
+                  <Search className="absolute left-3.5 top-3 h-4 w-4 text-[var(--text-muted)]" />
                 </div>
                 
                 <div className="relative shrink-0">
                   <select 
                     value={sortOption}
                     onChange={(e) => setSortOption(e.target.value)}
-                    className="appearance-none rounded-full border border-[#F2D8C8] bg-white pl-4 pr-10 py-2.5 text-sm font-bold text-[#161616] focus:border-[#FF6B1A] focus:outline-none shadow-sm cursor-pointer"
+                    className="appearance-none rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] pl-4 pr-10 py-2.5 text-sm font-bold text-[var(--text-primary)] focus:border-[#FF6B1A] focus:outline-none shadow-sm cursor-pointer"
                   >
                     <option value="volume">Volume</option>
                     <option value="virality">Virality</option>
                     <option value="marketCap">Market Cap</option>
                   </select>
-                  <ChevronDown className="absolute right-3.5 top-3.5 h-3.5 w-3.5 text-[#5F5B57] pointer-events-none" />
+                  <ChevronDown className="absolute right-3.5 top-3.5 h-3.5 w-3.5 text-[var(--text-secondary)] pointer-events-none" />
                 </div>
               </div>
             </div>
@@ -365,29 +364,51 @@ function FeedContent() {
             <div className="flex flex-col gap-5">
               {loading ? (
                 [1, 2, 3].map(i => (
-                  <div key={i} className="rounded-[24px] border border-[#F2D8C8] bg-[#FFFAF5] p-6 animate-pulse h-64" />
+                  <div key={i} className="rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-secondary)] p-6 animate-pulse h-64" />
                 ))
               ) : markets.length === 0 ? (
-                <div className="flex flex-col items-center justify-center rounded-[24px] border border-[#F2D8C8] bg-white py-20 px-6 text-center shadow-sm">
-                  <div className="h-16 w-16 mb-4 rounded-full bg-[#FFF4EA] flex items-center justify-center text-[#FF6B1A]">
-                    <Search className="h-8 w-8" />
-                  </div>
-                  <h3 className="text-xl font-black text-[#161616] mb-2">No live markets yet</h3>
-                  <p className="text-sm font-medium text-[#5F5B57] max-w-sm mb-8 leading-relaxed">
-                    Paste a Reddit post URL and launch the first Karma Market on BNB Chain to start trading attention.
-                  </p>
-                  <Link
-                    href="/launch"
-                    className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-8 text-sm font-extrabold text-white shadow-md hover:scale-[1.02] transition-transform"
-                  >
-                    Launch First Market
-                  </Link>
-                </div>
+                (() => {
+                  const isFiltered = !!searchText.trim() || !!selectedSubreddit;
+                  return (
+                    <div className="flex flex-col items-center justify-center rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] py-20 px-6 text-center shadow-sm">
+                      <div className="h-16 w-16 mb-4 rounded-full bg-[var(--tint-orange)] flex items-center justify-center text-[#FF6B1A]">
+                        <Search className="h-8 w-8" />
+                      </div>
+                      {isFiltered ? (
+                        <>
+                          <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">No markets match your filter</h3>
+                          <p className="text-sm font-medium text-[var(--text-secondary)] max-w-sm mb-8 leading-relaxed">
+                            Try clearing your search or selecting a different category.
+                          </p>
+                          <button
+                            onClick={() => { setSearchText(""); setSelectedSubreddit(null); }}
+                            className="flex h-12 items-center justify-center rounded-full border border-[var(--border-subtle)] bg-[var(--surface-primary)] px-8 text-sm font-extrabold text-[var(--text-primary)] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
+                          >
+                            Clear Filters
+                          </button>
+                        </>
+                      ) : (
+                        <>
+                          <h3 className="text-xl font-black text-[var(--text-primary)] mb-2">No live markets yet</h3>
+                          <p className="text-sm font-medium text-[var(--text-secondary)] max-w-sm mb-8 leading-relaxed">
+                            Paste a Reddit post URL and launch the first Karma Market on BNB Chain to start trading attention.
+                          </p>
+                          <Link
+                            href="/launch"
+                            className="flex h-12 items-center justify-center rounded-full bg-gradient-to-r from-[#FF6B1A] to-[#E9500E] px-8 text-sm font-extrabold text-white shadow-md hover:scale-[1.02] transition-transform"
+                          >
+                            Launch First Market
+                          </Link>
+                        </>
+                      )}
+                    </div>
+                  );
+                })()
               ) : (
                 markets.map((m) => (
                   <article
                     key={m.id}
-                    className="group relative rounded-[24px] border border-[#F2D8C8] bg-white p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(255,107,26,0.1)] hover:border-[#FF6B1A]/50 transition-all duration-300"
+                    className="group relative rounded-[24px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-[0_4px_20px_rgba(0,0,0,0.03)] hover:shadow-[0_12px_30px_rgba(255,107,26,0.1)] hover:border-[#FF6B1A]/50 transition-all duration-300"
                   >
                     {/* Top orange accent line */}
                     <div className="absolute top-0 left-8 right-8 h-[2px] bg-gradient-to-r from-transparent via-[#FF6B1A]/40 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
@@ -395,12 +416,12 @@ function FeedContent() {
                     {/* Top Row */}
                     <div className="flex items-start justify-between mb-4">
                       <div className="flex flex-wrap items-center gap-2">
-                        <span className="rounded-full bg-[#FFFAF5] border border-[#F2D8C8] px-3 py-1 text-xs font-black text-[#161616]">
+                        <span className="rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] px-3 py-1 text-xs font-black text-[var(--text-primary)]">
                           {m.subreddit}
                         </span>
-                        <span className="text-xs font-medium text-[#8A817A]">• {m.timeAgo}</span>
+                        <span className="text-xs font-medium text-[var(--text-muted)]">• {m.timeAgo}</span>
                       </div>
-                      <div className="flex items-center gap-1.5 rounded-full bg-[#FFF4EA] px-2.5 py-1 text-xs font-black text-[#FF6B1A]">
+                      <div className="flex items-center gap-1.5 rounded-full bg-[var(--tint-orange)] px-2.5 py-1 text-xs font-black text-[#FF6B1A]">
                         <Flame className="h-3.5 w-3.5" /> 
                         Virality {m.viralityScore}
                       </div>
@@ -409,42 +430,42 @@ function FeedContent() {
                     {/* Main Content */}
                     <div className="mb-5">
                       <Link href={`/market/${m.marketAddress}`} className="block">
-                        <h2 className="text-[20px] font-black text-[#161616] leading-snug mb-2 group-hover:text-[#FF6B1A] transition-colors">
+                        <h2 className="text-[20px] font-black text-[var(--text-primary)] leading-snug mb-2 group-hover:text-[#FF6B1A] transition-colors">
                           {m.title}
                         </h2>
                       </Link>
-                      <p className="text-sm font-medium text-[#5F5B57] leading-relaxed mb-3">
+                      <p className="text-sm font-medium text-[var(--text-secondary)] leading-relaxed mb-3">
                         {m.excerpt}
                       </p>
-                      <div className="flex items-center gap-4 text-xs font-bold text-[#8A817A]">
+                      <div className="flex items-center gap-4 text-xs font-bold text-[var(--text-muted)]">
                         <span className="flex items-center gap-1">
                           <span className="h-4 w-4 rounded-full bg-[#F3BA2F] flex items-center justify-center text-white text-[8px]">K</span>
-                          <span className="text-[#161616]">${m.symbol}</span>
+                          <span className="text-[var(--text-primary)]">${m.symbol}</span>
                         </span>
                         <span>Curated by <a href={explorerAddress(chainId, m.curatorWallet)} target="_blank" rel="noopener noreferrer" className="text-[#FF6B1A] hover:underline">{m.curatorWallet}</a></span>
                       </div>
                     </div>
 
                     {/* Stats Row */}
-                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4 border-t border-[#F2D8C8]">
+                    <div className="grid grid-cols-2 sm:grid-cols-5 gap-4 py-4 border-t border-[var(--border-subtle)]">
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Price</div>
-                        <div className="text-sm font-black text-[#161616]">{usd(m.priceBnb)}</div>
+                        <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Price</div>
+                        <div className="text-sm font-black text-[var(--text-primary)]">{usd(m.priceBnb)}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Market Cap</div>
-                        <div className="text-sm font-black text-[#161616]">{usd(m.marketCap)}</div>
+                        <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Market Cap</div>
+                        <div className="text-sm font-black text-[var(--text-primary)]">{usd(m.marketCap)}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">24h Volume</div>
-                        <div className="text-sm font-black text-[#161616]">{usd(m.volume24h)}</div>
+                        <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">24h Volume</div>
+                        <div className="text-sm font-black text-[var(--text-primary)]">{usd(m.volume24h)}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Holders</div>
-                        <div className="text-sm font-black text-[#161616]">{m.holders}</div>
+                        <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Holders</div>
+                        <div className="text-sm font-black text-[var(--text-primary)]">{m.holders}</div>
                       </div>
                       <div>
-                        <div className="text-[10px] uppercase font-bold text-[#8A817A] mb-1">Virality</div>
+                        <div className="text-[10px] uppercase font-bold text-[var(--text-muted)] mb-1">Virality</div>
                         <div className="text-sm font-black text-[#19C37D]">{m.viralityScore ?? 0}</div>
                       </div>
                     </div>
@@ -453,11 +474,11 @@ function FeedContent() {
                     <div className="flex items-center justify-between mt-2">
                       <div className="flex items-center gap-3">
                         {m.creatorClaimed ? (
-                          <span className="flex items-center gap-1.5 rounded-full bg-[#E5F9F1] px-2.5 py-1 text-[11px] font-extrabold text-[#19C37D]">
+                          <span className="flex items-center gap-1.5 rounded-full bg-[var(--tint-success)] px-2.5 py-1 text-[11px] font-extrabold text-[#19C37D]">
                             <ShieldCheck className="h-3.5 w-3.5" /> Creator Claimed
                           </span>
                         ) : (
-                          <span className="flex items-center gap-1.5 rounded-full bg-[#FFFAF5] border border-[#F2D8C8] px-2.5 py-1 text-[11px] font-extrabold text-[#8A817A]">
+                          <span className="flex items-center gap-1.5 rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] px-2.5 py-1 text-[11px] font-extrabold text-[var(--text-muted)]">
                             Creator Unclaimed
                           </span>
                         )}
@@ -472,13 +493,13 @@ function FeedContent() {
                       <div className="flex items-center gap-3">
                         <Link
                           href={`/market/${m.marketAddress}`}
-                          className="rounded-full bg-[#FFFAF5] border border-[#F2D8C8] px-4 py-2 text-xs font-bold text-[#5F5B57] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
+                          className="rounded-full bg-[var(--surface-secondary)] border border-[var(--border-subtle)] px-4 py-2 text-xs font-bold text-[var(--text-secondary)] hover:border-[#FF6B1A] hover:text-[#FF6B1A] transition-colors"
                         >
                           View
                         </Link>
                         <Link
                           href={`/market/${m.marketAddress}`}
-                          className="rounded-full bg-[#161616] px-5 py-2 text-xs font-extrabold text-white hover:bg-[#FF6B1A] transition-colors shadow-sm"
+                          className="rounded-full bg-[var(--ink-solid)] px-5 py-2 text-xs font-extrabold text-white hover:bg-[#FF6B1A] transition-colors shadow-sm"
                         >
                           Buy
                         </Link>
@@ -505,7 +526,7 @@ function FeedContent() {
                 </p>
                 <Link
                   href="/creator-claim"
-                  className="block w-full text-center rounded-xl bg-white py-2.5 text-sm font-extrabold text-[#FF6B1A] hover:bg-[#FFF4EA] transition-colors shadow-sm"
+                  className="block w-full text-center rounded-xl bg-[var(--surface-primary)] py-2.5 text-sm font-extrabold text-[#FF6B1A] hover:bg-[var(--tint-orange)] transition-colors shadow-sm"
                 >
                   Authenticate & Claim
                 </Link>
@@ -513,40 +534,40 @@ function FeedContent() {
             </div>
 
             {/* Rising Attention */}
-            <div className="rounded-[22px] border border-[#F2D8C8] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-4 flex items-center gap-2">
+            <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-2">
                 <TrendingUp className="h-3.5 w-3.5 text-[#FF6B1A]" /> Rising Attention
               </h3>
               <div className="flex flex-col gap-3">
                 {summary.rising.length === 0 && (
-                  <span className="text-xs text-[#8A817A]">No markets yet.</span>
+                  <span className="text-xs text-[var(--text-muted)]">No markets yet.</span>
                 )}
                 {summary.rising.map((item, i) => (
-                  <div key={i} className="flex items-center justify-between group cursor-pointer">
-                    <span className="text-sm font-bold text-[#161616] group-hover:text-[#FF6B1A] transition-colors">${item.symbol}</span>
+                  <Link key={i} href={item.marketAddress ? `/market/${item.marketAddress}` : "/feed"} className="flex items-center justify-between group">
+                    <span className="text-sm font-bold text-[var(--text-primary)] group-hover:text-[#FF6B1A] transition-colors">${item.symbol}</span>
                     <span className="text-xs font-black text-[#19C37D]">Virality {item.virality}</span>
-                  </div>
+                  </Link>
                 ))}
               </div>
             </div>
 
             {/* Top Curators */}
-            <div className="rounded-[22px] border border-[#F2D8C8] bg-white p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
-              <h3 className="text-xs font-bold uppercase tracking-wider text-[#8A817A] mb-4 flex items-center gap-2">
+            <div className="rounded-[22px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-5 shadow-[0_4px_20px_rgba(0,0,0,0.03)]">
+              <h3 className="text-xs font-bold uppercase tracking-wider text-[var(--text-muted)] mb-4 flex items-center gap-2">
                 <Award className="h-3.5 w-3.5 text-[#FF6B1A]" /> Top Curators
               </h3>
               <div className="flex flex-col gap-3">
                 {summary.topCurators.length === 0 && (
-                  <span className="text-xs text-[#8A817A]">No curators yet.</span>
+                  <span className="text-xs text-[var(--text-muted)]">No curators yet.</span>
                 )}
                 {summary.topCurators.map((curator, i) => (
                   <div key={i} className="flex items-center gap-3">
-                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[#FFF4EA] to-[#F2D8C8] flex items-center justify-center text-[10px] font-black text-[#FF6B1A]">
+                    <div className="h-7 w-7 rounded-full bg-gradient-to-br from-[var(--tint-orange)] to-[var(--border-subtle)] flex items-center justify-center text-[10px] font-black text-[#FF6B1A]">
                       {i + 1}
                     </div>
                     <div className="flex flex-col">
-                      <span className="text-sm font-bold text-[#161616] leading-tight font-mono">{curator.wallet.slice(0, 6)}…{curator.wallet.slice(-4)}</span>
-                      <span className="text-[10px] font-bold text-[#8A817A]">{usd(curator.vol)} Vol</span>
+                      <span className="text-sm font-bold text-[var(--text-primary)] leading-tight font-mono">{curator.wallet.slice(0, 6)}…{curator.wallet.slice(-4)}</span>
+                      <span className="text-[10px] font-bold text-[var(--text-muted)]">{usd(curator.vol)} Vol</span>
                     </div>
                   </div>
                 ))}
@@ -559,21 +580,21 @@ function FeedContent() {
 
       {/* Quick Swap Dialog Modal */}
       {swapMarket && (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[#161616]/40 backdrop-blur-sm p-4">
-          <div className="w-full max-w-md rounded-[28px] border border-[#F2D8C8] bg-white p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
-            <div className="flex items-center justify-between mb-4 border-b border-[#F2D8C8] pb-4">
-              <h3 className="text-lg font-black text-[#161616]">Buy Attention Tokens</h3>
-              <button onClick={() => setSwapMarket(null)} className="h-8 w-8 rounded-full bg-[#FFFAF5] text-[#5F5B57] hover:bg-[#F2D8C8] hover:text-[#161616] font-bold flex items-center justify-center transition-colors">✕</button>
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-[var(--ink-solid)]/40 backdrop-blur-sm p-4">
+          <div className="w-full max-w-md rounded-[28px] border border-[var(--border-subtle)] bg-[var(--surface-primary)] p-6 shadow-2xl animate-in fade-in zoom-in-95 duration-200">
+            <div className="flex items-center justify-between mb-4 border-b border-[var(--border-subtle)] pb-4">
+              <h3 className="text-lg font-black text-[var(--text-primary)]">Buy Attention Tokens</h3>
+              <button onClick={() => setSwapMarket(null)} className="h-8 w-8 rounded-full bg-[var(--surface-secondary)] text-[var(--text-secondary)] hover:bg-[var(--border-subtle)] hover:text-[var(--text-primary)] font-bold flex items-center justify-center transition-colors">✕</button>
             </div>
             
             <form onSubmit={handleQuickSwap} className="flex flex-col gap-5">
               <div>
-                <span className="text-[10px] uppercase font-bold text-[#8A817A]">Target Post</span>
-                <p className="text-sm font-bold text-[#161616] truncate mt-1">{swapMarket.title}</p>
+                <span className="text-[10px] uppercase font-bold text-[var(--text-muted)]">Target Post</span>
+                <p className="text-sm font-bold text-[var(--text-primary)] truncate mt-1">{swapMarket.title}</p>
               </div>
 
               <div>
-                <label className="block text-xs font-bold text-[#161616] mb-2">Send Amount (BNB)</label>
+                <label className="block text-xs font-bold text-[var(--text-primary)] mb-2">Send Amount (BNB)</label>
                 <div className="relative">
                   <input
                     type="number"
@@ -581,20 +602,20 @@ function FeedContent() {
                     min="0.01"
                     value={swapAmount}
                     onChange={(e) => setSwapAmount(e.target.value)}
-                    className="w-full rounded-2xl border border-[#F2D8C8] bg-[#FFFAF5] px-4 py-3 text-base font-bold text-[#161616] focus:border-[#FF6B1A] focus:outline-none"
+                    className="w-full rounded-2xl border border-[var(--border-subtle)] bg-[var(--surface-secondary)] px-4 py-3 text-base font-bold text-[var(--text-primary)] focus:border-[#FF6B1A] focus:outline-none"
                   />
-                  <span className="absolute right-4 top-3.5 text-sm font-black text-[#5F5B57]">BNB</span>
+                  <span className="absolute right-4 top-3.5 text-sm font-black text-[var(--text-secondary)]">BNB</span>
                 </div>
               </div>
 
-              <div className="rounded-2xl bg-[#FFFAF5] p-4 border border-[#F2D8C8] text-sm leading-relaxed text-[#5F5B57]">
+              <div className="rounded-2xl bg-[var(--surface-secondary)] p-4 border border-[var(--border-subtle)] text-sm leading-relaxed text-[var(--text-secondary)]">
                 <div className="flex justify-between mb-2">
                   <span className="font-medium">Price per token:</span>
-                  <span className="font-black text-[#161616]">
+                  <span className="font-black text-[var(--text-primary)]">
                     {swapMarket.price} BNB
                   </span>
                 </div>
-                <div className="flex justify-between border-t border-[#F2D8C8] pt-2">
+                <div className="flex justify-between border-t border-[var(--border-subtle)] pt-2">
                   <span className="font-medium">Est. Tokens Received:</span>
                   <span className="font-black text-[#FF6B1A]">
                     {(parseFloat(swapAmount) / swapMarket.price).toFixed(2)} {swapMarket.symbol}
@@ -622,7 +643,7 @@ function FeedContent() {
 export default function Feed() {
   return (
     <Suspense fallback={
-      <div className="min-h-screen flex items-center justify-center bg-[#FFFCF8] text-[#FF6B1A]">
+      <div className="min-h-screen flex items-center justify-center bg-[var(--surface-tertiary)] text-[#FF6B1A]">
         <RefreshCw className="animate-spin h-8 w-8" />
       </div>
     }>

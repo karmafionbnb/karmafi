@@ -39,7 +39,7 @@ export default function DisclaimerPage() {
           <TableOfContents items={tocItems} />
 
           <div className="flex-1 max-w-[800px]">
-            <p className="text-[14px] text-[#8A817A] italic mb-10">Last updated: {currentDate}</p>
+            <p className="text-[14px] text-[var(--text-muted)] italic mb-10">Last updated: {currentDate}</p>
 
             <PageSection id="reddit-affiliation" title="1. No Reddit Affiliation">
               <p>KarmaFi is not affiliated with, endorsed by, sponsored by, or connected to Reddit. Any Reddit-related references are used exclusively to identify public post sources and social momentum metrics.</p>

@@ -74,25 +74,25 @@ export default function BNBChainPage() {
           </PageSection>
 
           <PageSection title="3. Network Status">
-            <div className="rounded-xl border border-[#E8D4C8] bg-white p-6 shadow-sm mt-6">
-              <ul className="space-y-4 m-0 p-0 list-none text-[15px] font-medium text-[#5F5B57]">
-                <li className="flex justify-between border-b border-[#F2D8C8] pb-4">
-                  <span className="text-[#8A817A]">Network</span>
-                  <span className="text-[#161616] font-bold">BNB Smart Chain / Testnet</span>
+            <div className="rounded-xl border border-[var(--border-strong)] bg-[var(--surface-primary)] p-6 shadow-sm mt-6">
+              <ul className="space-y-4 m-0 p-0 list-none text-[15px] font-medium text-[var(--text-secondary)]">
+                <li className="flex justify-between border-b border-[var(--border-subtle)] pb-4">
+                  <span className="text-[var(--text-muted)]">Network</span>
+                  <span className="text-[var(--text-primary)] font-bold">BNB Smart Chain / Testnet</span>
                 </li>
-                <li className="flex justify-between border-b border-[#F2D8C8] pb-4">
-                  <span className="text-[#8A817A]">Chain ID</span>
-                  <span className="text-[#161616] font-bold">Based on Environment</span>
+                <li className="flex justify-between border-b border-[var(--border-subtle)] pb-4">
+                  <span className="text-[var(--text-muted)]">Chain ID</span>
+                  <span className="text-[var(--text-primary)] font-bold">Based on Environment</span>
                 </li>
-                <li className="flex justify-between border-b border-[#F2D8C8] pb-4">
-                  <span className="text-[#8A817A]">RPC Status</span>
+                <li className="flex justify-between border-b border-[var(--border-subtle)] pb-4">
+                  <span className="text-[var(--text-muted)]">RPC Status</span>
                   <span className="text-[#19C37D] font-bold flex items-center gap-2">
                     <span className="h-2 w-2 rounded-full bg-[#19C37D]"></span> Connected
                   </span>
                 </li>
                 <li className="flex justify-between">
-                  <span className="text-[#8A817A]">Wallet Support</span>
-                  <span className="text-[#161616] font-bold text-right">MetaMask, Trust Wallet,<br/>WalletConnect</span>
+                  <span className="text-[var(--text-muted)]">Wallet Support</span>
+                  <span className="text-[var(--text-primary)] font-bold text-right">MetaMask, Trust Wallet,<br/>WalletConnect</span>
                 </li>
               </ul>
             </div>
@@ -111,7 +111,7 @@ export default function BNBChainPage() {
             </ul>
           </PageSection>
 
-          <div className="mt-12 text-center text-[13px] text-[#8A817A] italic border-t border-[#F2D8C8] pt-8">
+          <div className="mt-12 text-center text-[13px] text-[var(--text-muted)] italic border-t border-[var(--border-subtle)] pt-8">
             KarmaFi is independently built and is not endorsed by or officially affiliated with BNB Chain.
           </div>
         </div>

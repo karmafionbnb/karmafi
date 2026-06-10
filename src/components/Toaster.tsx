@@ -15,10 +15,10 @@ export default function Toaster() {
       {items.map((t) => {
         const styles =
           t.type === "success"
-            ? "border-[#19C37D]/30 bg-[#E5F9F1] text-[#0E7A4F]"
+            ? "border-[#19C37D]/30 bg-[var(--tint-success)] text-[var(--text-success-deep)]"
             : t.type === "error"
             ? "border-red-200 bg-red-50 text-red-700"
-            : "border-[#F2D8C8] bg-white text-[#161616]";
+            : "border-[var(--border-subtle)] bg-[var(--surface-primary)] text-[var(--text-primary)]";
         const Icon = t.type === "success" ? CheckCircle2 : t.type === "error" ? AlertTriangle : Info;
         return (
           <div

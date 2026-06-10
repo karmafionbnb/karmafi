@@ -42,7 +42,7 @@ export default function RiskDisclaimerPage() {
           <TableOfContents items={tocItems} />
 
           <div className="flex-1 max-w-[800px]">
-            <p className="text-[14px] text-[#8A817A] italic mb-10">Last updated: {currentDate}</p>
+            <p className="text-[14px] text-[var(--text-muted)] italic mb-10">Last updated: {currentDate}</p>
 
             <PageSection id="speculative" title="1. Speculative Market Risk">
               <p>Karma Markets may gain or lose value rapidly based on attention flows and trading activity. Tokens may become completely worthless. Never trade with funds you cannot afford to lose.</p>
@@ -84,7 +84,7 @@ export default function RiskDisclaimerPage() {
               <p>KarmaFi does not provide financial, legal, tax, or investment advice. The platform provides software tools for market creation and interaction.</p>
             </PageSection>
 
-            <div className="rounded-2xl border-2 border-[#E9500E]/20 bg-[#FFF1ED] p-6 mt-10">
+            <div className="rounded-2xl border-2 border-[#E9500E]/20 bg-[var(--surface-peach)] p-6 mt-10">
               <p className="text-[16px] font-bold text-[#E9500E] text-center m-0">
                 Warning: Use KarmaFi only if you fully understand and accept these risks.
               </p>
