@@ -106,6 +106,34 @@ export default function Hero() {
           </div>
         </FadeIn>
 
+        {/* Product Hunt Launch Badge */}
+        <FadeIn delay={0.45}>
+          <a
+            href="https://www.producthunt.com/products/karmafi?embed=true&utm_source=badge-featured&utm_medium=badge&utm_campaign=badge-karmafi"
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-8 inline-block transition-transform hover:scale-[1.02]"
+            aria-label="KarmaFi on Product Hunt"
+          >
+            {/* Light theme badge */}
+            <img
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1168009&theme=light&t=1781056829535"
+              alt="KarmaFi - Trade Reddit attention before it goes viral | Product Hunt"
+              width={250}
+              height={54}
+              className="block dark:hidden"
+            />
+            {/* Dark theme badge */}
+            <img
+              src="https://api.producthunt.com/widgets/embed-image/v1/featured.svg?post_id=1168009&theme=dark&t=1781056829535"
+              alt="KarmaFi - Trade Reddit attention before it goes viral | Product Hunt"
+              width={250}
+              height={54}
+              className="hidden dark:block"
+            />
+          </a>
+        </FadeIn>
+
         {/* 2-Column Trust Bullets */}
         <FadeIn delay={0.5}>
           <div className="flex flex-wrap justify-center gap-x-12 gap-y-3 text-[14px] font-bold text-[var(--text-secondary)] mb-8">
