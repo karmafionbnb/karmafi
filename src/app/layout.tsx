@@ -30,6 +30,11 @@ export const metadata: Metadata = {
     images: ["/logo.png"],
   },
   icons: { icon: "/logo.png", apple: "/logo.png" },
+  verification: {
+    other: {
+      "ory-verify": "orynth-6f7260ce6e044d02bc2a62ef444b2dac",
+    },
+  },
 };
 
 // Applies the saved (or system) theme before first paint to avoid a flash.
