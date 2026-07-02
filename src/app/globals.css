@@ -207,6 +207,23 @@ body {
 .animate-pulse  { animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
 .animate-spin   { animation: spin 1s linear infinite; }
 
+/* Multi-chain ecosystem micro-animations (Live pulse + Solana breathing glow) */
+@keyframes kf-live-pulse {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(25, 195, 125, 0.5); }
+  50%      { box-shadow: 0 0 0 4px rgba(25, 195, 125, 0); }
+}
+.live-pulse { animation: kf-live-pulse 2.4s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+
+@keyframes kf-sol-breathe {
+  0%, 100% { opacity: 0.35; transform: scale(0.94); }
+  50%      { opacity: 0.7;  transform: scale(1.06); }
+}
+.sol-breathe { animation: kf-sol-breathe 4s ease-in-out infinite; }
+
+@media (prefers-reduced-motion: reduce) {
+  .live-pulse, .sol-breathe { animation: none; }
+}
+
 /* Entrance animation utilities (used across modals/toasts) */
 @keyframes kf-enter {
   from { opacity: var(--kf-enter-opacity, 1); transform: translate3d(var(--kf-enter-x, 0), var(--kf-enter-y, 0), 0) scale(var(--kf-enter-scale, 1)); }

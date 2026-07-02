@@ -2,6 +2,8 @@ import React from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Hero from "@/components/landing/Hero";
+import ChainTrustBar from "@/components/landing/ChainTrustBar";
+import EcosystemSection from "@/components/landing/EcosystemSection";
 import ProtocolStatsStrip from "@/components/landing/ProtocolStatsStrip";
 import WhatIsKarmaFi from "@/components/landing/WhatIsKarmaFi";
 import HowItWorks from "@/components/landing/HowItWorks";
@@ -17,6 +19,10 @@ export default function Home() {
     <>
       <Navbar />
       <Hero />
+      <ChainTrustBar />
+      <FadeIn fullWidth delay={0.1}>
+        <EcosystemSection />
+      </FadeIn>
       <FadeIn fullWidth delay={0.1}>
         <WhatIsKarmaFi />
       </FadeIn>

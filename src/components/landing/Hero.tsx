@@ -2,6 +2,7 @@ import React from "react";
 import Link from "next/link";
 import { ArrowRight, TrendingUp, MessageSquare, CheckCircle2 } from "lucide-react";
 import ProductPreview from "./ProductPreview";
+import EcosystemRow from "./EcosystemRow";
 import FadeIn from "@/components/ui/FadeIn";
 
 export default function Hero() {
@@ -103,6 +104,13 @@ export default function Hero() {
             >
               Explore Markets
             </Link>
+          </div>
+        </FadeIn>
+
+        {/* Ecosystem row — Built on BNB Chain, Solana coming soon */}
+        <FadeIn delay={0.43}>
+          <div className="mb-7">
+            <EcosystemRow />
           </div>
         </FadeIn>
 

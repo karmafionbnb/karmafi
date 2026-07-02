@@ -17,7 +17,31 @@ export default function Footer() {
   return (
     <footer className="w-full bg-[var(--surface-secondary)] py-12 border-t border-[var(--border-subtle)]">
       <div className="mx-auto max-w-[1080px] px-6">
-        
+
+        {/* Expanding the Attention Layer */}
+        <div className="mb-12 flex flex-col items-start gap-4 border-b border-[var(--border-strong)] pb-10 md:flex-row md:items-center md:justify-between">
+          <div>
+            <h4 className="text-[15px] font-black tracking-tight text-[var(--text-primary)]">
+              Expanding the Attention Layer
+            </h4>
+            <p className="mt-1.5 text-[13.5px] font-medium leading-relaxed text-[var(--text-secondary)]">
+              Live on BNB Chain. Native Solana support coming soon. Future ecosystem expansion planned.
+            </p>
+          </div>
+          <div className="flex items-center gap-3">
+            <span className="flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] px-3.5 py-1.5 shadow-sm">
+              <img src="/brand/bnb-symbol.svg" alt="BNB Chain" className="h-4 w-4" />
+              <span className="text-[12.5px] font-extrabold text-[var(--text-primary)]">BNB Chain</span>
+              <span className="live-pulse h-1.5 w-1.5 rounded-full bg-[#19C37D]" aria-hidden="true" />
+            </span>
+            <span className="flex items-center gap-2 rounded-full border border-[var(--border-strong)] bg-[var(--surface-primary)] px-3.5 py-1.5 shadow-sm" style={{ opacity: 0.82 }}>
+              <img src="/brand/solana-logo.svg" alt="Solana" className="h-4 w-4" />
+              <span className="text-[12.5px] font-extrabold text-[var(--text-primary)]">Solana</span>
+              <span className="rounded-full bg-[var(--surface-peach)] px-2 py-0.5 text-[10px] font-black uppercase tracking-wide text-[#FF6B1A]">Soon</span>
+            </span>
+          </div>
+        </div>
+
         <div className="grid grid-cols-1 gap-12 md:grid-cols-4 md:gap-8">
           
           {/* Brand Column */}
